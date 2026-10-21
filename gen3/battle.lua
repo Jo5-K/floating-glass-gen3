@@ -146,10 +146,37 @@ return function(R)
     -- Dialogue is drawn separately with the native TextPrinter, limitChars and
     -- token scanner. Never use BattleAPI's complete line as revealed text.
     snap.message='';snap.dialogueActive=M and M.isOpen() and M._frame=='battle' or false
+    -- Read the same native text and translation hook as game3 battle/ui.lua.
+    -- Resolve on each snapshot so a translation change cannot leave stale labels.
+    local RomText=R.module('src.core.game3.rom_text')
+    local Strings=R.module('src.core.Strings')
+    local NativeTypes=R.module('src.core.game3.battle.types')
+    snap.labels={};snap.typeLabels={}
+    if RomText and RomText.ir then
+      local labels,buf={},{}
+      local function flush()
+        if #buf>0 then
+          local label=table.concat(buf)
+          labels[#labels+1]=Strings and Strings(label,'gText_BattleMenu') or label
+          buf={}
+        end
+      end
+      for _,seg in ipairs(RomText.ir('gText_BattleMenu')) do
+        if seg.t=='text' then buf[#buf+1]=seg.s
+        elseif seg.t=='tag' and seg.tag then buf[#buf+1]=seg.tag
+        elseif seg.t=='nl' or (seg.t=='ext' and seg.cmd==19) then flush() end
+      end
+      flush()
+      -- Overlay action IDs differ from native menu indices.
+      snap.labels={[2]=labels[3],[3]=labels[2],[4]=labels[4]}
+      snap.ppLabel=RomText.plain('gText_MoveInterfacePP')
+    end
     snap.moves={}
     for _,entry in ipairs(raw.moves or {}) do
       local copy={};for k,v in pairs(entry) do copy[k]=v end
-      copy.type=typeNames[tonumber(copy.type)] or copy.type
+      local nativeType=tonumber(copy.type)
+      copy.type=typeNames[nativeType] or copy.type
+      if NativeTypes and NativeTypes.name and nativeType then snap.typeLabels[copy.type]=NativeTypes.name(nativeType) end
       snap.moves[copy.slot or #snap.moves+1]=copy
     end
     local Anim=R.module('src.core.game3.battle.anim')

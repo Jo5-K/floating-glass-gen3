@@ -1,12 +1,2 @@
-/dist/
 __pycache__/
 *.pyc
-.env
-*.log
-*.gba
-*.gb
-*.gbc
-*.sav
-*.state
-/preview_frames/*
-!/preview_frames/.gitkeep

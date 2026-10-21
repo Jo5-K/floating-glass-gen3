@@ -182,7 +182,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
       l.rects={};l.settings=nil;V.motion={};return l
     end
     local cards=Model.cards(snapshot)
-    local names={[2]='Trocar Pokémon',[3]='Mochila',[4]='Fugir'}
+    local names=snapshot.labels or {}
     local colors={[2]={.22,.85,.73},[3]={.28,.34,1},[4]={1,.30,.42}}
     if options.nativePalette then colors={[2]={.63,.72,.38},[3]={.85,.78,.38},[4]={.64,.66,.38}} end
     
@@ -245,8 +245,8 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
           local tagW=math.min(100*k,r.w*.36)
           g.setColor(t.color[1]*.6,t.color[2]*.6,t.color[3]*.6,math.max(.3,alpha))
           g.rectangle('fill',tagX,tagY,tagW,17*k,8*k,8*k)
-          text(t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,ink)
-          text(tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' PP',tagX+tagW+12*k,tagY,r.w-180*k,12*k,ink)
+          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,ink)
+          text(tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),tagX+tagW+12*k,tagY,r.w-180*k,12*k,ink)
         end
         g.pop()
       end
@@ -266,7 +266,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
       panel(r,s,{1,.62,.49},false,.9)
       text(errorText,r.x+8*s,r.y+4*s,r.w-16*s,12*s,{1,.72,.62,1})
     else
-      text('← → golpes   ↑ Mochila   ↓ Trocar',l.x,l.y-22*s,l.w,11*s,{.80,.91,1,.92})
+      text('← →   ↑ '..(names[3] or '')..'   ↓ '..(names[2] or ''),l.x,l.y-22*s,l.w,11*s,{.80,.91,1,.92})
     end
     return l
   end
