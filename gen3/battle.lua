@@ -37,7 +37,7 @@ return function(R)
     {key='shadows',label='Sombras',values={'auto','enemies','both'},labels={'Auto: pela câmera','Inimigos','Ambos'}},
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
     {key='battle_skin',label='Visual da interface',values={'current','emerald_ivory'},labels={'Atual','Emerald Green & Ivory'}},
-    {key='settings_language',label='Idioma / Language',values={'pt-BR','en'},labels={'PT-BR','English'}},
+    {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
     {key='foreground',label='Primeiro plano',values={.65,0,1},labels={'65%','Desligado','100%'}},
   }
   local function settingIndex(row)
