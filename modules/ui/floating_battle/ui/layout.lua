@@ -52,9 +52,18 @@ function L.compute(w,h,style,factor,selected,options)
   local bag={x=x,y=y-78*s,w=220*s,h=54*s,kind='menu',index=3}
   local party={x=x,y=bottom+26*s,w=240*s,h=54*s,kind='menu',index=2}
   local run={x=options.position=='right' and pad or w-pad-220*s,y=h-pad-60*s,w=220*s,h=54*s,kind='menu',index=4}
-  add(bag);add(party);add(run)
+  local commandCenter
+  if options.classicButtons then
+    local gx=options.position=='right' and pad or w-pad-320*s
+    local gy=h-pad-92*s
+    local function command(index,col,row)
+      add({x=gx+col*170*s,y=gy+row*52*s,w=150*s,h=40*s,kind='menu',index=index,classic=true})
+    end
+    command(1,0,0);command(2,1,0);command(3,0,1);command(4,1,1)
+    commandCenter={x=gx+160*s,y=gy+46*s}
+  else add(bag);add(party);add(run) end
   local mw=math.min(w-pad*2,700*s)
-  return {style=style,scale=s,x=x,y=y,w=groupW,h=bottom-y,rects=rects,
+  return {commandCenter=commandCenter,style=style,scale=s,x=x,y=y,w=groupW,h=bottom-y,rects=rects,
     enemyHud=enemyHud,playerHud=playerHud,
     settings={x=options.position=='right' and pad or w-pad-190*s,y=pad,w=190*s,h=42*s,kind='settings'},
     message={x=(w-mw)/2,y=h-pad-100*s,w=mw,h=100*s},width=w,height=h}
@@ -70,6 +79,13 @@ function L.contains(r,x,y)
     local c,t=math.cos(r.angle),math.sin(r.angle)
     x,y=r.x+r.w/2+dx*c+dy*t,r.y+r.h/2-dx*t+dy*c
   end
+  if r.classic then
+    local cx=r.index==1 or r.index==3
+    local cy=r.index==1 or r.index==2
+    local dx=cx and r.x+r.w-x or x-r.x
+    local dy=cy and r.y+r.h-y or y-r.y
+    if dx+dy<r.h*.45 then return false end
+  end
   return x>=r.x and y>=r.y and x<=r.x+r.w and y<=r.y+r.h
 end
 function L.hit(layout,x,y)
@@ -77,7 +93,7 @@ function L.hit(layout,x,y)
   if L.contains(layout.settings,x,y) then return layout.settings end
   for i=#layout.rects,1,-1 do
     local r=layout.rects[i]
-    if r.kind=='menu' then
+    if r.kind=='menu' and not r.classic then
       local b=L.actionBadge(r,layout.scale)
       if (x-b.x-b.d/2)^2+(y-b.y-b.d/2)^2<=(b.d/2)^2 then return r end
     end

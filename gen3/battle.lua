@@ -9,7 +9,8 @@ return function(R)
     assets={image=function(_,path) return R.mod.assets:image(path) end},
   })
   local Skin=R.load('gen3/emerald_ivory.lua')()
-  local View=part('ui/view.lua')(Types,Model,Layout,part('ui/icons.lua'),Art,part('ui/status.lua'),R.theme,Skin)
+  local Classic=R.load('gen3/classic_buttons.lua')()
+  local View=part('ui/view.lua')(Types,Model,Layout,part('ui/icons.lua'),Art,part('ui/status.lua'),R.theme,Skin,Classic)
   local API=require('src.battle.game3.BattleAPI')
   local Anchors=R.load('gen3/anchors.lua')(R)
   local B={anchors=Anchors,failed=false,serial=0,scene=false,registerType=Types.register}
@@ -36,7 +37,7 @@ return function(R)
     {key='battle_camera',label='Câmera',values={'native','current','g9_compat','native_depth'},labels={'Nativa','Original','Compatibilidade G9/HD','Primeiro plano'}},
     {key='shadows',label='Sombras',values={'auto','enemies','both'},labels={'Auto: pela câmera','Inimigos','Ambos'}},
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
-    {key='battle_skin',label='Visual da interface',values={'current','emerald_ivory'},labels={'Atual','Emerald Green & Ivory'}},
+    {key='battle_skin',label='Visual da interface',values={'current','emerald_ivory','classic'},labels={'Atual','Emerald Green & Ivory','Clássico colorido'}},
     {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
     {key='foreground',label='Primeiro plano',values={.65,0,1},labels={'65%','Desligado','100%'}},
   }
@@ -51,7 +52,7 @@ return function(R)
     return R.setOption(row.key,row.values[i])
   end
   local function presentation()
-    return {emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',style=settings[1].values[settingIndex(settings[1])],
+    return {classicButtons=R.option('battle_skin','current')=='classic',emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',style=settings[1].values[settingIndex(settings[1])],
       opacity=settings[2].values[settingIndex(settings[2])],
       scale=settings[3].values[settingIndex(settings[3])],position=settings[4].values[settingIndex(settings[4])]}
   end
@@ -173,7 +174,7 @@ return function(R)
       end
       flush()
       -- Overlay action IDs differ from native menu indices.
-      snap.labels={[2]=labels[3],[3]=labels[2],[4]=labels[4]}
+      snap.labels={[1]=labels[1],[2]=labels[3],[3]=labels[2],[4]=labels[4]}
       snap.ppLabel=RomText.plain('gText_MoveInterfacePP')
     end
     snap.moves={}
@@ -354,6 +355,15 @@ return function(R)
       local hit=Layout.hit(B.layout,x,y)
       if not hit then return false end
       if hit.kind=='settings' then B.settingsOpen=true;B.settingsIndex=1;B.drawStamp=nil;return true end
+      if hit.kind=='menu' and hit.index==1 then
+        local _,_,U=B.context()
+        if U._mode=='menu' then
+          local ok,err=submit('menu',{choice='fight'})
+          if not ok then rec.error=err;return false end
+        end
+        rec.focus=rec.lastMove or 1;rec.error=nil;sync(rec);B.drawStamp=nil
+        return true -- Fight opens native move selection; it never submits a move.
+      end
       if hit.kind=='move' and rec.focus~=hit.index then
         rec.focus=hit.index;sync(rec);B.drawStamp=nil;return true
       end

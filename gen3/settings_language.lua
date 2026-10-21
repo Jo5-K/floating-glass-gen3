@@ -2,6 +2,7 @@
 return function(R)
  local languages={
   ["en"]={
+   ["Clássico colorido"]="Classic colors",
    ["Visual da interface"]="Interface style",
    ["Atual"]="Current",
    ["Golpes"]="Moves",
@@ -73,6 +74,7 @@ return function(R)
    ["Interior"]="Interior",
   },
   ["fr"]={
+   ["Clássico colorido"]="Couleurs classiques",
    ["Visual da interface"]="Style de l’interface",
    ["Atual"]="Actuel",
    ["Golpes"]="Capacités",
@@ -144,6 +146,7 @@ return function(R)
    ["Interior"]="Intérieur",
   },
   ["es"]={
+   ["Clássico colorido"]="Colores clásicos",
    ["Visual da interface"]="Estilo de interfaz",
    ["Atual"]="Actual",
    ["Golpes"]="Movimientos",

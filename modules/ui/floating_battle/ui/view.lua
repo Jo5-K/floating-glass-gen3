@@ -1,4 +1,4 @@
-return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin)
+return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
   local V={fonts={}}
   local function font(size)
     size=math.max(8,math.floor(size+.5))
@@ -123,14 +123,14 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin)
   end
   function V.draw(snapshot,selection,options,w,h,errorText)
     local g=love.graphics
-    local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud})
+    local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud,classicButtons=options.classicButtons})
     local tr=options.translate or function(v) return v end
     local s=l.scale
     l.neutral=options.pastel
     l.emeraldIvory=options.emeraldIvory and Skin~=nil
     -- Interpolate presentation only. Returned rectangles are the mouse targets.
     local now=options.time or (love.timer and love.timer.getTime and love.timer.getTime()) or 0
-    local signature=table.concat({w,h,options.style or '',options.scale or '',options.position or '',tostring(options.nativeHud)},':')
+    local signature=table.concat({w,h,options.style or '',options.scale or '',options.position or '',tostring(options.nativeHud),tostring(options.classicButtons),tostring(options.emeraldIvory)},':')
     if V.signature~=signature then V.motion={};V.signature=signature end
     V.motion=V.motion or {}
     for _,r in ipairs(l.rects) do
@@ -191,14 +191,21 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin)
     local focus=selection.focus or (selection.menu==1 and selection.move or ({[3]=5,[2]=6,[4]=7})[selection.menu])
     for _,r in ipairs(l.rects) do
       local move=r.kind=='move';local card=move and cards[r.index]
-      local selected=move and focus==r.index or (not move and focus==({[3]=5,[2]=6,[4]=7})[r.index])
+      local selected=r.classic and r.index==1 and focus<=4 or move and focus==r.index or (not move and focus==({[3]=5,[2]=6,[4]=7})[r.index])
       if not move then
-        if l.emeraldIvory then
+        if r.classic and Classic then
+          Classic.button(r,s,selected,Icons)
+        elseif l.emeraldIvory then
           Skin.panel(r,s,r.index==4 and 'run' or 'command',selected)
           local b=Layout.actionBadge(r,s);Skin.badge(r.index,b.x,b.y,b.d,Icons)
         elseif options.pastel then pastel(r,s,colors[r.index],selected,r.index,now)
         else metallic(r,s,colors[r.index],selected,r.index,now,options.nativePalette) end
+        if r.classic then
+          local leftIcon=r.index==1 or r.index==3
+          text(names[r.index],r.x+(leftIcon and 46 or 12)*s,r.y+12*s,r.w-58*s,13*s,{1,1,.96,1})
+        else
         text(names[r.index],r.x+72*s,r.y+18*s,r.w-80*s,15*s,l.emeraldIvory and Skin.colors.white or options.pastel and neutral.ink or nil)
+        end
       else
         local k=r.scale or s
         local alpha=r.alpha or Model.alpha(r.index,selection.move)
@@ -263,6 +270,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin)
         if l.emeraldIvory then Skin.group(r.index,r,groupAlpha,drawCard) else drawCard() end
       end
     end
+    if l.commandCenter and Classic then Classic.center(l.commandCenter,s) end
     local settings=l.settings
     if l.emeraldIvory then Skin.panel(settings,s,'settings',false) elseif options.pastel then solid(settings,s,neutral.settings,false) else panel(settings,s,{.32,.9,1},false,.65) end
     if options.pastel then
