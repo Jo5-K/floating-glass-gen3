@@ -11,7 +11,7 @@ return function(R)
   end
   function F.drop()
     local n=tonumber(R.option('battle_drop',8)) or 8
-    return math.max(0,math.min(12,n))
+    return math.max(0,math.min(20,n))
   end
   function F.installLoaded()
     local D=R.module('src.core.game3.display')
@@ -57,9 +57,14 @@ return function(R)
       end
       if not cutout and ah>aw then ah=ah*.48 end -- retain mobile control deck
       local ratio=R.option('battle_aspect','window')=='window' and aw/ah or F.ratio()
-      pw=math.min(aw,ah*ratio);ph=pw/ratio
+      local targetW=math.min(aw,ah*ratio)
+      local targetH=targetW/ratio
+      -- Aspect selects the available composition area, never the pixel shape.
+      -- Native battlers, particles and native arenas share one uniform scale.
+      local scale=math.min(targetW/240,targetH/160)
+      pw,ph=240*scale,160*scale
       x,y=ax+(aw-pw)/2,ay+(ah-ph)/2
-      return pw/240,x,y,pw,ph,ph/160
+      return scale,x,y,pw,ph,scale
     end)
     end
     -- Normal Game3 uses Renderer planes, not Display.presentFlat. Adapt its

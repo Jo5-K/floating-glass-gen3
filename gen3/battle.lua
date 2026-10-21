@@ -8,7 +8,8 @@ return function(R)
     assetPath=function(path) return 'modules/ui/'..path end,
     assets={image=function(_,path) return R.mod.assets:image(path) end},
   })
-  local View=part('ui/view.lua')(Types,Model,Layout,part('ui/icons.lua'),Art,part('ui/status.lua'),R.theme)
+  local Skin=R.load('gen3/emerald_ivory.lua')()
+  local View=part('ui/view.lua')(Types,Model,Layout,part('ui/icons.lua'),Art,part('ui/status.lua'),R.theme,Skin)
   local API=require('src.battle.game3.BattleAPI')
   local Anchors=R.load('gen3/anchors.lua')(R)
   local B={anchors=Anchors,failed=false,serial=0,scene=false,registerType=Types.register}
@@ -19,13 +20,14 @@ return function(R)
   local backgrounds=R.load('gen3/background_catalog.lua')
   local backgroundValues={'auto'};local backgroundLabels={'Automático por jogo'}
   for _,e in ipairs(backgrounds.entries) do backgroundValues[#backgroundValues+1]=e.id;backgroundLabels[#backgroundLabels+1]=e.label end
+  local translate=R.load('gen3/settings_language.lua')(R)
   local settings={
     {key='battle_layout',label='Golpes',values={'layers','list'},labels={'Cartas em camadas','Lista flutuante'}},
     {key='battle_opacity',label='Opacidade',values={.70,.55,.85},labels={'70%','55%','85%'}},
     {key='battle_scale',label='Tamanho',values={.68,.58,.78},labels={'Normal','Menor','Maior'}},
     {key='battle_position',label='Posição',values={'left','right'},labels={'Esquerda','Direita'}},
     {key='battle_aspect',label='Formato',values={'window','native','4:3','16:9'},labels={'Janela','Nativa (3:2)','4:3','16:9'}},
-    {key='battle_drop',label='Pokémon mais baixos',values={8,12,0},labels={'+8 px','+12 px','Original'}},
+    {key='battle_drop',label='Pokémon mais baixos',values={8,12,16,20,0},labels={'+8 px','+12 px','+16 px','+20 px','Original'}},
     {key='camera_background',label='Fundo 21:9',values=backgroundValues,labels=backgroundLabels},
     {key='scenery',label='Cenário',values={'auto','native'},labels={'Automático','Original / mods'}},
     {key='button_palette',label='Cores dos botões',values={'pastel','metal'},labels={'Pastel neutro','Metálico'}},
@@ -34,6 +36,8 @@ return function(R)
     {key='battle_camera',label='Câmera',values={'native','current','g9_compat','native_depth'},labels={'Nativa','Original','Compatibilidade G9/HD','Primeiro plano'}},
     {key='shadows',label='Sombras',values={'auto','enemies','both'},labels={'Auto: pela câmera','Inimigos','Ambos'}},
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
+    {key='battle_skin',label='Visual da interface',values={'current','emerald_ivory'},labels={'Atual','Emerald Green & Ivory'}},
+    {key='settings_language',label='Idioma / Language',values={'pt-BR','en'},labels={'PT-BR','English'}},
     {key='foreground',label='Primeiro plano',values={.65,0,1},labels={'65%','Desligado','100%'}},
   }
   local function settingIndex(row)
@@ -47,7 +51,7 @@ return function(R)
     return R.setOption(row.key,row.values[i])
   end
   local function presentation()
-    return {nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',style=settings[1].values[settingIndex(settings[1])],
+    return {emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',style=settings[1].values[settingIndex(settings[1])],
       opacity=settings[2].values[settingIndex(settings[2])],
       scale=settings[3].values[settingIndex(settings[3])],position=settings[4].values[settingIndex(settings[4])]}
   end
@@ -151,6 +155,7 @@ return function(R)
     local RomText=R.module('src.core.game3.rom_text')
     local Strings=R.module('src.core.Strings')
     local NativeTypes=R.module('src.core.game3.battle.types')
+    local Progression=R.module('src.core.game3.progression')
     snap.labels={};snap.typeLabels={}
     if RomText and RomText.ir then
       local labels,buf={},{}
@@ -175,7 +180,9 @@ return function(R)
     for _,entry in ipairs(raw.moves or {}) do
       local copy={};for k,v in pairs(entry) do copy[k]=v end
       local nativeType=tonumber(copy.type)
-      copy.type=typeNames[nativeType] or copy.type
+      local registered=nativeType and Progression and Progression.typeIdFor and Progression.typeIdFor(nativeType)
+      local typeKey=registered and tostring(registered):upper()
+      copy.type=(typeKey and Types[typeKey] and typeKey) or typeNames[nativeType] or copy.type
       if NativeTypes and NativeTypes.name and nativeType then snap.typeLabels[copy.type]=NativeTypes.name(nativeType) end
       snap.moves[copy.slot or #snap.moves+1]=copy
     end
@@ -368,6 +375,7 @@ return function(R)
       local hudScale=math.min(sx,sy)*.65*sizeFactor
       g.push('all');g.scale(hudScale,hudScale)
       local unpackArgs=table.unpack or unpack
+      local skinSnapshot=R.option('battle_skin','current')=='emerald_ivory' and B.snapshot()
       B.hudDrawing=true
       local hudOk,hudErr=pcall(function()
         for _,box in ipairs(B.healthboxes or {}) do
@@ -410,7 +418,15 @@ return function(R)
             local opts={};for k,v in pairs(args[3]) do opts[k]=v end;opts.oy=0
             args={args[1],args[2],opts}
           end
-          g.translate(dx,dy);box.draw(unpackArgs(args));g.translate(-dx,-dy)
+          g.translate(dx,dy)
+          local mon=skinSnapshot and type(side)=='string' and skinSnapshot[side]
+          if mon then
+            local C=R.module('src.ui.game3.battle_chrome')
+            local img=C and (isPlayer and C._playerBox or C._enemyBox)
+            local hb=img and Anchors.alphaBounds(img) or {0,0,104,isPlayer and 37 or 29}
+            Skin.hud(mon,isPlayer,cx-32+hb[1],cy-16+hb[2],hb[3]-hb[1],hb[4]-hb[2],part('ui/icons.lua'))
+          else box.draw(unpackArgs(args)) end
+          g.translate(-dx,-dy)
         end
       end)
       B.hudDrawing=false
@@ -426,8 +442,8 @@ return function(R)
         local ok,err=pcall(function()
           if R.camera.depth() then R.scenery.foreground(viewport.width,viewport.height);B.drawHealthboxes({x=0,y=0,w=viewport.width,h=viewport.height}) end
           if B.settingsOpen then
-            local rows={};for _,row in ipairs(settings) do rows[#rows+1]={label=row.label,value=row.labels[settingIndex(row)]} end
-            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true},rows,B.settingsIndex or 1)
+            local rows={};for _,row in ipairs(settings) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])} end
+            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate},rows,B.settingsIndex or 1)
             B.settingsViewport=tostring(viewport.width)..':'..tostring(viewport.height)
           else B.settingsTargets=nil end
         end)
@@ -450,7 +466,8 @@ return function(R)
       B.layout=layout
       if B.settingsOpen then
         local rows={}
-        for _,row in ipairs(settings) do rows[#rows+1]={label=row.label,value=row.labels[settingIndex(row)]} end
+        for _,row in ipairs(settings) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])} end
+        layout.translate=translate
         B.settingsTargets=View.settings(layout,rows,B.settingsIndex or 1)
       else B.settingsTargets=nil end
       B.messageRect=layout.message
@@ -638,5 +655,6 @@ return function(R)
       end)
     end
   end
+  function B.shutdown() Skin.shutdown() end
   return B
 end

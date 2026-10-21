@@ -1,23 +1,21 @@
-# Floating Glass Gen3 — beta - 1
+# Floating Glass Gen3 — beta - 2
 
-Muda o visual das batalhas: fundos, arenas, câmeras, barras de vida, botões e sombras. Os menus fora da batalha continuam nativos.
+## Português
 
-Requer G1R 0.3.93 ou superior. Destinado a FireRed, LeafGreen, Ruby, Sapphire e Emerald; a validação nos cinco jogos ainda está em andamento.
+Muda o visual das batalhas: fundos ultrawide, arenas, câmeras e sombras animadas. Agora com visual opcional **Emerald Green & Ivory**, golpes coloridos por tipo, SELECT em **PT-BR/English** e correção dos sprites e arenas esticados ao trocar o formato. Os menus fora da batalha continuam nativos.
 
-Importe o ZIP pelo gerenciador de mods do G1R e ative Floating Glass Gen3. O ZIP de “Source code” também pode ser importado.
+**Requer G1R 0.3.93+.** Destinado a FireRed, LeafGreen, Ruby, Sapphire e Emerald; a validação completa em jogo continua em andamento. Alguns cenários especiais e batalhas duplas mantêm partes da interface nativa.
 
-Testado em conjunto com [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites): animações e sombras observadas em jogo; o posicionamento ainda precisa de confirmação após os ajustes. Não depende desses mods.
+Testado em conjunto com [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites). Animações e sombras observadas; ainda pode haver ajustes de posicionamento. Não depende desses mods.
 
-Os comandos e tipos dos golpes usam o texto nativo para acompanhar mods de tradução.
+Importe o ZIP pelo gerenciador do G1R. O “Source code (zip)” também é importável. Na batalha, pressione SELECT para configurar; o novo visual é opcional. Comandos e tipos acompanham o texto nativo e mods de tradução. Fada recebe sua cor quando fornecido por outro mod; este mod não adiciona o tipo.
 
 ## English
 
-A fresh look for battles: ultrawide backgrounds, arenas, camera options, HP displays, move menus, and animated shadows. Menus outside battles remain native.
+Changes battle presentation: ultrawide backgrounds, arenas, camera options, and animated shadows. Now includes the optional **Emerald Green & Ivory** style, type-colored move cards, **PT-BR/English** settings, and a fix for stretched sprites and arenas when changing the aspect ratio. Menus outside battles remain native.
 
-Requires **G1R 0.3.93+**. Designed for FireRed, LeafGreen, Ruby, Sapphire, and Emerald; testing across all five games is ongoing.
+**Requires G1R 0.3.93+.** Designed for FireRed, LeafGreen, Ruby, Sapphire, and Emerald; full in-game validation is ongoing. Some special scenes and double battles retain parts of the native interface.
 
-Import the ZIP using G1R’s mod manager and enable Floating Glass Gen3. The “Source code (zip)” download can also be imported.
+Tested alongside [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites). Animated sprites and shadows were observed; positioning may still need adjustment. Neither mod is required.
 
-Tested alongside [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites). Animated sprites and shadows were observed in-game; positioning after recent adjustments still needs confirmation. Neither mod is required.
-
-Battle commands and move types use native text to follow translation mods.
+Import the ZIP through G1R’s mod manager. “Source code (zip)” is also importable. Press SELECT during battle to configure; the new style is optional. Commands and move types follow native text and translation mods. Fairy gets its color when provided by another mod; this mod does not add the type.

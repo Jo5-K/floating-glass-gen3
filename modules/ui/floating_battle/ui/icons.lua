@@ -1,14 +1,14 @@
 -- Vector redraws following the white-on-color pictograms in the reference.
 local I={}
-function I.gender(mark,x,y,r)
+function I.gender(mark,x,y,r,palette)
   local g=love.graphics
   local old=g.getLineWidth and g.getLineWidth() or 1
   g.setLineWidth(math.max(1,r*.18))
   if mark=='♀' then
-    g.setColor(1,.51,.70,1);g.circle('line',x,y-r*.30,r*.50)
+    if palette then g.setColor(palette) else g.setColor(1,.51,.70,1) end;g.circle('line',x,y-r*.30,r*.50)
     g.line(x,y+r*.20,x,y+r*.95);g.line(x-r*.32,y+r*.60,x+r*.32,y+r*.60)
   else
-    g.setColor(.45,.77,1,1);g.circle('line',x-r*.14,y+r*.10,r*.50)
+    if palette then g.setColor(palette) else g.setColor(.45,.77,1,1) end;g.circle('line',x-r*.14,y+r*.10,r*.50)
     g.line(x+r*.20,y-r*.24,x+r*.77,y-r*.81)
     g.line(x+r*.77,y-r*.81,x+r*.28,y-r*.81)
     g.line(x+r*.77,y-r*.81,x+r*.77,y-r*.32)

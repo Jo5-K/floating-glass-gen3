@@ -76,7 +76,7 @@ return function(R)
    return {x=-8,y=16,k=1.05,drop=drop,signature='depth-single'}
   end
   if st and st.double then return {x=0,y=0,k=1,drop=0,signature='native-double'} end
-  if selected=='forest' then return {x=24,y=32,k=.8,drop=drop,signature=C.compat() and 'g9-forest' or 'current-forest'} end
+  if selected then return {x=24,y=32,k=.8,drop=drop,signature=C.compat() and 'g9-scenery' or 'current-scenery'} end
   return {x=0,y=0,k=1,drop=drop,signature=C.compat() and 'g9' or 'current'}
  end
  function C.apply(plan)

@@ -1,4 +1,4 @@
-return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
+return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin)
   local V={fonts={}}
   local function font(size)
     size=math.max(8,math.floor(size+.5))
@@ -124,8 +124,10 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
   function V.draw(snapshot,selection,options,w,h,errorText)
     local g=love.graphics
     local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud})
+    local tr=options.translate or function(v) return v end
     local s=l.scale
     l.neutral=options.pastel
+    l.emeraldIvory=options.emeraldIvory and Skin~=nil
     -- Interpolate presentation only. Returned rectangles are the mouse targets.
     local now=options.time or (love.timer and love.timer.getTime and love.timer.getTime()) or 0
     local signature=table.concat({w,h,options.style or '',options.scale or '',options.position or '',tostring(options.nativeHud)},':')
@@ -191,23 +193,30 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
       local move=r.kind=='move';local card=move and cards[r.index]
       local selected=move and focus==r.index or (not move and focus==({[3]=5,[2]=6,[4]=7})[r.index])
       if not move then
-        if options.pastel then pastel(r,s,colors[r.index],selected,r.index,now)
+        if l.emeraldIvory then
+          Skin.panel(r,s,r.index==4 and 'run' or 'command',selected)
+          local b=Layout.actionBadge(r,s);Skin.badge(r.index,b.x,b.y,b.d,Icons)
+        elseif options.pastel then pastel(r,s,colors[r.index],selected,r.index,now)
         else metallic(r,s,colors[r.index],selected,r.index,now,options.nativePalette) end
-        text(names[r.index],r.x+72*s,r.y+18*s,r.w-80*s,15*s,options.pastel and neutral.ink or nil)
+        text(names[r.index],r.x+72*s,r.y+18*s,r.w-80*s,15*s,l.emeraldIvory and Skin.colors.white or options.pastel and neutral.ink or nil)
       else
         local k=r.scale or s
         local alpha=r.alpha or Model.alpha(r.index,selection.move)
+        local groupAlpha=l.emeraldIvory and (r.depth==0 and 1 or r.depth==1 and .75 or r.depth==2 and .55 or .4) or alpha
+        if l.emeraldIvory then alpha=1 end
         local t=Types.resolve(card.type)
         local compact=options.style=='list' or options.style=='stack'
         local ink=card.disabled and {.72,.77,.82,.85} or {.94,.97,1,.98}
+        local function drawCard()
         g.push('all')
         if r.angle then
           g.translate(r.x+r.w/2,r.y+r.h/2);g.rotate(r.angle);g.translate(-r.x-r.w/2,-r.y-r.h/2)
         end
-        if options.pastel then solid(r,k,neutral.moves,selected)
+        if l.emeraldIvory then Skin.panel(r,k,'move',selected,t.color)
+        elseif options.pastel then solid(r,k,neutral.moves,selected)
         else panel(r,k,{.32,.9,1},selected,(options.opacity or .70)*alpha) end
         -- Back cards retain a subtle type tint; cyan focus stays distinct.
-        if not options.pastel then
+        if not options.pastel and not l.emeraldIvory then
         g.setColor(t.color[1],t.color[2],t.color[3],.09*alpha)
         g.rectangle('fill',r.x+2*k,r.y+2*k,r.w-4*k,r.h-4*k,12*k,12*k)
         g.setColor(t.color[1],t.color[2],t.color[3],alpha)
@@ -218,10 +227,10 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
         else
           local size=(compact and 30 or 36)*k
           local ix=r.x+29*k;local iy=r.y+(compact and 25 or 29)*k
-          local badge=not options.nativePalette and tostring(card.type):upper()=='PSYCHIC' and not t.image and Art and Art.psychic(ix-size/2,iy-size/2,size,alpha)
+          local badge=not l.emeraldIvory and not options.nativePalette and tostring(card.type):upper()=='PSYCHIC' and not t.image and Art and Art.psychic(ix-size/2,iy-size/2,size,alpha)
           if not badge then
-            if options.pastel then
-              g.setColor(neutral.ivory);g.circle('fill',ix,iy,size/2)
+            if options.pastel or l.emeraldIvory then
+              g.setColor(l.emeraldIvory and Skin.colors.ivory or neutral.ivory);g.circle('fill',ix,iy,size/2)
               g.setColor(neutral.outline);g.setLineWidth(1.5*k);g.circle('line',ix,iy,size/2)
             else
             for ring=0,12 do
@@ -231,7 +240,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
               g.circle('fill',ix,iy,size/2*(1-q*.16))
             end
             end
-            if options.pastel then g.setColor(neutral.ink)
+            if options.pastel or l.emeraldIvory then g.setColor(l.emeraldIvory and Skin.colors.dark or neutral.ink)
             elseif options.nativePalette then g.setColor(8/31,8/31,8/31,math.max(.5,alpha)) else g.setColor(1,1,1,math.max(.5,alpha)) end
             if t.image then
               local iw,ih=t.image:getDimensions();local scale=math.min(size*.72/iw,size*.72/ih)
@@ -243,24 +252,27 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
           text(card.name,tx,r.y+(compact and 5 or 15)*k,r.w-68*k,17*k,ink)
           local tagX=tx;local tagY=r.y+(compact and 29 or 58)*k
           local tagW=math.min(100*k,r.w*.36)
-          g.setColor(t.color[1]*.6,t.color[2]*.6,t.color[3]*.6,math.max(.3,alpha))
+          if l.emeraldIvory and tostring(card.type):upper()=='NORMAL' then g.setColor(Skin.colors.normal)
+          else g.setColor(t.color[1]*.6,t.color[2]*.6,t.color[3]*.6,math.max(.3,alpha)) end
           g.rectangle('fill',tagX,tagY,tagW,17*k,8*k,8*k)
-          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,ink)
+          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,l.emeraldIvory and tostring(card.type):upper()=='NORMAL' and Skin.colors.ink or ink)
           text(tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),tagX+tagW+12*k,tagY,r.w-180*k,12*k,ink)
         end
         g.pop()
+        end
+        if l.emeraldIvory then Skin.group(r.index,r,groupAlpha,drawCard) else drawCard() end
       end
     end
     local settings=l.settings
-    if options.pastel then solid(settings,s,neutral.settings,false) else panel(settings,s,{.32,.9,1},false,.65) end
+    if l.emeraldIvory then Skin.panel(settings,s,'settings',false) elseif options.pastel then solid(settings,s,neutral.settings,false) else panel(settings,s,{.32,.9,1},false,.65) end
     if options.pastel then
       local cx,cy,rad=settings.x+21*s,settings.y+settings.h/2,14*s
       g.setColor(neutral.ivory);g.circle('fill',cx,cy,rad)
       g.setColor(neutral.outline);g.setLineWidth(1.5*s);g.circle('line',cx,cy,rad)
       g.circle('line',cx,cy,5*s)
       for i=0,7 do local a=i*math.pi/4;g.line(cx+math.cos(a)*6*s,cy+math.sin(a)*6*s,cx+math.cos(a)*9*s,cy+math.sin(a)*9*s) end
-      text('Ajustes · SELECT',settings.x+42*s,settings.y+12*s,settings.w-48*s,12*s,neutral.ivory)
-    else text('Ajustes · SELECT',settings.x+14*s,settings.y+12*s,settings.w-28*s,14*s) end
+      text(tr('Ajustes · SELECT'),settings.x+42*s,settings.y+12*s,settings.w-48*s,12*s,neutral.ivory)
+    else text(tr('Ajustes · SELECT'),settings.x+14*s,settings.y+12*s,settings.w-28*s,14*s) end
     if errorText then
       local r={x=l.x,y=l.y-28*s,w=l.w,h=24*s}
       panel(r,s,{1,.62,.49},false,.9)
@@ -271,24 +283,25 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme)
     return l
   end
   function V.settings(layout,rows,index)
+    local tr=layout.translate or function(v) return v end
     local height=120+#rows*45
     local s=math.min(layout.scale,(layout.height-24)/height);local w=math.min(layout.width-24*s,480*s)
     local r={x=(layout.width-w)/2,y=(layout.height-height*s)/2,w=w,h=height*s}
     local g=love.graphics
     g.setColor(.008,.02,.045,.65);g.rectangle('fill',0,0,layout.width,layout.height)
-    if layout.neutral then solid(r,s,neutral.settings,false) else panel(r,s,{.32,.9,1},true,.96) end
-    text('AJUSTES DA BATALHA',r.x+20*s,r.y+18*s,r.w-40*s,19*s)
+    if layout.emeraldIvory and Skin then Skin.panel(r,s,'settings',false) elseif layout.neutral then solid(r,s,neutral.settings,false) else panel(r,s,{.32,.9,1},true,.96) end
+    text(tr('AJUSTES DA BATALHA'),r.x+20*s,r.y+18*s,r.w-40*s,19*s)
     local targets={}
     for i,row in ipairs(rows) do
       local q={x=r.x+16*s,y=r.y+(57+(i-1)*45)*s,w=r.w-32*s,h=38*s,index=i}
-      if layout.neutral then solid(q,s,neutral.settings,index==i) else panel(q,s,{.32,.9,1},index==i,.55) end
+      if layout.emeraldIvory and Skin then Skin.panel(q,s,'settings',index==i) elseif layout.neutral then solid(q,s,neutral.settings,index==i) else panel(q,s,{.32,.9,1},index==i,.55) end
       text(row.label,q.x+12*s,q.y+11*s,q.w*.46,13*s)
       text('‹ '..row.value..' ›',q.x+q.w*.49,q.y+11*s,q.w*.48,13*s)
       targets[#targets+1]=q
     end
     local close={x=r.x+16*s,y=r.y+r.h-48*s,w=r.w-32*s,h=34*s}
-    if layout.neutral then solid(close,s,neutral.settings,false) else panel(close,s,{.32,.9,1},false,.6) end
-    text('A / B / SELECT · voltar',close.x+12*s,close.y+9*s,close.w-24*s,13*s)
+    if layout.emeraldIvory and Skin then Skin.panel(close,s,'settings',false) elseif layout.neutral then solid(close,s,neutral.settings,false) else panel(close,s,{.32,.9,1},false,.6) end
+    text(tr('A / B / SELECT · voltar'),close.x+12*s,close.y+9*s,close.w-24*s,13*s)
     return {rows=targets,close=close}
   end
   return V

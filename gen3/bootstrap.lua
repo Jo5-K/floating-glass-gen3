@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.0-beta.1',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.0-beta.2',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.
@@ -86,11 +86,12 @@ return function(mod)
     {key='gen3_lens_motion',label='GENTLE FOREGROUND MOTION',type='toggle',default=true,group='GEN 3 / SCENERY'},
     {key='gen3_foreground',label='FOREGROUND',type='choice',default=.65,group='GEN 3 / SCENERY',choices={{'65%',.65},{'OFF',0},{'100%',1}}},
     {key='gen3_battle_aspect',label='BATTLE ASPECT',type='choice',default='window',group='GEN 3 / BATTLE',choices={{'WINDOW','window'},{'NATIVE 3:2','native'},{'4:3','4:3'},{'16:9','16:9'}}},
-    {key='gen3_battle_drop',label='LOWER BATTLERS',type='choice',default=8,group='GEN 3 / BATTLE',choices={{'8 PX',8},{'12 PX',12},{'NATIVE',0}}},
+    {key='gen3_battle_skin',label='BATTLE UI STYLE',type='choice',default='current',group='GEN 3 / BATTLE',choices={{'CURRENT','current'},{'EMERALD GREEN & IVORY','emerald_ivory'}}},
+    {key='gen3_settings_language',label='SETTINGS LANGUAGE / IDIOMA',type='choice',default='pt-BR',group='GEN 3 / BATTLE',choices={{'PT-BR','pt-BR'},{'English','en'}}},
+    {key='gen3_battle_drop',label='LOWER BATTLERS',type='choice',default=8,group='GEN 3 / BATTLE',choices={{'8 PX',8},{'12 PX',12},{'16 PX',16},{'20 PX',20},{'NATIVE',0}}},
     {key='gen3_battle_extend',label='EXTEND NATIVE BATTLE FIELD',type='toggle',default=true,group='GEN 3 / BATTLE',description='Continue native wallpaper under the former GBA command panel; disable if another scenery mod supplies that area.'},
     {key='gen3_caught',label='SHOW CAUGHT POKEMON',type='toggle',default=true,group='GEN 3 / BATTLE'},
     {key='gen3_remember_move',label='REMEMBER LAST MOVE',type='toggle',default=true,group='GEN 3 / BATTLE'},
-    {key='gen3_background',label='GEN3 BATTLE BACKGROUND',type='choice',default='native',group='GEN 3 / GRAPHICS',choices={{'ORIGINAL / MODS','native'},{'KRS SCENERY','krs'}},description='Native is recommended for attack effects that use terrain layers.'},
     {key='gen3_sprite_source',label='GEN3 POKEMON SPRITES',type='choice',default='native',group='GEN 3 / GRAPHICS',choices={{'ORIGINAL / OTHER MODS','native'},{'KRS STATIC ART','krs'}},description='KRS uses individually cropped static frames, never full animation sheets. Missing species and special forms keep native art.'},
     {key='gen3_front_generation',label='KRS FRONT GENERATION',type='choice',default='5',group='GEN 3 / GRAPHICS',choices={{'GEN 1','1'},{'GEN 2','2'},{'GEN 3','3'},{'GEN 4','4'},{'GEN 5','5'}}},
     {key='gen3_back_generation',label='KRS BACK GENERATION',type='choice',default='5',group='GEN 3 / GRAPHICS',choices={{'GEN 1','1'},{'GEN 2','2'},{'GEN 3','3'},{'GEN 4','4'},{'GEN 5','5'}}},
@@ -142,7 +143,7 @@ return function(mod)
   local unloaded=false
   local function unload()
     if unloaded then return end;unloaded=true;R.unloaded=true
-    R.shadows.shutdown();R.scenery.shutdown()
+    R.shadows.shutdown();R.scenery.shutdown();if R.battle.shutdown then R.battle.shutdown() end
     for i=#R.patches,1,-1 do
       local p=R.patches[i]
       if p[1][p[2]]==p[4] then p[1][p[2]]=p[3] end

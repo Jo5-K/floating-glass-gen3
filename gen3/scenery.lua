@@ -6,7 +6,14 @@ return function(R)
   local Arena=R.load('gen3/arena_renderer.lua');local arenaRenderers={}
   local camera=R.camera or R.load('gen3/camera.lua')(R)
   local catalog=R.load('gen3/background_catalog.lua');S.catalog=catalog
-  local entries={};for _,e in ipairs(catalog.entries) do entries[e.id]=e end
+  local entries={}
+  for _,e in ipairs(catalog.entries) do
+    if e.path=='assets/scenery/camera21x9/'..e.id..'.png' then entries[e.id]=e end
+  end
+  local allowedArenas={beach=true,cave=true,desert=true,forest=true,mountain=true,plain=true,pond=true,tall_grass=true,water=true}
+  for id,entry in pairs(arenaCatalog) do
+    if not allowedArenas[id] or entry.path~='assets/scenery/arenas/'..id..'.png' then arenaCatalog[id]=nil end
+  end
   local function path(group,number,side)
     for name,p in pairs(index[group]) do
       if tonumber(name:sub(1,2))==number and (not side or name:find(side,1,true)) then return p end
