@@ -1,0 +1,124 @@
+[
+  {
+    "path": "assets/journal/bag.png",
+    "hashes": [
+      "3bbb77453ff59c50a7b573cabba98cff678f4476f5dad906e8ffcdfb3f09423c"
+    ]
+  },
+  {
+    "path": "assets/journal/close.png",
+    "hashes": [
+      "ad7dd3895a27e04bf8773c999471c5994527335eaef49c026a714568878e8063"
+    ]
+  },
+  {
+    "path": "assets/journal/kanto_fullscreen_16x9.png",
+    "hashes": [
+      "603345b28247f32a1d0aad31b5a97a1613439de57877453bc17e21911c822c4b"
+    ]
+  },
+  {
+    "path": "assets/journal/link.png",
+    "hashes": [
+      "2dcd1c84d53c1c6a35bc17b69b195d146f5d3129e8d275800eb294e93ae5800d"
+    ]
+  },
+  {
+    "path": "assets/journal/mods.png",
+    "hashes": [
+      "2e5ca861a3e4f9f9488f1975ae5b2b9e375622201f445c7200c06d55866f7367"
+    ]
+  },
+  {
+    "path": "assets/journal/options.png",
+    "hashes": [
+      "1acc90a81cc6243901f6dea84d51897ac0295a3178c9e499ddae567aa3fccc59"
+    ]
+  },
+  {
+    "path": "assets/journal/pc.png",
+    "hashes": [
+      "784c8f7fa730be05b8bfceac52e6abcd71d4de74a3f1f759d916bb1a13632d11"
+    ]
+  },
+  {
+    "path": "assets/journal/pokedex.png",
+    "hashes": [
+      "bca202fdad4c97e8d509595be7496f830348e53343e0369546f0bb25448dee05"
+    ]
+  },
+  {
+    "path": "assets/journal/pokemon.png",
+    "hashes": [
+      "81797bde9dfd8f579b952a05841846d5c83e457acd4dc6214a15a259e10cd426"
+    ]
+  },
+  {
+    "path": "assets/journal/red_front.png",
+    "hashes": [
+      "9f2259f4a26b7de7ea2ebcc2621c4f34e31de91f701efbb51ba2654c75c4ff8c"
+    ]
+  },
+  {
+    "path": "assets/journal/save.png",
+    "hashes": [
+      "1f48f33561ce562db15bd764cd32d50cc78b030e559a85d96579afac10cb6996"
+    ]
+  },
+  {
+    "path": "assets/journal/title_red.png",
+    "hashes": [
+      "d47dea9025e2c56a1ba03097181b7a4ff43dc3e4a71c6d425a0b290cd53637eb"
+    ]
+  },
+  {
+    "path": "gen3/journal.lua",
+    "hashes": [
+      "864ec076a2099842783f1b7aa3047d58e2fdf4399947f659987a13a167f32c75",
+      "cf078fffa407d97e978a47632b8343157f1682029a2ea0aec344e8b3c46c1d5a"
+    ]
+  },
+  {
+    "path": "gen3/journal_draw.lua",
+    "hashes": [
+      "3ccc75c4572b2228fae7d32e3159d4220c24221976730f6dad83da5ee723a54c",
+      "9b53aad6e0df48647001ed9004cd3589fa0c58d799e3657ffdbca26c2ceedaf0"
+    ]
+  },
+  {
+    "path": "gen3/journal_views.lua",
+    "hashes": [
+      "66aca1ecba322b6c7ac80340227e8fa9bffeddbf8c2d82a3153543016ac8aa8f",
+      "a0fcd9db1648299f82c775df4285f20a7143ac5cbbd3cf4edec8bfc83970debc",
+      "b198fcbff44ecdc483aa002c2a39537f7cdfbd9db2459484e736cc3f24f94337"
+    ]
+  },
+  {
+    "path": "gen3/menus.lua",
+    "hashes": [
+      "0ca8e7635dccef508a806ef7ac9f4a30c067c814af9c91894c1901655a4bc0bc",
+      "2576bee30511508ab3fc2922b4b49e8ec21f38057cd690e912eb99ca287b1663",
+      "6a3e11283f06afeaf0cb41f3a012bb2312a2f5d7d2e8e62552687c8203484047",
+      "6e2b78b8f1d69d503b86fcbbc394bf7073c2ebd742d26d9a8caac891f6d80b3c",
+      "794258d983eabe87587b4d03bbdbd2eae6791c7dc5859eff1b47bfa3b41ea80e",
+      "d6b05f5acb3e8b1ce1ef5afd73157c94bffea591cefb9aefed7cb540a7805f3b",
+      "e100a91e20989d072c3c1d158b825b7811234d53382404615f5d68c972325949",
+      "e84db3f75fb2de83c89d6850d566ef99ee0752ddd63d0dada3280481bc6b39ca"
+    ]
+  },
+  {
+    "path": "gen3/options.lua",
+    "hashes": [
+      "34b31972421e3f294e821a2eb59da6438fdd4192658ec38dcb674cb6b9ec87b6",
+      "408490846dcbab32f0b4c7ca0d39abb8b07d47bd43deaaa05c88dd7164759a23",
+      "8023d2f741e28c384dcb1ace42f96d71235412a02b5100983930d75391b3093d"
+    ]
+  },
+  {
+    "path": "gen3/surface.lua",
+    "hashes": [
+      "83db7d501cc7ad8adeb9a820a0fde62f3000acbcc8d0d79cba2b74f318b09949",
+      "c74a9de835956e8e939dd7fb6ccc6a5d93698d24d3c01e5e21e431a43790845c"
+    ]
+  }
+]

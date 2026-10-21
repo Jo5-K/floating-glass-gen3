@@ -1,0 +1,27 @@
+{
+  "id": "floating_glass_frlg",
+  "name": "Floating Glass Gen3",
+  "version": "1.2.0-beta.1",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "overhaul",
+  "category": "UI",
+  "priority": 250,
+  "games": [
+    "firered",
+    "leafgreen",
+    "ruby",
+    "sapphire",
+    "emerald"
+  ],
+  "game_version": ">=0.3.93",
+  "dependencies": [],
+  "optional_dependencies": [],
+  "conflicts": [],
+  "permissions": [
+    "engine_internals"
+  ],
+  "affects_link": false,
+  "description": "Experimental Gen3 battle presentation: ultrawide scenery, four camera modes, native HP overlays and animated silhouette shadows. Optional G9/HD compatibility; gameplay and outside menus stay native.",
+  "author": "MFA / Floating Glass; KRS resources by Faendra"
+}
