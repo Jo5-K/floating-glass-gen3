@@ -24,7 +24,7 @@ return function(R)
   local translate=R.load('gen3/settings_language.lua')(R)
   local settings={
     {key='battle_layout',label='Layout dos botões',values={'layers','list','commands'},labels={'Cartas em camadas','Lista flutuante','Menu de comandos (Fight)'}},
-    {key='command_scale',label='Tamanho do menu',default=1,values={.75,1,1.25,1.5},labels={'75%','100%','125%','150%'}},
+    {key='command_scale',label='Tamanho do menu',default=1,values={.75,1,1.25,1.5,1.75},labels={'75%','100%','125%','150%','175%'}},
     {key='battle_opacity',label='Opacidade',values={.70,.55,.85},labels={'70%','55%','85%'}},
     {key='battle_scale',label='Tamanho',values={.68,.58,.78},labels={'Normal','Menor','Maior'}},
     {key='battle_position',label='Posição',values={'left','right'},labels={'Esquerda','Direita'}},
@@ -508,7 +508,17 @@ return function(R)
       -- Replay the exact family healthbox renderer in the final overlay, at
       -- native coordinates scaled to the fitted viewport. No parallel HP model.
       B.drawHealthboxes(frame)
-      local layout=View.draw(snap,sync(rec),presentation(),frame.w,frame.h,rec.error)
+      local options=presentation()
+      local _,_,_,nativeMessage=B.context()
+      local page=nativeMessage and nativeMessage.currentPage() or ''
+      local unit=math.min(frame.w/1280,frame.h/720)
+      -- Preserve the native page and reveal counter: resize only its presentation.
+      local textScale=math.min(math.max(3*unit,math.min(2.5,frame.w/240)),(frame.w-80*unit)/224)
+      local _,lineBreaks=tostring(page):gsub('\n','')
+      local lines=math.max(2,lineBreaks+1)
+      options.messageRect={x=24*unit,y=0,w=frame.w-48*unit,h=math.min(frame.h-48*unit,(lines*16+10)*textScale+24*unit)}
+      options.messageRect.y=frame.h-24*unit-options.messageRect.h
+      local layout=View.draw(snap,sync(rec),options,frame.w,frame.h,rec.error)
       B.layout=layout
       if B.settingsOpen then
         local rows={}
@@ -520,13 +530,14 @@ return function(R)
       local _,_,_,M=B.context()
       if snap.dialogueActive and M then
         local F=R.module('src.ui.game3.frlg_font')
-        local r=layout.message;local k=layout.scale*1.2
-        g.push('all');g.translate(r.x+16*layout.scale,r.y+12*layout.scale);g.scale(k,k)
-        local opts={maxWidth=(r.w-32*layout.scale)/k,limitChars=M._revealed,colors=F.COLOR.WHITE,linePitch=16}
+        local r=layout.message;local k=textScale
+        B.dialogueTextScale=k
+        g.push('all');g.translate(r.x+16*unit,r.y+12*unit);g.scale(k,k)
+        local opts={maxWidth=(r.w-32*unit)/k,limitChars=M._revealed,colors=F.COLOR.WHITE,linePitch=16}
         F.draw(M.currentPage() or '',0,0,opts)
         if M.isWaiting() then
           local C=R.module('src.ui.game3.chrome')
-          if C and C.promptArrow then C.promptArrow((r.w-50*layout.scale)/k,45,0) end
+          if C and C.promptArrow then C.promptArrow((r.w-50*unit)/k,(r.h-24*unit)/k-7,0) end
         end
         g.pop()
       end
@@ -695,6 +706,13 @@ return function(R)
     local Game=R.module('src.core.Game3')
     if Game and not seen[Game] then
       seen[Game]=true
+      R.wrap(Game,'wheelmoved',function(next,game,dx,dy)
+        if B.settingsOpen and B.settingsDecision() and dy~=0 then
+          B.settingsIndex=math.max(1,math.min(#settings,(B.settingsIndex or 1)-(dy>0 and 1 or -1)))
+          B.drawStamp=nil;return true
+        end
+        return next(game,dx,dy)
+      end)
       R.wrap(Game,'mousepressed',function(next,game,x,y,button,istouch)
         if not istouch and B.pointer(game,x,y,button) then return true end
         return next(game,x,y,button,istouch)

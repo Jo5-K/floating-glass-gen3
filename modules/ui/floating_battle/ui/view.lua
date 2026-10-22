@@ -125,6 +125,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
   function V.draw(snapshot,selection,options,w,h,errorText)
     local g=love.graphics
     local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud,classicButtons=options.classicButtons,classicColors=options.classicColors,commandStage=options.commandStage,commandScale=options.commandScale})
+    if options.messageRect then l.message=options.messageRect end
     local tr=options.translate or function(v) return v end
     local s=l.scale
     l.neutral=options.pastel
@@ -221,10 +222,10 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
         local fill=l.classicColors and t.color or l.emeraldIvory and {.115,.23,.19} or neutral.moves[1]
         Classic.panel(r,s,selected,fill)
         local ink=Classic.ink(fill)
-        g.setColor(ink);Icons.type(card.type,r.x+13*s,r.y+15*s,8*s)
-        text(card.name,r.x+27*s,r.y+5*s,r.w-34*s,10*s,ink)
+        g.setColor(ink);Icons.type(card.type,r.x+13*s,r.y+15*s,11*s)
+        text(card.name,r.x+27*s,r.y+5*s,r.w-34*s,13*s,ink)
         local label=(snapshot.typeLabels or {})[card.type] or t.label
-        text(label..'  '..tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),r.x+8*s,r.y+25*s,r.w-16*s,7*s,ink)
+        text(label..'  '..tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),r.x+8*s,r.y+25*s,r.w-16*s,9*s,ink)
       else
         local k=r.scale or s
         local alpha=r.alpha or Model.alpha(r.index,selection.move)
@@ -314,25 +315,32 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
   end
   function V.settings(layout,rows,index)
     local tr=layout.translate or function(v) return v end
-    local height=120+#rows*45
-    local s=math.min(layout.scale,(layout.height-24)/height);local w=math.min(layout.width-24*s,480*s)
+    local s=math.max(.85,math.min(layout.width/960,layout.height/720,1.4))
+    local visible=math.max(1,math.min(math.ceil(#rows/2),math.floor((layout.height-150*s)/(52*s))))
+    local first=math.max(1,math.min(V.settingsFirst or 1,#rows-visible+1))
+    if index<first then first=index elseif index>=first+visible then first=index-visible+1 end
+    V.settingsFirst=first
+    local height=140+visible*52
+    local w=math.min(layout.width-24*s,760*s)
     local r={x=(layout.width-w)/2,y=(layout.height-height*s)/2,w=w,h=height*s}
     local g=love.graphics
     g.setColor(.008,.02,.045,.65);g.rectangle('fill',0,0,layout.width,layout.height)
     if layout.emeraldIvory and Skin then Skin.panel(r,s,'settings',false) elseif layout.neutral then solid(r,s,neutral.settings,false) else panel(r,s,{.32,.9,1},true,.96) end
-    text(tr('AJUSTES DA BATALHA'),r.x+20*s,r.y+18*s,r.w-40*s,19*s)
+    text(tr('AJUSTES DA BATALHA'),r.x+20*s,r.y+18*s,r.w-40*s,22*s)
     local targets={}
-    for i,row in ipairs(rows) do
-      local q={x=r.x+16*s,y=r.y+(57+(i-1)*45)*s,w=r.w-32*s,h=38*s,index=i}
+    for i=first,first+visible-1 do
+      local row=rows[i]
+      local q={x=r.x+16*s,y=r.y+(57+(i-first)*52)*s,w=r.w-32*s,h=46*s,index=i}
       if layout.emeraldIvory and Skin then Skin.panel(q,s,'settings',index==i) elseif layout.neutral then solid(q,s,neutral.settings,index==i) else panel(q,s,{.32,.9,1},index==i,.55) end
-      text(row.label,q.x+12*s,q.y+11*s,q.w*.46,13*s)
-      text('‹ '..row.value..' ›',q.x+q.w*.49,q.y+11*s,q.w*.48,13*s)
+      text(row.label,q.x+12*s,q.y+11*s,q.w*.46,17*s)
+      text('‹ '..row.value..' ›',q.x+q.w*.49,q.y+11*s,q.w*.48,17*s)
       targets[#targets+1]=q
     end
     local close={x=r.x+16*s,y=r.y+r.h-48*s,w=r.w-32*s,h=34*s}
     if layout.emeraldIvory and Skin then Skin.panel(close,s,'settings',false) elseif layout.neutral then solid(close,s,neutral.settings,false) else panel(close,s,{.32,.9,1},false,.6) end
     text(tr('A / B / SELECT · voltar'),close.x+12*s,close.y+9*s,close.w-24*s,13*s)
-    return {rows=targets,close=close}
+    text(tostring(first)..'–'..tostring(first+visible-1)..' / '..tostring(#rows),r.x+20*s,r.y+r.h-76*s,r.w-40*s,15*s)
+    return {rows=targets,close=close,first=first,visibleCount=visible,total=#rows}
   end
   return V
 end

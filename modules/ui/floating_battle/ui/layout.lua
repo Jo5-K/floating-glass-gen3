@@ -13,7 +13,7 @@ function L.compute(w,h,style,factor,selected,options)
   if style=='commands' then
     local base=math.min(w/1280,h/720)
     local factor=tonumber(options.commandScale) or 1
-    if factor~=.75 and factor~=1 and factor~=1.25 and factor~=1.5 then factor=1 end
+    if factor~=.75 and factor~=1 and factor~=1.25 and factor~=1.5 and factor~=1.75 then factor=1 end
     s=math.min(base*factor,(w-24*base)/320,(h-24*base)/92)
     local gx,gy=w-24*base-320*s,h-24*base-92*s
     local rects={}
