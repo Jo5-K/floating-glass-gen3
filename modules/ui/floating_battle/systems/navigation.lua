@@ -36,6 +36,16 @@ function N.step(focus,direction,style,lastMove,moves)
   local edges=N.graph[focus] or N.graph[1]
   return edges[direction] or focus
 end
+local commandEdges={
+ [1]={left=1,right=2,up=1,down=3},[2]={left=1,right=2,up=2,down=4},
+ [3]={left=3,right=4,up=1,down=3},[4]={left=3,right=4,up=2,down=4}}
+function N.commandStep(focus,direction)
+ return (commandEdges[focus] or commandEdges[1])[direction] or focus
+end
+function N.moveStep(focus,direction,moves)
+ local next=N.commandStep(focus,direction)
+ return moves and not moves[next] and focus or next
+end
 function N.selection(focus,lastMove)
   focus=N.graph[focus] and focus or 1
   return {focus=focus,move=focus<=4 and focus or (lastMove or 1),

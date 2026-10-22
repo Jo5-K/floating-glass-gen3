@@ -10,6 +10,26 @@ function L.compute(w,h,style,factor,selected,options)
   local s=math.min(w/1280,h/720)*(factor or .68)/.68
   s=math.min(s,w/820,h/680)
   local pad=24*s
+  if style=='commands' then
+    local base=math.min(w/1280,h/720)
+    local factor=tonumber(options.commandScale) or 1
+    if factor~=.75 and factor~=1 and factor~=1.25 and factor~=1.5 then factor=1 end
+    s=math.min(base*factor,(w-24*base)/320,(h-24*base)/92)
+    local gx,gy=w-24*base-320*s,h-24*base-92*s
+    local rects={}
+    for i=1,4 do
+      local commands=options.commandStage~='moves'
+      if commands or options.moves and options.moves[i] then
+        rects[#rects+1]={x=gx+((i-1)%2)*170*s,y=gy+math.floor((i-1)/2)*52*s,
+          w=150*s,h=40*s,scale=s,alpha=1,depth=0,index=i,
+          kind=commands and 'menu' or 'move',classic=true,commandDeck=true}
+      end
+    end
+    return {style=style,scale=s,x=gx,y=gy,w=320*s,h=92*s,rects=rects,width=w,height=h,
+      commandCenter={x=gx+160*s,y=gy+46*s},
+      settings={x=w-24*base-190*base,y=24*base,w=190*base,h=42*base,kind='settings'},
+      message={x=(w-math.min(w-48*base,700*base))/2,y=h-124*base,w=math.min(w-48*base,700*base),h=100*base}}
+  end
   local playerHud={x=w-pad-330*s,y=h-pad-220*s,w=330*s,h=112*s}
   local enemyHud={x=pad,y=pad,w=330*s,h=88*s}
   local rects={};local ids=slots(options.moves);local ordinal=1
@@ -62,6 +82,7 @@ function L.compute(w,h,style,factor,selected,options)
     command(1,0,0);command(2,1,0);command(3,0,1);command(4,1,1)
     commandCenter={x=gx+160*s,y=gy+46*s}
   else add(bag);add(party);add(run) end
+  if options.classicColors then for _,r in ipairs(rects) do if r.kind=='menu' then r.classic=true end end end
   local mw=math.min(w-pad*2,700*s)
   return {commandCenter=commandCenter,style=style,scale=s,x=x,y=y,w=groupW,h=bottom-y,rects=rects,
     enemyHud=enemyHud,playerHud=playerHud,

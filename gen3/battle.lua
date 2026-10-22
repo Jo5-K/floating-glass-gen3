@@ -23,7 +23,8 @@ return function(R)
   for _,e in ipairs(backgrounds.entries) do backgroundValues[#backgroundValues+1]=e.id;backgroundLabels[#backgroundLabels+1]=e.label end
   local translate=R.load('gen3/settings_language.lua')(R)
   local settings={
-    {key='battle_layout',label='Golpes',values={'layers','list'},labels={'Cartas em camadas','Lista flutuante'}},
+    {key='battle_layout',label='Layout dos botões',values={'layers','list','commands'},labels={'Cartas em camadas','Lista flutuante','Menu de comandos (Fight)'}},
+    {key='command_scale',label='Tamanho do menu',default=1,values={.75,1,1.25,1.5},labels={'75%','100%','125%','150%'}},
     {key='battle_opacity',label='Opacidade',values={.70,.55,.85},labels={'70%','55%','85%'}},
     {key='battle_scale',label='Tamanho',values={.68,.58,.78},labels={'Normal','Menor','Maior'}},
     {key='battle_position',label='Posição',values={'left','right'},labels={'Esquerda','Direita'}},
@@ -31,18 +32,18 @@ return function(R)
     {key='battle_drop',label='Pokémon mais baixos',values={8,12,16,20,0},labels={'+8 px','+12 px','+16 px','+20 px','Original'}},
     {key='camera_background',label='Fundo 21:9',values=backgroundValues,labels=backgroundLabels},
     {key='scenery',label='Cenário',values={'auto','native'},labels={'Automático','Original / mods'}},
-    {key='button_palette',label='Cores dos botões',values={'pastel','metal'},labels={'Pastel neutro','Metálico'}},
+    {key='button_palette',label='Acabamento',values={'pastel','metal'},labels={'Pastel neutro','Metálico'}},
     {key='lens_size',label='Tamanho da vegetação',values={.65,.8,1},labels={'Reduzido','Médio','Original'}},
     {key='lens_motion',label='Movimento da lente',values={true,false},labels={'Suave','Desligado'}},
     {key='battle_camera',label='Câmera',values={'native','current','g9_compat','native_depth'},labels={'Nativa','Original','Compatibilidade G9/HD','Primeiro plano'}},
     {key='shadows',label='Sombras',values={'auto','enemies','both'},labels={'Auto: pela câmera','Inimigos','Ambos'}},
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
-    {key='battle_skin',label='Visual da interface',values={'current','emerald_ivory','classic'},labels={'Atual','Emerald Green & Ivory','Clássico colorido'}},
+    {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic'},labels={'Atual','Emerald Green & Ivory','Clássico colorido'}},
     {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
     {key='foreground',label='Primeiro plano',values={.65,0,1},labels={'65%','Desligado','100%'}},
   }
   local function settingIndex(row)
-    local value=R.option(row.key,row.values[1])
+    local value=R.option(row.key,row.default or row.values[1])
     for i,v in ipairs(row.values) do if v==value then return i end end
     return 1
   end
@@ -52,9 +53,13 @@ return function(R)
     return R.setOption(row.key,row.values[i])
   end
   local function presentation()
-    return {classicButtons=R.option('battle_skin','current')=='classic',emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',style=settings[1].values[settingIndex(settings[1])],
-      opacity=settings[2].values[settingIndex(settings[2])],
-      scale=settings[3].values[settingIndex(settings[3])],position=settings[4].values[settingIndex(settings[4])]}
+    local _,_,U=B.context()
+    return {classicColors=R.option('battle_skin','current')=='classic',
+      emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,
+      nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',
+      style=R.option('battle_layout','layers'),commandStage=U and U._mode or 'menu',
+      commandScale=tonumber(R.option('command_scale',1)) or 1,
+      opacity=R.option('battle_opacity',.70),scale=R.option('battle_scale',.68),position=R.option('battle_position','left')}
   end
   local records=setmetatable({},{__mode='k'})
   local apis=setmetatable({},{__mode='k'})
@@ -134,6 +139,7 @@ return function(R)
       rec.focus=R.option('remember_move',true) and (rec.memory[mon] or 1) or 1
       if not mon.moves or not mon.moves[rec.focus] or mon.moves[rec.focus]==0 then rec.focus=1 end
       rec.lastMove=rec.focus
+      rec.commandFocus=1
       rec.error=nil
     end
     rec.owner=mon;rec.turn=st.turn;rec.decision=B.decision()
@@ -141,7 +147,9 @@ return function(R)
   end
   local function sync(rec)
     if rec.focus<=4 then rec.lastMove=rec.focus;rec.memory[rec.owner]=rec.focus end
-    return Navigation.selection(rec.focus,rec.lastMove)
+    local selected=Navigation.selection(rec.focus,rec.lastMove)
+    selected.commandFocus=rec.commandFocus or 1
+    return selected
   end
   function B.snapshot(game)
     local st,native,U,M=B.context();if not st then return end
@@ -263,6 +271,20 @@ return function(R)
     rec.error=not ok and err or nil
     return ok,err
   end
+  function B.confirmCommand(index)
+    if not B.decision() then return false end
+    local _,_,U=B.context();if U._mode~='menu' then return false end
+    local rec=B.record();rec.commandFocus=index
+    if index==1 then
+      local ok,err=submit('menu',{choice='fight'})
+      rec.error=not ok and err or nil
+      if ok then rec.focus=rec.lastMove or 1;sync(rec) end
+      B.drawStamp=nil;return ok,err
+    end
+    local focus=({[2]=6,[3]=5,[4]=7})[index]
+    if focus then return B.confirm(focus) end
+    return false
+  end
   function B.settingsDecision()
     if B.decision() then return true end
     local st,native,U=B.context()
@@ -300,8 +322,16 @@ return function(R)
       return true
     end
     local snap=B.snapshot();local opts=presentation()
+    if opts.style=='commands' and opts.commandStage=='menu' then
+      for _,dir in ipairs({'left','right','up','down'}) do
+        if input:wasPressed(dir) then rec.commandFocus=Navigation.commandStep(rec.commandFocus or 1,dir) end
+      end
+      if input:wasPressed('a') then B.confirmCommand(rec.commandFocus or 1);return true end
+      local _,_,U=B.context();if U.tick then U.tick() end
+      return true -- Cursor movement never opens Fight.
+    end
     for _,dir in ipairs({'left','right','up','down'}) do
-      if input:wasPressed(dir) then rec.focus=Navigation.step(rec.focus,dir,opts.style,rec.lastMove,snap and snap.moves) end
+      if input:wasPressed(dir) then rec.focus=opts.style=='commands' and Navigation.moveStep(rec.focus,dir,snap and snap.moves) or Navigation.step(rec.focus,dir,opts.style,rec.lastMove,snap and snap.moves) end
     end
     sync(rec)
     if input:wasPressed('a') then B.confirm(rec.focus);return true end
@@ -318,7 +348,7 @@ return function(R)
     if not st then return '' end
     return table.concat({tostring(st),tostring(st.turn),tostring(st.player.mon),
       tostring(native._phase),tostring(U._mode),tostring(M and M.open),tostring(M and M._page),
-      tostring(B.settingsOpen),tostring(records[st] and records[st].focus),
+      tostring(B.settingsOpen),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),
       tostring(R.option('battle_aspect','native')),tostring(R.option('battle_drop',8)),presentation().style,presentation().position,tostring(presentation().opacity),tostring(presentation().scale)},'|')
   end
   function B.pointer(game,x,y,button)
@@ -355,6 +385,12 @@ return function(R)
       local hit=Layout.hit(B.layout,x,y)
       if not hit then return false end
       if hit.kind=='settings' then B.settingsOpen=true;B.settingsIndex=1;B.drawStamp=nil;return true end
+      if presentation().style=='commands' then
+        local _,_,U=B.context()
+        if hit.kind=='menu' and U._mode=='menu' then return B.confirmCommand(hit.index)~=false end
+        if hit.kind=='move' and U._mode=='moves' then return B.confirm(hit.index)~=false end
+        return true
+      end
       if hit.kind=='menu' and hit.index==1 then
         local _,_,U=B.context()
         if U._mode=='menu' then

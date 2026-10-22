@@ -1,7 +1,7 @@
 {
   "id": "floating_glass_frlg",
   "name": "Floating Glass Gen3",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "api": 2,
   "entry": "main.lua",
   "profile": "overhaul",
@@ -22,7 +22,7 @@
     "engine_internals"
   ],
   "affects_link": false,
-  "description": "Gen3 battle presentation with ultrawide scenery, proportional cameras, animated shadows and three UI styles. Four-language SELECT settings, native battle text and GitHub updates.",
+  "description": "Gen3 battle presentation with a native-action command menu, four menu sizes, independent layouts and color styles, ultrawide scenery and animated shadows. Four-language SELECT settings and GitHub updates.",
   "author": "MFA / Floating Glass; KRS resources by Faendra",
   "github": "Jo5-K/floating-glass-gen3"
 }

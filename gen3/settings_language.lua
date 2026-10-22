@@ -2,6 +2,12 @@
 return function(R)
  local languages={
   ["en"]={
+   ["Acabamento"]="Finish",
+   ["Layout dos botões"]="Button layout",
+   ["Menu de comandos (Fight)"]="Command menu (Fight)",
+   ["Tamanho do menu"]="Menu size",
+   ["Estilo de cores"]="Color style",
+
    ["Clássico colorido"]="Classic colors",
    ["Visual da interface"]="Interface style",
    ["Atual"]="Current",
@@ -74,6 +80,12 @@ return function(R)
    ["Interior"]="Interior",
   },
   ["fr"]={
+   ["Acabamento"]="Finition",
+   ["Layout dos botões"]="Disposition des boutons",
+   ["Menu de comandos (Fight)"]="Menu de commandes (Fight)",
+   ["Tamanho do menu"]="Taille du menu",
+   ["Estilo de cores"]="Palette de couleurs",
+
    ["Clássico colorido"]="Couleurs classiques",
    ["Visual da interface"]="Style de l’interface",
    ["Atual"]="Actuel",
@@ -146,6 +158,12 @@ return function(R)
    ["Interior"]="Intérieur",
   },
   ["es"]={
+   ["Acabamento"]="Acabado",
+   ["Layout dos botões"]="Diseño de botones",
+   ["Menu de comandos (Fight)"]="Menú de comandos (Fight)",
+   ["Tamanho do menu"]="Tamaño del menú",
+   ["Estilo de cores"]="Estilo de colores",
+
    ["Clássico colorido"]="Colores clásicos",
    ["Visual da interface"]="Estilo de interfaz",
    ["Atual"]="Actual",

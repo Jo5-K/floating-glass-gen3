@@ -35,11 +35,11 @@ return function()
    g.rectangle('fill',r.x+edge,r.y+y,r.w-2*edge,h)
   end
   color(c.dark);g.setLineWidth(3*s);g.polygon('line',shape(r))
-  color(selected and c.gold or c.metal);g.setLineWidth(1.2*s);g.polygon('line',shape(r,2*s))
+  color(selected and {1,1,1} or c.metal);g.setLineWidth(1.2*s);g.polygon('line',shape(r,2*s))
   color(c.ivory,.3);g.setLineWidth(s);g.line(r.x+chamfer,r.y+4*s,r.x+r.w-chamfer,r.y+4*s)
   for i=0,2 do color(c.ivory,.4+i*.3);g.rectangle('fill',r.x+r.w-(13+i*7)*s,r.y+r.h-10*s,4*s,4*s) end
   if selected then
-   color(c.gold);local x,y=r.x-9*s,r.y+r.h/2
+   color({1,1,1});local x,y=r.x-9*s,r.y+r.h/2
    g.polygon('fill',x-5*s,y-5*s,x+1*s,y,x-5*s,y+5*s)
   end
  end

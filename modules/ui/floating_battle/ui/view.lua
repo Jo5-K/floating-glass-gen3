@@ -31,7 +31,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     g.setColor(16/255,20/255,29/255,1);g.setLineWidth(3*s)
     g.rectangle('line',r.x,r.y,r.w,r.h,12*s,12*s)
     if focused then
-      g.setColor(1,211/255,107/255,1);g.setLineWidth(2*s)
+      g.setColor(1,1,1,1);g.setLineWidth(2*s)
       g.rectangle('line',r.x-2*s,r.y-2*s,r.w+4*s,r.h+4*s,12*s,12*s)
     end
   end
@@ -93,6 +93,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       moves=Theme.roles.base,settings=Theme.roles.settings,
       [3]=Theme.roles.bag,[2]=Theme.roles.party,[4]=Theme.roles.exit}
   end
+  neutral.gold={1,1,1,1} -- Focus is white, independent of the selected palette.
   local function solid(r,s,palette,selected,radius)
     local g=love.graphics;radius=radius or 12*s
     g.setColor(palette[1]);g.rectangle('fill',r.x,r.y,r.w,r.h,radius,radius)
@@ -123,18 +124,19 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
   end
   function V.draw(snapshot,selection,options,w,h,errorText)
     local g=love.graphics
-    local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud,classicButtons=options.classicButtons})
+    local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud,classicButtons=options.classicButtons,classicColors=options.classicColors,commandStage=options.commandStage,commandScale=options.commandScale})
     local tr=options.translate or function(v) return v end
     local s=l.scale
     l.neutral=options.pastel
     l.emeraldIvory=options.emeraldIvory and Skin~=nil
+    l.classicColors=options.classicColors and Classic~=nil
     -- Interpolate presentation only. Returned rectangles are the mouse targets.
     local now=options.time or (love.timer and love.timer.getTime and love.timer.getTime()) or 0
-    local signature=table.concat({w,h,options.style or '',options.scale or '',options.position or '',tostring(options.nativeHud),tostring(options.classicButtons),tostring(options.emeraldIvory)},':')
+    local signature=table.concat({w,h,options.style or '',options.scale or '',options.position or '',tostring(options.nativeHud),tostring(options.classicButtons),tostring(options.emeraldIvory),tostring(options.classicColors),tostring(options.commandStage),tostring(options.commandScale)},':')
     if V.signature~=signature then V.motion={};V.signature=signature end
     V.motion=V.motion or {}
     for _,r in ipairs(l.rects) do
-      if r.kind=='move' then
+      if r.kind=='move' and not r.commandDeck then
         local previous=V.motion[r.index]
         if previous and now>previous.time and now-previous.time<.3 then
           local k=1-math.exp(-18*(now-previous.time))
@@ -192,8 +194,16 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     for _,r in ipairs(l.rects) do
       local move=r.kind=='move';local card=move and cards[r.index]
       local selected=r.classic and r.index==1 and focus<=4 or move and focus==r.index or (not move and focus==({[3]=5,[2]=6,[4]=7})[r.index])
+      if r.commandDeck then
+        if move then selected=focus==r.index else selected=(selection.commandFocus or 1)==r.index end
+      end
       if not move then
-        if r.classic and Classic then
+        if r.commandDeck and Classic then
+          local palette
+          if not l.classicColors then palette=l.emeraldIvory and {.115,.23,.19} or neutral[r.index] and neutral[r.index][1] or neutral.moves[1] end
+          Classic.button(r,s,selected,Icons,palette)
+          r.commandInk=palette and Classic.ink(palette) or {1,1,.96,1}
+        elseif r.classic and Classic then
           Classic.button(r,s,selected,Icons)
         elseif l.emeraldIvory then
           Skin.panel(r,s,r.index==4 and 'run' or 'command',selected)
@@ -202,28 +212,38 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
         else metallic(r,s,colors[r.index],selected,r.index,now,options.nativePalette) end
         if r.classic then
           local leftIcon=r.index==1 or r.index==3
-          text(names[r.index],r.x+(leftIcon and 46 or 12)*s,r.y+12*s,r.w-58*s,13*s,{1,1,.96,1})
+          text(names[r.index],r.x+(leftIcon and 46 or 12)*s,r.y+12*s,r.w-58*s,13*s,r.commandInk or {1,1,.96,1})
         else
         text(names[r.index],r.x+72*s,r.y+18*s,r.w-80*s,15*s,l.emeraldIvory and Skin.colors.white or options.pastel and neutral.ink or nil)
         end
+      elseif r.commandDeck and Classic then
+        local t=Types.resolve(card.type)
+        local fill=l.classicColors and t.color or l.emeraldIvory and {.115,.23,.19} or neutral.moves[1]
+        Classic.panel(r,s,selected,fill)
+        local ink=Classic.ink(fill)
+        g.setColor(ink);Icons.type(card.type,r.x+13*s,r.y+15*s,8*s)
+        text(card.name,r.x+27*s,r.y+5*s,r.w-34*s,10*s,ink)
+        local label=(snapshot.typeLabels or {})[card.type] or t.label
+        text(label..'  '..tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),r.x+8*s,r.y+25*s,r.w-16*s,7*s,ink)
       else
         local k=r.scale or s
         local alpha=r.alpha or Model.alpha(r.index,selection.move)
-        local groupAlpha=l.emeraldIvory and (r.depth==0 and 1 or r.depth==1 and .75 or r.depth==2 and .55 or .4) or alpha
-        if l.emeraldIvory then alpha=1 end
+        local groupAlpha=(l.emeraldIvory or l.classicColors) and (r.depth==0 and 1 or r.depth==1 and .75 or r.depth==2 and .55 or .4) or alpha
+        if l.emeraldIvory or l.classicColors then alpha=1 end
         local t=Types.resolve(card.type)
         local compact=options.style=='list' or options.style=='stack'
-        local ink=card.disabled and {.72,.77,.82,.85} or {.94,.97,1,.98}
+        local ink=l.classicColors and Classic.ink(t.color) or card.disabled and {.72,.77,.82,.85} or {.94,.97,1,.98}
         local function drawCard()
         g.push('all')
         if r.angle then
           g.translate(r.x+r.w/2,r.y+r.h/2);g.rotate(r.angle);g.translate(-r.x-r.w/2,-r.y-r.h/2)
         end
-        if l.emeraldIvory then Skin.panel(r,k,'move',selected,t.color)
+        if l.classicColors then Classic.panel(r,k,selected,t.color)
+        elseif l.emeraldIvory then Skin.panel(r,k,'move',selected,t.color)
         elseif options.pastel then solid(r,k,neutral.moves,selected)
         else panel(r,k,{.32,.9,1},selected,(options.opacity or .70)*alpha) end
         -- Back cards retain a subtle type tint; cyan focus stays distinct.
-        if not options.pastel and not l.emeraldIvory then
+        if not options.pastel and not l.emeraldIvory and not l.classicColors then
         g.setColor(t.color[1],t.color[2],t.color[3],.09*alpha)
         g.rectangle('fill',r.x+2*k,r.y+2*k,r.w-4*k,r.h-4*k,12*k,12*k)
         g.setColor(t.color[1],t.color[2],t.color[3],alpha)
@@ -259,15 +279,16 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
           text(card.name,tx,r.y+(compact and 5 or 15)*k,r.w-68*k,17*k,ink)
           local tagX=tx;local tagY=r.y+(compact and 29 or 58)*k
           local tagW=math.min(100*k,r.w*.36)
-          if l.emeraldIvory and tostring(card.type):upper()=='NORMAL' then g.setColor(Skin.colors.normal)
+          if l.classicColors then g.setColor(.95,.95,.89,1)
+          elseif l.emeraldIvory and tostring(card.type):upper()=='NORMAL' then g.setColor(Skin.colors.normal)
           else g.setColor(t.color[1]*.6,t.color[2]*.6,t.color[3]*.6,math.max(.3,alpha)) end
           g.rectangle('fill',tagX,tagY,tagW,17*k,8*k,8*k)
-          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,l.emeraldIvory and tostring(card.type):upper()=='NORMAL' and Skin.colors.ink or ink)
+          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,l.classicColors and {.03,.05,.04,1} or l.emeraldIvory and tostring(card.type):upper()=='NORMAL' and Skin.colors.ink or ink)
           text(tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),tagX+tagW+12*k,tagY,r.w-180*k,12*k,ink)
         end
         g.pop()
         end
-        if l.emeraldIvory then Skin.group(r.index,r,groupAlpha,drawCard) else drawCard() end
+        if l.emeraldIvory or l.classicColors then Skin.group(r.index,r,groupAlpha,drawCard) else drawCard() end
       end
     end
     if l.commandCenter and Classic then Classic.center(l.commandCenter,s) end
@@ -286,7 +307,8 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       panel(r,s,{1,.62,.49},false,.9)
       text(errorText,r.x+8*s,r.y+4*s,r.w-16*s,12*s,{1,.72,.62,1})
     else
-      text('← →   ↑ '..(names[3] or '')..'   ↓ '..(names[2] or ''),l.x,l.y-22*s,l.w,11*s,{.80,.91,1,.92})
+      local hint=options.style=='commands' and '↑ ↓ ← →   A / B' or '← →   ↑ '..(names[3] or '')..'   ↓ '..(names[2] or '')
+      text(hint,l.x,l.y-22*s,l.w,11*s,{.80,.91,1,.92})
     end
     return l
   end

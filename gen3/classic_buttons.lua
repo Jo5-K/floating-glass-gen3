@@ -2,7 +2,7 @@
 return function()
  local C={}
  local colors={[1]={.78,.12,.15},[2]={.12,.55,.20},[3]={.86,.49,.08},[4]={.12,.34,.78}}
- function C.button(r,s,selected,Icons)
+ function C.panel(r,s,selected,fill)
   local g=love.graphics;local x,y,w,h=r.x,r.y,r.w,r.h;local n=18*s
   local vertices={}
   -- The inward corner leaves room for the shared central diamond.
@@ -17,11 +17,15 @@ return function()
    end
    toward(prev);toward(after)
   end
-  local color=colors[r.index]
+  local color=fill or colors[r.index]
   g.setColor(color[1],color[2],color[3],1);g.polygon('fill',vertices)
   g.setColor(.025,.09,.075,1);g.setLineWidth(4*s);g.polygon('line',vertices)
-  g.setColor(selected and 1 or .8,selected and .9 or .88,selected and .4 or .8,selected and 1 or .5)
+  g.setColor(selected and 1 or .8,selected and 1 or .88,selected and 1 or .8,selected and 1 or .5)
   g.setLineWidth((selected and 2 or .8)*s);g.polygon('line',vertices)
+ end
+ function C.button(r,s,selected,Icons,fill)
+  C.panel(r,s,selected,fill)
+  local g=love.graphics;local x,y,w,h=r.x,r.y,r.w,r.h
   -- Muted function silhouettes sit at the outside edge, away from the notch.
   local cx=x+w-24*s;local cy=y+h/2
   if r.index==1 or r.index==3 then cx=x+24*s end
@@ -37,6 +41,11 @@ return function()
   local g=love.graphics;local x,y=r.x,r.y;local radius=16*s
   g.setColor(.035,.13,.105,1);g.polygon('fill',x,y-radius,x+radius,y,x,y+radius,x-radius,y)
   g.setColor(.12,.32,.22,1);g.setLineWidth(3*s);g.polygon('line',x,y-radius,x+radius,y,x,y+radius,x-radius,y)
+ end
+ function C.ink(fill)
+  local function linear(v) return v<=.04045 and v/12.92 or ((v+.055)/1.055)^2.4 end
+  local l=.2126*linear(fill[1])+.7152*linear(fill[2])+.0722*linear(fill[3])
+  return l>.179 and {.025,.045,.035,1} or {1,1,.98,1}
  end
  return C
 end
