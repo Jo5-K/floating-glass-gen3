@@ -10,6 +10,7 @@ return function(R)
   })
   local Skin=R.load('gen3/emerald_ivory.lua')()
   local Classic=R.load('gen3/classic_buttons.lua')()
+  local Dialogue=R.load('gen3/dialogue_layout.lua')
   local View=part('ui/view.lua')(Types,Model,Layout,part('ui/icons.lua'),Art,part('ui/status.lua'),R.theme,Skin,Classic)
   local API=require('src.battle.game3.BattleAPI')
   local Anchors=R.load('gen3/anchors.lua')(R)
@@ -40,6 +41,7 @@ return function(R)
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
     {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic'},labels={'Atual','Emerald Green & Ivory','Clássico colorido'}},
     {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
+    {key='dialogue_size',label='Tamanho das mensagens',default='medium',values={'small','medium','medium_large','large'},labels={'Pequeno','Médio','Médio maior','Grande'}},
     {key='foreground',label='Primeiro plano',values={.65,0,1},labels={'65%','Desligado','100%'}},
   }
   local function settingIndex(row)
@@ -348,7 +350,7 @@ return function(R)
     if not st then return '' end
     return table.concat({tostring(st),tostring(st.turn),tostring(st.player.mon),
       tostring(native._phase),tostring(U._mode),tostring(M and M.open),tostring(M and M._page),
-      tostring(B.settingsOpen),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),
+      tostring(B.settingsOpen),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),tostring(R.option('dialogue_size','medium')),
       tostring(R.option('battle_aspect','native')),tostring(R.option('battle_drop',8)),presentation().style,presentation().position,tostring(presentation().opacity),tostring(presentation().scale)},'|')
   end
   function B.pointer(game,x,y,button)
@@ -511,13 +513,11 @@ return function(R)
       local options=presentation()
       local _,_,_,nativeMessage=B.context()
       local page=nativeMessage and nativeMessage.currentPage() or ''
-      local unit=math.min(frame.w/1280,frame.h/720)
-      -- Preserve the native page and reveal counter: resize only its presentation.
-      local textScale=math.min(math.max(3*unit,math.min(2.5,frame.w/240)),(frame.w-80*unit)/224)
+      local F=R.module('src.ui.game3.frlg_font')
+      local measured=F and F.measure and F.measure(page) or 224
       local _,lineBreaks=tostring(page):gsub('\n','')
-      local lines=math.max(2,lineBreaks+1)
-      options.messageRect={x=24*unit,y=0,w=frame.w-48*unit,h=math.min(frame.h-48*unit,(lines*16+10)*textScale+24*unit)}
-      options.messageRect.y=frame.h-24*unit-options.messageRect.h
+      local messageRect,textScale,unit=Dialogue.compute(frame.w,frame.h,R.option('dialogue_size','medium'),measured,lineBreaks+1)
+      options.messageRect=messageRect
       local layout=View.draw(snap,sync(rec),options,frame.w,frame.h,rec.error)
       B.layout=layout
       if B.settingsOpen then

@@ -1,8 +1,8 @@
-# Floating Glass Gen3 — beta - 6
+# Floating Glass Gen3 — beta - 7
 
 ## Português
 
-**Nesta versão:** tamanho 175%, golpes proporcionais ao menu, mensagens de batalha pelo menos 2,5× maiores e SELECT com rolagem, exibindo até metade das opções por vez.
+**Nesta versão:** mensagens em quatro tamanhos — Pequeno (anterior), Médio (padrão), Médio maior e Grande (beta 6). A caixa usa a largura da página e cresce do centro para a esquerda; depois, ocupa a direita. A leitura continua na ordem nativa.
 
 Muda o visual das batalhas: fundos ultrawide, arenas, câmeras e sombras animadas. Layout e cores independentes: **camadas, lista ou menu Fight**, com as paletas **Atual, Emerald Green & Ivory e Clássico colorido**, golpes coloridos por tipo, SELECT em **PT-BR / English / Français / Español** e correção dos sprites e arenas esticados ao trocar o formato. Os menus fora da batalha continuam nativos.
 
@@ -16,7 +16,7 @@ Importe o ZIP pelo gerenciador do G1R. O vínculo com o GitHub está incluído p
 
 ## English
 
-**This update:** 175% size, move cards proportional to the command menu, battle dialogue at least 2.5× larger, and scrolling SELECT settings showing up to half the options at a time.
+**This update:** four message sizes — Small (previous size), Medium (default), Medium large, and Large (beta 6). The box fits the page, extending left from the centre before using the right side. Native reading order is preserved.
 
 Changes battle presentation: ultrawide backgrounds, arenas, camera options, and animated shadows. Independent layouts and colors: **layers, list, or Fight menu**, with **Current, Emerald Green & Ivory, and Classic colors** palettes, type-colored move cards, **PT-BR / English / Français / Español** settings, and a fix for stretched sprites and arenas when changing the aspect ratio. Menus outside battles remain native.
 

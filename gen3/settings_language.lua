@@ -2,6 +2,11 @@
 return function(R)
  local languages={
   ["en"]={
+   ["Tamanho das mensagens"]="Message size",
+   ["Pequeno"]="Small",
+   ["Médio maior"]="Medium large",
+   ["Grande"]="Large",
+
    ["Acabamento"]="Finish",
    ["Layout dos botões"]="Button layout",
    ["Menu de comandos (Fight)"]="Command menu (Fight)",
@@ -80,6 +85,11 @@ return function(R)
    ["Interior"]="Interior",
   },
   ["fr"]={
+   ["Tamanho das mensagens"]="Taille des messages",
+   ["Pequeno"]="Petit",
+   ["Médio maior"]="Moyen grand",
+   ["Grande"]="Grand",
+
    ["Acabamento"]="Finition",
    ["Layout dos botões"]="Disposition des boutons",
    ["Menu de comandos (Fight)"]="Menu de commandes (Fight)",
@@ -158,6 +168,11 @@ return function(R)
    ["Interior"]="Intérieur",
   },
   ["es"]={
+   ["Tamanho das mensagens"]="Tamaño de mensajes",
+   ["Pequeno"]="Pequeño",
+   ["Médio maior"]="Mediano grande",
+   ["Grande"]="Grande",
+
    ["Acabamento"]="Acabado",
    ["Layout dos botões"]="Diseño de botones",
    ["Menu de comandos (Fight)"]="Menú de comandos (Fight)",
