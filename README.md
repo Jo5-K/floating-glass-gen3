@@ -1,8 +1,8 @@
-# Floating Glass Gen3 — beta - 7
+# Floating Glass Gen3 — beta - 8
 
 ## Português
 
-**Nesta versão:** mensagens em quatro tamanhos — Pequeno (anterior), Médio (padrão), Médio maior e Grande (beta 6). A caixa usa a largura da página e cresce do centro para a esquerda; depois, ocupa a direita. A leitura continua na ordem nativa.
+**Nesta versão:** iluminação 2D por horário local, contraste direcional, contorno nos sprites e relevo aproximado da textura. No SELECT, use esquerda/direita para ligar/desligar e A para abrir os ajustes de perfil, intensidade, ambiente, contorno, relevo e direção. B retorna. A HUD mantém suas cores. O efeito é uma aproximação 2D, sem novas sombras físicas; a aparência e o desempenho ainda precisam de validação em jogo e no celular.
 
 Muda o visual das batalhas: fundos ultrawide, arenas, câmeras e sombras animadas. Layout e cores independentes: **camadas, lista ou menu Fight**, com as paletas **Atual, Emerald Green & Ivory e Clássico colorido**, golpes coloridos por tipo, SELECT em **PT-BR / English / Français / Español** e correção dos sprites e arenas esticados ao trocar o formato. Os menus fora da batalha continuam nativos.
 
@@ -16,7 +16,7 @@ Importe o ZIP pelo gerenciador do G1R. O vínculo com o GitHub está incluído p
 
 ## English
 
-**This update:** four message sizes — Small (previous size), Medium (default), Medium large, and Large (beta 6). The box fits the page, extending left from the centre before using the right side. Native reading order is preserved.
+**This update:** local-time 2D lighting, directional contrast, sprite rim light, and approximate texture relief. In SELECT, use left/right to enable/disable lighting and A to open profile, intensity, ambient, rim, relief, and direction settings. B goes back. HUD colors remain unchanged. This is a 2D approximation with no new physical shadows; appearance and performance still need in-game and mobile validation.
 
 Changes battle presentation: ultrawide backgrounds, arenas, camera options, and animated shadows. Independent layouts and colors: **layers, list, or Fight menu**, with **Current, Emerald Green & Ivory, and Classic colors** palettes, type-colored move cards, **PT-BR / English / Français / Español** settings, and a fix for stretched sprites and arenas when changing the aspect ratio. Menus outside battles remain native.
 

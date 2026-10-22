@@ -158,6 +158,7 @@ return function(R)
       if key~=nil and key~=false and R.camera then dx,dy=R.camera.activeOffset(A,key) end
       local function draw(...)
         if key~=nil and key~=false and R.shadows then R.shadows.draw(downstream,img,key,A,...) end
+        if enabled and key~=nil and key~=false and R.lighting then return R.lighting.sprite(downstream,img,...) end
         return downstream(img,...)
       end
       if dx==0 and dy==0 then return draw(...) end

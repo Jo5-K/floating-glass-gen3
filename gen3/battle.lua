@@ -41,16 +41,37 @@ return function(R)
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
     {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic'},labels={'Atual','Emerald Green & Ivory','Clássico colorido'}},
     {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
+    {key='dynamic_lighting',label='Iluminação dinâmica',default=true,values={true,false},labels={'Ligada','Desligada'}},
     {key='dialogue_size',label='Tamanho das mensagens',default='medium',values={'small','medium','medium_large','large'},labels={'Pequeno','Médio','Médio maior','Grande'}},
     {key='foreground',label='Primeiro plano',values={.65,0,1},labels={'65%','Desligado','100%'}},
   }
+  local lightingSettings={
+    {key='lighting_profile',label='Perfil da luz',default='auto',values={'auto','predawn','dawn','morning','noon','dusk','night'},labels={'Automático por horário','Madrugada','Amanhecer','Manhã','Meio-dia','Entardecer','Noite'}},
+    {key='lighting_intensity',label='Intensidade da luz',default=.75,values={.25,.5,.75,1},labels={'25%','50%','75%','100%'}},
+    {key='lighting_ambient',label='Brilho ambiente',default=.75,values={.5,.75,1},labels={'50%','75%','100%'}},
+    {key='lighting_rim',label='Luz de contorno',default=.5,values={0,.25,.5,.75},labels={'Desligado','25%','50%','75%'}},
+    {key='lighting_relief',label='Relevo aproximado',default=.5,values={0,.25,.5,.75},labels={'Desligado','25%','50%','75%'}},
+    {key='lighting_direction',label='Direção da luz',default='auto',values={'auto','left','right','top'},labels={'Automática','Esquerda','Direita','Superior'}},
+  }
+  local function settingRows() return B.lightingSettingsOpen and lightingSettings or settings end
+  local function currentIndex() return B.lightingSettingsOpen and (B.lightingSettingsIndex or 1) or (B.settingsIndex or 1) end
+  local function setIndex(i) if B.lightingSettingsOpen then B.lightingSettingsIndex=i else B.settingsIndex=i end end
+  local function closeSettings()
+    if B.lightingSettingsOpen then B.lightingSettingsOpen=false else B.settingsOpen=false end
+    B.drawStamp=nil
+  end
+  local function activateSetting(i)
+    if not B.lightingSettingsOpen and settings[i] and settings[i].key=='dynamic_lighting' then
+      B.lightingSettingsOpen=true;B.lightingSettingsIndex=1;B.drawStamp=nil;return true
+    end
+  end
   local function settingIndex(row)
     local value=R.option(row.key,row.default or row.values[1])
     for i,v in ipairs(row.values) do if v==value then return i end end
     return 1
   end
   local function changeSetting(index,delta)
-    local row=settings[index];if not row then return end
+    local row=settingRows()[index];if not row then return end
     local i=(settingIndex(row)-1+delta)%#row.values+1
     return R.setOption(row.key,row.values[i])
   end
@@ -294,14 +315,19 @@ return function(R)
       and (not U.waitingForCommand or U.waitingForCommand())
   end
   local function settingsInput(input)
-    if input:wasPressed('select') then B.settingsOpen=not B.settingsOpen;B.settingsIndex=1;return true end
+    if input:wasPressed('select') then
+      B.settingsOpen=not B.settingsOpen;B.lightingSettingsOpen=false;B.settingsIndex=1;B.drawStamp=nil;return true
+    end
     if not B.settingsOpen then return false end
-    if input:wasPressed('a') or input:wasPressed('b') then B.settingsOpen=false
-    elseif input:wasPressed('up') then B.settingsIndex=(B.settingsIndex-2)%#settings+1
-    elseif input:wasPressed('down') then B.settingsIndex=B.settingsIndex%#settings+1
-    elseif input:wasPressed('left') then changeSetting(B.settingsIndex,-1)
-    elseif input:wasPressed('right') then changeSetting(B.settingsIndex,1) end
-    return true
+    local i=currentIndex();local rows=settingRows()
+    if input:wasPressed('b') then closeSettings()
+    elseif input:wasPressed('a') then
+      if not activateSetting(i) and not B.lightingSettingsOpen then closeSettings() end
+    elseif input:wasPressed('up') then setIndex((i-2)%#rows+1)
+    elseif input:wasPressed('down') then setIndex(i%#rows+1)
+    elseif input:wasPressed('left') then changeSetting(i,-1)
+    elseif input:wasPressed('right') then changeSetting(i,1) end
+    B.drawStamp=nil;return true
   end
   local function input(next,input)
     if B.submitting then return next(input) end
@@ -310,16 +336,7 @@ return function(R)
       B.settingsOpen=false;return next(input)
     end
     local rec=B.record()
-    if input:wasPressed('select') then
-      B.settingsOpen=not B.settingsOpen;B.settingsIndex=1;B.drawStamp=nil
-      return true
-    end
-    if B.settingsOpen then
-      if input:wasPressed('b') or input:wasPressed('a') then B.settingsOpen=false;B.drawStamp=nil
-      elseif input:wasPressed('up') then B.settingsIndex=(B.settingsIndex-2)%#settings+1
-      elseif input:wasPressed('down') then B.settingsIndex=B.settingsIndex%#settings+1
-      elseif input:wasPressed('left') then changeSetting(B.settingsIndex,-1);B.drawStamp=nil
-      elseif input:wasPressed('right') then changeSetting(B.settingsIndex,1);B.drawStamp=nil end
+    if settingsInput(input) then
       local _,_,U=B.context();if U.tick then U.tick() end
       return true
     end
@@ -350,7 +367,7 @@ return function(R)
     if not st then return '' end
     return table.concat({tostring(st),tostring(st.turn),tostring(st.player.mon),
       tostring(native._phase),tostring(U._mode),tostring(M and M.open),tostring(M and M._page),
-      tostring(B.settingsOpen),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),tostring(R.option('dialogue_size','medium')),
+      tostring(B.settingsOpen),tostring(B.lightingSettingsOpen),tostring(B.lightingSettingsIndex),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),tostring(R.option('dialogue_size','medium')),tostring(R.option('dynamic_lighting',true)),
       tostring(R.option('battle_aspect','native')),tostring(R.option('battle_drop',8)),presentation().style,presentation().position,tostring(presentation().opacity),tostring(presentation().scale)},'|')
   end
   function B.pointer(game,x,y,button)
@@ -358,8 +375,8 @@ return function(R)
       if button~=1 then return true end
       local targets=B.settingsTargets
       if targets and B.viewport and B.settingsViewport==tostring(B.viewport.width)..':'..tostring(B.viewport.height) then
-        if Layout.contains(targets.close,x,y) then B.settingsOpen=false
-        else for _,r in ipairs(targets.rows) do if Layout.contains(r,x,y) then B.settingsIndex=r.index;changeSetting(r.index,x<r.x+r.w*.7 and -1 or 1) end end end
+        if Layout.contains(targets.close,x,y) then closeSettings()
+        else for _,r in ipairs(targets.rows) do if Layout.contains(r,x,y) then setIndex(r.index);if not activateSetting(r.index) then changeSetting(r.index,x<r.x+r.w*.7 and -1 or 1) end end end end
       end
       return true
     end
@@ -376,17 +393,17 @@ return function(R)
       if B.settingsOpen then
         local overlay=B.settingsTargets
         if not overlay then return true end
-        if Layout.contains(overlay.close,x,y) then B.settingsOpen=false;B.drawStamp=nil;return true end
+        if Layout.contains(overlay.close,x,y) then closeSettings();B.drawStamp=nil;return true end
         for _,r in ipairs(overlay.rows) do
           if Layout.contains(r,x,y) then
-            B.settingsIndex=r.index;changeSetting(r.index,x<r.x+r.w*.7 and -1 or 1);B.drawStamp=nil;return true
+            setIndex(r.index);if not activateSetting(r.index) then changeSetting(r.index,x<r.x+r.w*.7 and -1 or 1) end;B.drawStamp=nil;return true
           end
         end
         return true -- modal blocks underlying commands
       end
       local hit=Layout.hit(B.layout,x,y)
       if not hit then return false end
-      if hit.kind=='settings' then B.settingsOpen=true;B.settingsIndex=1;B.drawStamp=nil;return true end
+      if hit.kind=='settings' then B.settingsOpen=true;B.lightingSettingsOpen=false;B.settingsIndex=1;B.drawStamp=nil;return true end
       if presentation().style=='commands' then
         local _,_,U=B.context()
         if hit.kind=='menu' and U._mode=='menu' then return B.confirmCommand(hit.index)~=false end
@@ -490,8 +507,8 @@ return function(R)
         local ok,err=pcall(function()
           if R.camera.depth() then R.scenery.foreground(viewport.width,viewport.height);B.drawHealthboxes({x=0,y=0,w=viewport.width,h=viewport.height}) end
           if B.settingsOpen then
-            local rows={};for _,row in ipairs(settings) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])} end
-            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate},rows,B.settingsIndex or 1)
+            local rows={};for _,row in ipairs(settingRows()) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])..(row.key=='dynamic_lighting' and (' · '..translate('A: ajustes')) or '')} end
+            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil,footer=B.lightingSettingsOpen and 'B · voltar / SELECT · fechar' or nil,showAll=B.lightingSettingsOpen},rows,currentIndex())
             B.settingsViewport=tostring(viewport.width)..':'..tostring(viewport.height)
           else B.settingsTargets=nil end
         end)
@@ -522,9 +539,12 @@ return function(R)
       B.layout=layout
       if B.settingsOpen then
         local rows={}
-        for _,row in ipairs(settings) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])} end
+        for _,row in ipairs(settingRows()) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])..(row.key=='dynamic_lighting' and (' · '..translate('A: ajustes')) or '')} end
         layout.translate=translate
-        B.settingsTargets=View.settings(layout,rows,B.settingsIndex or 1)
+        layout.title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil
+        layout.footer=B.lightingSettingsOpen and 'B · voltar / SELECT · fechar' or nil
+        layout.showAll=B.lightingSettingsOpen
+        B.settingsTargets=View.settings(layout,rows,currentIndex())
       else B.settingsTargets=nil end
       B.messageRect=layout.message
       local _,_,_,M=B.context()
@@ -669,7 +689,8 @@ return function(R)
       local quads=setmetatable({},{__mode='k'})
       local failed=setmetatable({},{__mode='k'})
       R.wrap(C,'drawTerrain',function(next,key,enemyOx,playerOx,bgOx)
-        local result=next(key,enemyOx,playerOx,bgOx)
+        local result
+        if R.lighting then result=R.lighting.background(next,key,enemyOx,playerOx,bgOx) else result=next(key,enemyOx,playerOx,bgOx) end
         if not result or not B.scene or not R.option('battle_extend',true) or type(C.terrain)~='function' then return result end
         local entry=C.terrain(key or 'building') or C.terrain('building') or C.terrain('grass')
         local img=entry and entry.bgImage
@@ -686,7 +707,9 @@ return function(R)
             q=g.newQuad(0,104,240,8,iw,ih);quads[img]=q
           end
           g.setColor(1,1,1,1)
-          for y=112,152,8 do g.draw(img,q,0,y) end
+          for y=112,152,8 do
+            if R.lighting then R.lighting.background(g.draw,img,q,0,y) else g.draw(img,q,0,y) end
+          end
         end)
         g.pop()
         if not ok then failed[img]=true;R.warn('battle terrain extension; native background retained',err) end
@@ -708,7 +731,7 @@ return function(R)
       seen[Game]=true
       R.wrap(Game,'wheelmoved',function(next,game,dx,dy)
         if B.settingsOpen and B.settingsDecision() and dy~=0 then
-          B.settingsIndex=math.max(1,math.min(#settings,(B.settingsIndex or 1)-(dy>0 and 1 or -1)))
+          setIndex(math.max(1,math.min(#settingRows(),currentIndex()-(dy>0 and 1 or -1))))
           B.drawStamp=nil;return true
         end
         return next(game,dx,dy)

@@ -316,7 +316,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
   function V.settings(layout,rows,index)
     local tr=layout.translate or function(v) return v end
     local s=math.max(.85,math.min(layout.width/960,layout.height/720,1.4))
-    local visible=math.max(1,math.min(math.ceil(#rows/2),math.floor((layout.height-150*s)/(52*s))))
+    local visible=math.max(1,math.min((layout.showAll and #rows or math.ceil(#rows/2)),math.floor((layout.height-150*s)/(52*s))))
     local first=math.max(1,math.min(V.settingsFirst or 1,#rows-visible+1))
     if index<first then first=index elseif index>=first+visible then first=index-visible+1 end
     V.settingsFirst=first
@@ -326,7 +326,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     local g=love.graphics
     g.setColor(.008,.02,.045,.65);g.rectangle('fill',0,0,layout.width,layout.height)
     if layout.emeraldIvory and Skin then Skin.panel(r,s,'settings',false) elseif layout.neutral then solid(r,s,neutral.settings,false) else panel(r,s,{.32,.9,1},true,.96) end
-    text(tr('AJUSTES DA BATALHA'),r.x+20*s,r.y+18*s,r.w-40*s,22*s)
+    text(tr(layout.title or 'AJUSTES DA BATALHA'),r.x+20*s,r.y+18*s,r.w-40*s,22*s)
     local targets={}
     for i=first,first+visible-1 do
       local row=rows[i]
@@ -338,7 +338,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     end
     local close={x=r.x+16*s,y=r.y+r.h-48*s,w=r.w-32*s,h=34*s}
     if layout.emeraldIvory and Skin then Skin.panel(close,s,'settings',false) elseif layout.neutral then solid(close,s,neutral.settings,false) else panel(close,s,{.32,.9,1},false,.6) end
-    text(tr('A / B / SELECT · voltar'),close.x+12*s,close.y+9*s,close.w-24*s,13*s)
+    text(tr(layout.footer or 'A / B / SELECT · voltar'),close.x+12*s,close.y+9*s,close.w-24*s,13*s)
     text(tostring(first)..'–'..tostring(first+visible-1)..' / '..tostring(#rows),r.x+20*s,r.y+r.h-76*s,r.w-40*s,15*s)
     return {rows=targets,close=close,first=first,visibleCount=visible,total=#rows}
   end

@@ -70,7 +70,8 @@ return function(R)
     local ok,err=pcall(function()
       -- Clear any previous native scene outside the fitted image as well.
       g.setColor(16/255,20/255,29/255,1);g.rectangle('fill',0,0,w,h)
-      g.setColor(1,1,1,1);g.draw(img,(w-iw*scale)/2,0,0,scale,scale)
+      g.setColor(1,1,1,1)
+      if R.lighting then R.lighting.background(g.draw,img,(w-iw*scale)/2,0,0,scale,scale) else g.draw(img,(w-iw*scale)/2,0,0,scale,scale) end
       -- Source circles are isolated from their sheet and sized independently.
       S.arenaRects={}
       local entry=arenaCatalog[S.selected]
@@ -96,7 +97,7 @@ return function(R)
             -- Shrink at narrow window edges; never detach ground from its mon.
             local shape=entry.shapes[kind];local sw=shape.r-shape.l
             width=math.max(1,math.min(width,cx*sw/(shape.cx-shape.l),(w-cx)*sw/(shape.r-shape.cx),cy*sw/(shape.cy-shape.t),(h-cy)*sw/(shape.b-shape.cy)))
-            S.arenaRects[side]=renderer.draw(arenas,kind,cx,cy,width)
+            if R.lighting then S.arenaRects[side]=R.lighting.background(renderer.draw,arenas,kind,cx,cy,width) else S.arenaRects[side]=renderer.draw(arenas,kind,cx,cy,width) end
             end
           end
         end
@@ -131,8 +132,10 @@ return function(R)
       S.lensQuads=S.lensQuads or setmetatable({},{__mode='k'})
       local q=S.lensQuads[img]
       if not q then q={g.newQuad(0,0,iw/2,ih,iw,ih),g.newQuad(iw/2,0,iw/2,ih,iw,ih)};S.lensQuads[img]=q end
-      g.setScissor(0,0,w/2,h);g.draw(img,q[1],0,h-ih*k,0,k,k)
-      g.setScissor(w/2,0,w/2,h);g.draw(img,q[2],w-iw*k/2,h-ih*k,0,k,k)
+      g.setScissor(0,0,w/2,h)
+      if R.lighting then R.lighting.background(g.draw,img,q[1],0,h-ih*k,0,k,k) else g.draw(img,q[1],0,h-ih*k,0,k,k) end
+      g.setScissor(w/2,0,w/2,h)
+      if R.lighting then R.lighting.background(g.draw,img,q[2],w-iw*k/2,h-ih*k,0,k,k) else g.draw(img,q[2],w-iw*k/2,h-ih*k,0,k,k) end
     end)
     g.pop();if not ok then R.warn('foreground draw',err) end
   end
