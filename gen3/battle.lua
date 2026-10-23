@@ -690,6 +690,11 @@ return function(R)
       local failed=setmetatable({},{__mode='k'})
       R.wrap(C,'drawTerrain',function(next,key,enemyOx,playerOx,bgOx)
         local result
+        if R.lighting and not R.scenery.wideActive then
+          local GV=R.module('src.core.GameVersion')
+          local entry=R.scenery.resolve(GV and GV.get and GV.get() or 'firered',key,false)
+          R.lighting.setScene(entry and entry.id or key)
+        end
         if R.lighting then result=R.lighting.background(next,key,enemyOx,playerOx,bgOx) else result=next(key,enemyOx,playerOx,bgOx) end
         if not result or not B.scene or not R.option('battle_extend',true) or type(C.terrain)~='function' then return result end
         local entry=C.terrain(key or 'building') or C.terrain('building') or C.terrain('grass')

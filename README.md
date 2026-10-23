@@ -1,29 +1,25 @@
-# Floating Glass Gen3 — beta - 8
+# Floating Glass Gen3 — beta - 9
 
 ## Português
 
-**Nesta versão:** iluminação 2D por horário local, contraste direcional, contorno nos sprites e relevo aproximado da textura. No SELECT, use esquerda/direita para ligar/desligar e A para abrir os ajustes de perfil, intensidade, ambiente, contorno, relevo e direção. B retorna. A HUD mantém suas cores. O efeito é uma aproximação 2D, sem novas sombras físicas; a aparência e o desempenho ainda precisam de validação em jogo e no celular.
+**Nesta versão:** iluminação com tons próprios para ambientes abertos, cavernas e interiores; primeiro ajuste de luz localizada na floresta e integração da arena pela posição. O shader dos Pokémon mantém o comportamento da beta - 8. A aparência ainda está em avaliação no jogo e no celular.
 
-Muda o visual das batalhas: fundos ultrawide, arenas, câmeras e sombras animadas. Layout e cores independentes: **camadas, lista ou menu Fight**, com as paletas **Atual, Emerald Green & Ivory e Clássico colorido**, golpes coloridos por tipo, SELECT em **PT-BR / English / Français / Español** e correção dos sprites e arenas esticados ao trocar o formato. Os menus fora da batalha continuam nativos.
+Muda a apresentação das batalhas com fundos ultrawide, arenas, câmeras, sombras animadas e layouts personalizáveis. Menu SELECT em PT-BR, inglês, francês e espanhol. Menus fora de batalha permanecem nativos.
 
-**Requer G1R 0.3.93+.** Destinado a FireRed, LeafGreen, Ruby, Sapphire e Emerald; a validação completa em jogo continua em andamento. Alguns cenários especiais e batalhas duplas mantêm partes da interface nativa.
+**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire e Emerald.** Algumas cenas especiais e duplas usam elementos nativos. A opção de baixar sprites nativos no celular continua em avaliação.
 
-**Pendência no celular:** baixar sprites nativos pelo SELECT pode não funcionar como esperado. A revisão ficará para uma próxima etapa.
+Compatibilidade observada com [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. A revisão atual de iluminação ainda precisa ser conferida com essas combinações.
 
-Testado em conjunto com [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites). Animações e sombras observadas; ainda pode haver ajustes de posicionamento. Não depende desses mods.
-
-Importe o ZIP pelo gerenciador do G1R. O vínculo com o GitHub está incluído para verificar futuras atualizações. O “Source code (zip)” também é importável. Na batalha, pressione SELECT: a primeira opção escolhe o layout, a segunda ajusta o menu em 75%, 100%, 125%, 150% ou 175%. No layout de menu, confirme Fight para abrir os golpes e pressione B para voltar. Comandos e golpes ocupam o mesmo espaço inferior direito; a seleção é branca. O estilo de cores é escolhido separadamente, mais abaixo. Comandos e tipos acompanham o texto nativo e mods de tradução. Fada recebe sua cor quando fornecido por outro mod; este mod não adiciona o tipo.
+Importe o ZIP pelo gerenciador do G1R. Atualizações pelo GitHub incluídas; “Source code (zip)” também é importável. SELECT → Iluminação dinâmica: esquerda/direita liga/desliga, A abre ajustes. Para seguir o relógio do dispositivo, escolha **Perfil da luz → Automático por horário**; um perfil manual salvo tem prioridade.
 
 ## English
 
-**This update:** local-time 2D lighting, directional contrast, sprite rim light, and approximate texture relief. In SELECT, use left/right to enable/disable lighting and A to open profile, intensity, ambient, rim, relief, and direction settings. B goes back. HUD colors remain unchanged. This is a 2D approximation with no new physical shadows; appearance and performance still need in-game and mobile validation.
+**This update:** environment-specific lighting for outdoors, caves and interiors; initial localized forest lighting and arena lighting based on its position. Pokémon use the beta - 8 sprite shader. Appearance is still being evaluated in-game and on mobile.
 
-Changes battle presentation: ultrawide backgrounds, arenas, camera options, and animated shadows. Independent layouts and colors: **layers, list, or Fight menu**, with **Current, Emerald Green & Ivory, and Classic colors** palettes, type-colored move cards, **PT-BR / English / Français / Español** settings, and a fix for stretched sprites and arenas when changing the aspect ratio. Menus outside battles remain native.
+Changes battle presentation with ultrawide scenery, arenas, camera options, animated shadows and customizable layouts. SELECT settings in Brazilian Portuguese, English, French and Spanish. Menus outside battles remain native.
 
-**Requires G1R 0.3.93+.** Designed for FireRed, LeafGreen, Ruby, Sapphire, and Emerald; full in-game validation is ongoing. Some special scenes and double battles retain parts of the native interface.
+**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire and Emerald.** Some special scenes and double battles retain native elements. Lowering native sprites on mobile remains under review.
 
-**Known mobile issue:** lowering native sprites through SELECT may not work as expected. Investigation is deferred to a later update.
+Previously observed compatibility with [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. The current lighting revision still needs checking with these combinations.
 
-Tested alongside [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites). Animated sprites and shadows were observed; positioning may still need adjustment. Neither mod is required.
-
-Import the ZIP through G1R’s mod manager. The GitHub update link is included for checking future releases. “Source code (zip)” is also importable. Press SELECT during battle: the first option selects the layout; the second offers 75%, 100%, 125%, 150%, or 175% menu sizes. In the menu layout, confirm Fight to open moves and press B to return. Commands and moves share the same bottom-right area, with white selection borders. Choose the color style separately, farther down. Commands and move types follow native text and translation mods. Fairy gets its color when provided by another mod; this mod does not add the type.
+Import the ZIP through G1R’s mod manager. GitHub updates are included; “Source code (zip)” is also importable. SELECT → Dynamic lighting: left/right toggles, A opens settings. To follow your device clock, choose **Light profile → Automatic by time**; a saved manual profile takes priority.

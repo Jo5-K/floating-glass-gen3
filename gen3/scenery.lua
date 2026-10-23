@@ -71,7 +71,7 @@ return function(R)
       -- Clear any previous native scene outside the fitted image as well.
       g.setColor(16/255,20/255,29/255,1);g.rectangle('fill',0,0,w,h)
       g.setColor(1,1,1,1)
-      if R.lighting then R.lighting.background(g.draw,img,(w-iw*scale)/2,0,0,scale,scale) else g.draw(img,(w-iw*scale)/2,0,0,scale,scale) end
+      if R.lighting then R.lighting.sceneryBackground(g.draw,img,(w-iw*scale)/2,0,0,scale,scale) else g.draw(img,(w-iw*scale)/2,0,0,scale,scale) end
       -- Source circles are isolated from their sheet and sized independently.
       S.arenaRects={}
       local entry=arenaCatalog[S.selected]
@@ -97,7 +97,7 @@ return function(R)
             -- Shrink at narrow window edges; never detach ground from its mon.
             local shape=entry.shapes[kind];local sw=shape.r-shape.l
             width=math.max(1,math.min(width,cx*sw/(shape.cx-shape.l),(w-cx)*sw/(shape.r-shape.cx),cy*sw/(shape.cy-shape.t),(h-cy)*sw/(shape.b-shape.cy)))
-            if R.lighting then S.arenaRects[side]=R.lighting.background(renderer.draw,arenas,kind,cx,cy,width) else S.arenaRects[side]=renderer.draw(arenas,kind,cx,cy,width) end
+            if R.lighting then S.arenaRects[side]=R.lighting.arenaBackground({(cx-(w-iw*scale)/2)/(iw*scale),cy/h,1},renderer.draw,arenas,kind,cx,cy,width) else S.arenaRects[side]=renderer.draw(arenas,kind,cx,cy,width) end
             end
           end
         end
@@ -143,13 +143,15 @@ return function(R)
     local Bg=R.module('src.core.game3.battle.bg')
     if not Bg or S.seen[Bg] then return end;S.seen[Bg]=true
     R.wrap(Bg,'draw',function(next,id,enemyOx,playerOx,bgOx)
-      S.current=nil;S.wideActive=false;S.pads=nil;S.replaced=false;S.activeImage=nil
-      if not (R.battle.scene or R.battle.sceneryScene) or R.option('scenery','auto')~='auto' then return next(id,enemyOx,playerOx,bgOx) end
+      S.current=nil;S.wideActive=false;S.pads=nil;S.replaced=false;S.activeImage=nil;S.selected=nil
+      if not (R.battle.scene or R.battle.sceneryScene) then return next(id,enemyOx,playerOx,bgOx) end
       local terrain=id or Bg.terrainId()
       local key=Bg.env and Bg.env().TERRAIN_SHEET[terrain] or (Bg.sheetKey and Bg.sheetKey(terrain))
       local GV=R.module('src.core.GameVersion');local game=GV and GV.get and GV.get() or 'firered'
       local st=R.battle.context and R.battle.context()
       local entry=S.resolve(game,key,st and st.ghostBattle)
+      if R.lighting then R.lighting.setScene(entry and entry.id or key) end
+      if R.option('scenery','auto')~='auto' then return next(id,enemyOx,playerOx,bgOx) end
       if not entry then return next(id,enemyOx,playerOx,bgOx) end
       local bg=image(entry.path);if not bg then return next(id,enemyOx,playerOx,bgOx) end
       local g=love.graphics
