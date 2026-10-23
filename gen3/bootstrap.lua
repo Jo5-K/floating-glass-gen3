@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.8',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.9',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.

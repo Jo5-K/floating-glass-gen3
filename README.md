@@ -1,6 +1,8 @@
-# Floating Glass Gen3 — beta - 10
+# Floating Glass Gen3 — beta - 11
 
 ## Português
+
+**Nesta versão:** feixes mais definidos e alinhados à camada de luz suave, com dissipação gradual após os primeiros 30%.
 
 Mod visual de batalha com fundos ultrawide, arenas, câmeras, sombras e layouts personalizáveis. Menus fora da batalha permanecem nativos.
 
@@ -15,6 +17,8 @@ Compatibilidade anteriormente observada com [G9 Battle Sprites](https://github.c
 Aparência ainda em avaliação no jogo. Algumas cenas especiais/duplas usam elementos nativos; ajuste vertical de sprites nativos no celular e ciclos adicionais de animação continuam pendentes. A caverna de gelo não é selecionada automaticamente pelos mapas.
 
 ## English
+
+**This update:** clearer light shafts aligned with the soft lighting layer, gradually dissolving after the first 30%.
 
 Battle presentation mod with ultrawide scenery, arenas, cameras, shadows and customizable layouts. Menus outside battles stay native.
 

@@ -35,13 +35,12 @@ float definedRay(vec2 p,vec4 source,float phase) {
  if(incoming.y<.10 || source.w<=0.0) return 0.0;
  float y=p.y-source.y;
  float travel=y/max(.12,1.0-source.y);
- float centre=source.x+y*incoming.x/incoming.y/max(artAspect,.1);
+ float centre=beamCentre(p,source,lightDirection,artAspect,lightTime,phase);
  float variation=drift(lightTime/13.0,battleSeed+phase);
- centre+=max(travel,0.0)*.002*(drift(lightTime/19.0,battleSeed+phase+11.0)-.5);
- float width=max(.004,source.z*(.055+max(y,0.0)*.25))*(.94+.12*variation);
- float feather=mix(.32,1.0,smoothstep(.30,.85,travel));
+ float width=max(.004,source.z*(.075+max(y,0.0)*.27))*(.94+.12*variation);
+ float feather=mix(.08,.95,smoothstep(.30,.85,travel));
  float crossSection=1.0-smoothstep(width*(1.0-feather),width,abs(p.x-centre));
- float fade=(1.0-smoothstep(.30,1.0,travel))*smoothstep(0.0,.025,y);
+ float fade=(1.0-smoothstep(.30,.95,travel))*smoothstep(0.0,.012,y);
  return crossSection*fade*source.w*(.70+.30*variation);
 }
 float pool(vec2 p,vec4 source,float phase) {
@@ -73,10 +72,10 @@ vec4 effect(vec4 color, Image tex, vec2 uv, vec2 screen) {
   }
  } else if(canopy || windowLight) {
   float soft=beamField(uv,beam0,lightDirection,artAspect,lightTime,0.0)+beamField(uv,beam1,lightDirection,artAspect,lightTime,1.7);
-  float defined=definedRay(uv,beam0,1.0)+definedRay(uv,beam1,3.0);
+  float defined=definedRay(uv,beam0,0.0)+definedRay(uv,beam1,1.7);
   // Existing soft veil retained; the additional defined component dissolves at 30%.
   float occlusion=max(max(blockedArea(uv,blocked0),blockedArea(uv,blocked1)),max(blockedArea(uv,blocked2),blockedArea(uv,blocked3)));
-  a=soft*.70+defined*.55*(1.0-occlusion);
+  a=soft*.70+defined*1.25*(1.0-occlusion);
  } else if(closed) {
   // Lamps/crystals/screens reflect LOCALLY; never solar shafts through a roof.
   a=(pool(uv,beam0,1.0)+pool(uv,beam1,2.0)+pool(uv,beam2,3.0)+pool(uv,beam3,4.0))*.18;
@@ -91,7 +90,7 @@ vec4 effect(vec4 color, Image tex, vec2 uv, vec2 screen) {
   if(water) a=.026*blockedArea(uv,reflectionArea)*(.80+.20*sin(uv.x*25.0+lightTime*.18));
  }
  float solar=closed?1.0:daylightAmount;
- a=clamp(a*solar*lightIntensity,0.0,detailStage>.5?.045:.18);
+ a=clamp(a*solar*lightIntensity,0.0,detailStage>.5?.045:.26);
  return vec4(clamp(lightColor,0.0,1.0),a*color.a);
 }
 ]]
