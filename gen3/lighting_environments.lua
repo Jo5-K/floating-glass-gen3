@@ -10,9 +10,11 @@ local families={
  ice={day=.9,night=.68,dayTint={.91,.99,1.05},nightTint={.74,.86,1.08},direction=.4,pool={.5,.25,.85,.17}},
  virtual={day=.86,night=.68,dayTint={.84,.99,1.06},nightTint={.69,.86,1.08},direction=.25,pool={.5,.36,.9,.16}},
 }
-local scenes={beach='open',desert='open',mountain='open',rocky='open',plain='open',pond='open',water='open',
+families.water={day=.96,night=.85,dayTint={.96,1,1.02},nightTint={.78,.91,1.04},direction=.75,pool={.5,.43,.8,.13}}
+families.icecave={day=.63,night=.44,dayTint={.78,.94,1.04},nightTint={.65,.80,1.04},direction=.30,pool={.5,.43,.8,.10}}
+local scenes={cave_ice='icecave',beach='open',desert='open',mountain='open',rocky='open',plain='open',pond='water',water='water',
  forest='canopy',tall_grass='canopy',cave='cave',bruno='torch',dragon='torch',sidney='torch',
- ghost='dark',lavender='dark',interior='room',gym='hall',building='hall',rocket='hall',blue='hall',grand_hall='hall',ice='ice',wallace='ice',virtual='virtual'}
+ ghost='dark',lavender='dark',interior='room',gym='hall',building='hall',rocket='hall',blue='hall',grand_hall='hall',ice='ice',wallace='water',virtual='virtual'}
 local dusk={predawn=1,dawn=.6,morning=.12,noon=0,dusk=.6,night=1}
 local E={families=families,scenes=scenes}
 function E.resolve(id,profile)

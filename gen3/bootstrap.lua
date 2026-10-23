@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.7',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.8',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.
@@ -83,6 +83,9 @@ return function(mod)
     {key='gen3_lighting_rim',label='RIM LIGHT',type='choice',default=.5,group='GEN 3 / LIGHTING',choices={{'OFF',0},{'25%',.25},{'50%',.5},{'75%',.75}}},
     {key='gen3_lighting_relief',label='APPROXIMATE RELIEF',type='choice',default=.5,group='GEN 3 / LIGHTING',choices={{'OFF',0},{'25%',.25},{'50%',.5},{'75%',.75}}},
     {key='gen3_lighting_direction',label='LIGHT DIRECTION',type='choice',default='auto',group='GEN 3 / LIGHTING',choices={{'AUTO','auto'},{'LEFT','left'},{'RIGHT','right'},{'TOP','top'}}},
+    {key='gen3_lighting_beams',label='POST-SPRITE LIGHT RAYS',type='toggle',default=true,group='GEN 3 / LIGHTING'},
+    {key='gen3_lighting_hud_glint',label='HUD COUNTER-DIRECTION GLINT',type='toggle',default=true,group='GEN 3 / LIGHTING'},
+    {key='gen3_lighting_local',label='LOCAL LIGHTING',type='toggle',default=true,group='GEN 3 / LIGHTING'},
     {key='gen3_dynamic_lighting',label='DYNAMIC LIGHTING',type='toggle',default=true,group='GEN 3 / BATTLE'},
     {key='gen3_dialogue_size',label='BATTLE MESSAGE SIZE',type='choice',default='medium',group='GEN 3 / BATTLE',choices={{'SMALL (PREVIOUS)','small'},{'MEDIUM','medium'},{'MEDIUM LARGE','medium_large'},{'LARGE','large'}}},
     {key='gen3_command_scale',label='COMMAND MENU SIZE',type='choice',default=1,group='GEN 3 / BATTLE',choices={{'75%',.75},{'100%',1},{'125%',1.25},{'150%',1.5},{'175%',1.75}}},
@@ -113,6 +116,8 @@ return function(mod)
   R.theme=loadPart('gen3/theme.lua')()
   R.framing=loadPart('gen3/framing.lua')(R)
   R.lighting=loadPart('gen3/lighting.lua')(R)
+  R.postLight=loadPart('gen3/post_light.lua')(R)
+  R.details=loadPart('gen3/scene_details.lua')(R)
   R.scenery=loadPart('gen3/scenery.lua')(R)
   R.art=loadPart('gen3/art.lua')(R)
   R.battle=loadPart('gen3/battle.lua')(R)
@@ -142,6 +147,7 @@ return function(mod)
   mod.events:on('game.ready',function(event) install(event and event.game) end)
   mod.hooks:wrap('input.step',function(next,game,dt)
     install(game)
+    if R.active() then R.lighting.update(dt) end
     return next(game,dt)
   end,250)
   mod.hooks:wrap('render.hud',function(next,game,viewport)
@@ -155,7 +161,7 @@ return function(mod)
   local unloaded=false
   local function unload()
     if unloaded then return end;unloaded=true;R.unloaded=true
-    R.lighting.shutdown();R.shadows.shutdown();R.scenery.shutdown();if R.battle.shutdown then R.battle.shutdown() end
+    R.postLight.shutdown();R.details.shutdown();R.lighting.shutdown();R.shadows.shutdown();R.scenery.shutdown();if R.battle.shutdown then R.battle.shutdown() end
     for i=#R.patches,1,-1 do
       local p=R.patches[i]
       if p[1][p[2]]==p[4] then p[1][p[2]]=p[3] end
@@ -163,7 +169,7 @@ return function(mod)
   end
   mod.events:on('mod.unload',function(e) if not e or not e.mod or e.mod==mod.id then unload() end end)
   mod.exports.gen3={version=R.version,engine=R.engine,shutdown=unload,
-    registerType=R.battle.registerType,diagnostics=function() return {warnings=R.warnings,battleFallback=R.battle.failed==true,lighting={active=R.lighting.active,enabled=R.lighting.enabled(),profile=R.lighting.profile,hour=R.lighting.hour,failed=R.lighting.failed}} end}
+    registerType=R.battle.registerType,registerSceneLayer=R.details.register,removeSceneLayer=R.details.remove,diagnostics=function() return {warnings=R.warnings,battleFallback=R.battle.failed==true,lighting={active=R.lighting.active,enabled=R.lighting.enabled(),profile=R.lighting.profile,hour=R.lighting.hour,failed=R.lighting.failed,postRays=R.postLight.enabled(),postRaysFailed=R.postLight.failed}} end}
   if mod.log and mod.log.info then
     mod.log:info('Floating Glass Gen3 %s initialized for %s; native sandbox require bridge active.',R.version,game)
   end

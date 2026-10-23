@@ -2,6 +2,16 @@
 return function(R)
  local languages={
   ["en"]={
+   ["Caverna de gelo — experimental"]="Ice cave — experimental",
+   ["Detalhes ambientais"]="Environmental details",
+   ["Feixes de luz"]="Light rays",
+   ["Reflexo da HUD"]="HUD glint",
+   ["Iluminação local"]="Local lighting",
+   ["Luz local"]="Local light",
+   ["Ativa"]="Active",
+   ["Aguardando desenho"]="Waiting for draw",
+   ["Indisponível"]="Unavailable",
+
    ["A: ajustes"]="A: settings",
    ["AJUSTES DA ILUMINAÇÃO"]="LIGHTING SETTINGS",
    ["B · voltar / SELECT · fechar"]="B · back / SELECT · close",
@@ -108,6 +118,16 @@ return function(R)
    ["Interior"]="Interior",
   },
   ["fr"]={
+   ["Caverna de gelo — experimental"]="Grotte de glace — expérimental",
+   ["Detalhes ambientais"]="Détails du décor",
+   ["Feixes de luz"]="Rayons lumineux",
+   ["Reflexo da HUD"]="Reflet du HUD",
+   ["Iluminação local"]="Éclairage local",
+   ["Luz local"]="Lumière locale",
+   ["Ativa"]="Active",
+   ["Aguardando desenho"]="En attente du rendu",
+   ["Indisponível"]="Indisponible",
+
    ["A: ajustes"]="A : réglages",
    ["AJUSTES DA ILUMINAÇÃO"]="RÉGLAGES ÉCLAIRAGE",
    ["B · voltar / SELECT · fechar"]="B · retour / SELECT · fermer",
@@ -214,6 +234,16 @@ return function(R)
    ["Interior"]="Intérieur",
   },
   ["es"]={
+   ["Caverna de gelo — experimental"]="Cueva de hielo — experimental",
+   ["Detalhes ambientais"]="Detalles ambientales",
+   ["Feixes de luz"]="Haces de luz",
+   ["Reflexo da HUD"]="Reflejo del HUD",
+   ["Iluminação local"]="Iluminación local",
+   ["Luz local"]="Luz local",
+   ["Ativa"]="Activa",
+   ["Aguardando desenho"]="Esperando dibujo",
+   ["Indisponível"]="No disponible",
+
    ["A: ajustes"]="A: ajustes",
    ["AJUSTES DA ILUMINAÇÃO"]="AJUSTES DE ILUMINACIÓN",
    ["B · voltar / SELECT · fechar"]="B · volver / SELECT · cerrar",

@@ -1,5 +1,6 @@
 return {
   entries={
+    {id="cave_ice",label="Caverna de gelo — experimental",path="assets/scenery/camera21x9/cave_ice.png"},
     {id="wallace",label="Wallace — cachoeiras",path="assets/scenery/camera21x9/wallace.png"},
     {id="desert",label="Deserto",path="assets/scenery/camera21x9/desert.png"},
     {id="ice",label="Gelo — Lorelei / Glacia",path="assets/scenery/camera21x9/ice.png"},

@@ -52,6 +52,10 @@ return function(R)
     {key='lighting_rim',label='Luz de contorno',default=.5,values={0,.25,.5,.75},labels={'Desligado','25%','50%','75%'}},
     {key='lighting_relief',label='Relevo aproximado',default=.5,values={0,.25,.5,.75},labels={'Desligado','25%','50%','75%'}},
     {key='lighting_direction',label='Direção da luz',default='auto',values={'auto','left','right','top'},labels={'Automática','Esquerda','Direita','Superior'}},
+    {key='lighting_local',label='Iluminação local',default=true,values={true,false},labels={'Ligada','Desligada'}},
+    {key='lighting_beams',label='Feixes de luz',default=true,values={true,false},labels={'Ligada','Desligada'}},
+    {key='environment_details',label='Detalhes ambientais',default=true,values={true,false},labels={'Ligada','Desligada'}},
+    {key='lighting_hud_glint',label='Reflexo da HUD',default=true,values={true,false},labels={'Ligada','Desligada'}},
   }
   local function settingRows() return B.lightingSettingsOpen and lightingSettings or settings end
   local function currentIndex() return B.lightingSettingsOpen and (B.lightingSettingsIndex or 1) or (B.settingsIndex or 1) end
@@ -491,6 +495,11 @@ return function(R)
             local hb=img and Anchors.alphaBounds(img) or {0,0,104,isPlayer and 37 or 29}
             Skin.hud(mon,isPlayer,cx-32+hb[1],cy-16+hb[2],hb[3]-hb[1],hb[4]-hb[2],part('ui/icons.lua'))
           else box.draw(unpackArgs(args)) end
+          if R.postLight then
+            local C=R.module('src.ui.game3.battle_chrome');local img=C and (isPlayer and C._playerBox or C._enemyBox)
+            local hb=img and Anchors.alphaBounds(img) or {0,0,104,isPlayer and 37 or 29}
+            R.postLight.hud({x=cx-32+hb[1],y=cy-16+hb[2],w=hb[3]-hb[1],h=hb[4]-hb[2]},hudScale)
+          end
           g.translate(-dx,-dy)
         end
       end)
@@ -505,10 +514,10 @@ return function(R)
       if B.visualOwns() and (R.camera.depth() and B.healthboxes or B.settingsOpen) then
         local g=love.graphics;g.push('all');g.origin();g.setScissor(0,0,viewport.width,viewport.height)
         local ok,err=pcall(function()
-          if R.camera.depth() then R.scenery.foreground(viewport.width,viewport.height);B.drawHealthboxes({x=0,y=0,w=viewport.width,h=viewport.height}) end
+          if R.camera.depth() then R.scenery.foreground(viewport.width,viewport.height);if R.postLight then R.postLight.draw(viewport.width,viewport.height) end;B.drawHealthboxes({x=0,y=0,w=viewport.width,h=viewport.height}) end
           if B.settingsOpen then
             local rows={};for _,row in ipairs(settingRows()) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])..(row.key=='dynamic_lighting' and (' · '..translate('A: ajustes')) or '')} end
-            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil,footer=B.lightingSettingsOpen and 'B · voltar / SELECT · fechar' or nil,showAll=B.lightingSettingsOpen},rows,currentIndex())
+            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil,footer=B.lightingSettingsOpen and (translate('B · voltar / SELECT · fechar')..' | '..translate('Luz local')..': '..translate(R.lighting and R.lighting.localStatus() or 'Indisponível')) or nil,showAll=B.lightingSettingsOpen},rows,currentIndex())
             B.settingsViewport=tostring(viewport.width)..':'..tostring(viewport.height)
           else B.settingsTargets=nil end
         end)
@@ -523,6 +532,7 @@ return function(R)
     g.push('all');g.origin();g.setScissor(frame.x,frame.y,frame.w,frame.h);g.translate(frame.x,frame.y)
     local ok,err=pcall(function()
       R.scenery.foreground(frame.w,frame.h)
+      if R.postLight then R.postLight.draw(frame.w,frame.h) end
       if not B.decision() then B.settingsOpen=false end
       -- Replay the exact family healthbox renderer in the final overlay, at
       -- native coordinates scaled to the fitted viewport. No parallel HP model.
@@ -537,12 +547,13 @@ return function(R)
       options.messageRect=messageRect
       local layout=View.draw(snap,sync(rec),options,frame.w,frame.h,rec.error)
       B.layout=layout
+      if R.postLight then for _,rect in ipairs(layout.rects or {}) do if (rect.alpha or 1)>.2 then R.postLight.hud(rect) end end;R.postLight.hud(layout.settings) end
       if B.settingsOpen then
         local rows={}
         for _,row in ipairs(settingRows()) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])..(row.key=='dynamic_lighting' and (' · '..translate('A: ajustes')) or '')} end
         layout.translate=translate
         layout.title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil
-        layout.footer=B.lightingSettingsOpen and 'B · voltar / SELECT · fechar' or nil
+        layout.footer=B.lightingSettingsOpen and (translate('B · voltar / SELECT · fechar')..' | '..translate('Luz local')..': '..translate(R.lighting and R.lighting.localStatus() or 'Indisponível')) or nil
         layout.showAll=B.lightingSettingsOpen
         B.settingsTargets=View.settings(layout,rows,currentIndex())
       else B.settingsTargets=nil end

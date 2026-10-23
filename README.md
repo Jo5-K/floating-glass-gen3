@@ -1,25 +1,29 @@
-# Floating Glass Gen3 — beta - 9
+# Floating Glass Gen3 — beta - 10
 
 ## Português
 
-**Nesta versão:** iluminação com tons próprios para ambientes abertos, cavernas e interiores; primeiro ajuste de luz localizada na floresta e integração da arena pela posição. O shader dos Pokémon mantém o comportamento da beta - 8. A aparência ainda está em avaliação no jogo e no celular.
+Mod visual de batalha com fundos ultrawide, arenas, câmeras, sombras e layouts personalizáveis. Menus fora da batalha permanecem nativos.
 
-Muda a apresentação das batalhas com fundos ultrawide, arenas, câmeras, sombras animadas e layouts personalizáveis. Menu SELECT em PT-BR, inglês, francês e espanhol. Menus fora de batalha permanecem nativos.
+Luz e detalhes próprios para cada ambiente, feixes suaves animados, reflexos na água, Gastly decorativo em Lavender e caverna de gelo experimental (seleção manual). Fundo, arenas e primeiro plano acompanham a iluminação; a interface permanece legível.
 
-**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire e Emerald.** Algumas cenas especiais e duplas usam elementos nativos. A opção de baixar sprites nativos no celular continua em avaliação.
+**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire e Emerald.** SELECT em PT-BR, inglês, francês e espanhol. Importe o ZIP no gerenciador do G1R; “Source code (zip)” também é importável. Atualizações pelo GitHub incluídas.
 
-Compatibilidade observada com [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. A revisão atual de iluminação ainda precisa ser conferida com essas combinações.
+SELECT → Iluminação dinâmica → A abre os ajustes; esquerda/direita liga ou desliga. Use o perfil automático para seguir o relógio do dispositivo. Feixes e Detalhes ambientais podem ser desativados.
 
-Importe o ZIP pelo gerenciador do G1R. Atualizações pelo GitHub incluídas; “Source code (zip)” também é importável. SELECT → Iluminação dinâmica: esquerda/direita liga/desliga, A abre ajustes. Para seguir o relógio do dispositivo, escolha **Perfil da luz → Automático por horário**; um perfil manual salvo tem prioridade.
+Compatibilidade anteriormente observada com [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. Esta revisão ainda precisa de avaliação nessas combinações.
+
+Aparência ainda em avaliação no jogo. Algumas cenas especiais/duplas usam elementos nativos; ajuste vertical de sprites nativos no celular e ciclos adicionais de animação continuam pendentes. A caverna de gelo não é selecionada automaticamente pelos mapas.
 
 ## English
 
-**This update:** environment-specific lighting for outdoors, caves and interiors; initial localized forest lighting and arena lighting based on its position. Pokémon use the beta - 8 sprite shader. Appearance is still being evaluated in-game and on mobile.
+Battle presentation mod with ultrawide scenery, arenas, cameras, shadows and customizable layouts. Menus outside battles stay native.
 
-Changes battle presentation with ultrawide scenery, arenas, camera options, animated shadows and customizable layouts. SELECT settings in Brazilian Portuguese, English, French and Spanish. Menus outside battles remain native.
+Environment-specific lighting and details, gently animated light shafts, water reflections, a decorative Gastly in Lavender, and an experimental ice cave (manual selection). Backgrounds, arenas and foregrounds share the lighting while the interface stays readable.
 
-**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire and Emerald.** Some special scenes and double battles retain native elements. Lowering native sprites on mobile remains under review.
+**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire and Emerald.** SELECT in Brazilian Portuguese, English, French and Spanish. Import the ZIP through G1R’s mod manager; “Source code (zip)” is also importable. GitHub updates included.
 
-Previously observed compatibility with [G9 Battle Sprites (Gen 3)](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. The current lighting revision still needs checking with these combinations.
+SELECT → Dynamic lighting → A opens settings; left/right toggles lighting. Choose the automatic profile to follow your device clock. Light rays and Environmental details can be disabled.
 
-Import the ZIP through G1R’s mod manager. GitHub updates are included; “Source code (zip)” is also importable. SELECT → Dynamic lighting: left/right toggles, A opens settings. To follow your device clock, choose **Light profile → Automatic by time**; a saved manual profile takes priority.
+Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This revision still needs checking with these combinations.
+
+In-game appearance remains under review. Some special scenes/double battles retain native elements; native-sprite vertical adjustment on mobile and additional animation cycles remain pending. The ice cave is not automatically selected by maps.

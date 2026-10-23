@@ -66,12 +66,14 @@ return function(R)
   function S.drawWide(w,h,frame)
     if not S.wideActive or not S.activeImage then return false end
     local img=S.activeImage;local iw,ih=img:getDimensions();local scale=h/ih
+    if R.lighting then R.lighting.setFrame({x=(w-iw*scale)/2,y=0,w=iw*scale,h=h,scene=S.selected}) end
     local g=love.graphics;g.push('all');g.origin();g.setShader();g.setScissor(0,0,w,h)
     local ok,err=pcall(function()
       -- Clear any previous native scene outside the fitted image as well.
       g.setColor(16/255,20/255,29/255,1);g.rectangle('fill',0,0,w,h)
       g.setColor(1,1,1,1)
       if R.lighting then R.lighting.sceneryBackground(g.draw,img,(w-iw*scale)/2,0,0,scale,scale) else g.draw(img,(w-iw*scale)/2,0,0,scale,scale) end
+      if R.details then R.details.draw({scene=S.selected,x=(w-iw*scale)/2,y=0,scale=scale,artWidth=iw,artHeight=ih,width=w,height=h,time=R.lighting and R.lighting.time or 0}) end
       -- Source circles are isolated from their sheet and sized independently.
       S.arenaRects={}
       local entry=arenaCatalog[S.selected]
@@ -97,7 +99,7 @@ return function(R)
             -- Shrink at narrow window edges; never detach ground from its mon.
             local shape=entry.shapes[kind];local sw=shape.r-shape.l
             width=math.max(1,math.min(width,cx*sw/(shape.cx-shape.l),(w-cx)*sw/(shape.r-shape.cx),cy*sw/(shape.cy-shape.t),(h-cy)*sw/(shape.b-shape.cy)))
-            if R.lighting then S.arenaRects[side]=R.lighting.arenaBackground({(cx-(w-iw*scale)/2)/(iw*scale),cy/h,1},renderer.draw,arenas,kind,cx,cy,width) else S.arenaRects[side]=renderer.draw(arenas,kind,cx,cy,width) end
+            if R.lighting then local aw,ah=arenas:getDimensions();local transform=R.lighting.spatial.arenaTransform(aw,ah,shape,cx,cy,width,(w-iw*scale)/2,iw*scale,h);S.arenaRects[side]=R.lighting.arenaBackground(transform,renderer.draw,arenas,kind,cx,cy,width) else S.arenaRects[side]=renderer.draw(arenas,kind,cx,cy,width) end
             end
           end
         end
@@ -127,15 +129,16 @@ return function(R)
     g.push('all');g.origin();g.setShader();g.setScissor(0,0,w,h)
     local ok,err=pcall(function()
       g.setColor(1,1,1,math.min(1,alpha))
+      -- Every active foreground PNG uses the same lighting path, not only grass.
       -- Keep foliage uniformly smaller and attach its halves to window edges.
       -- The transparent center opens up instead of stretching smaller plants.
       S.lensQuads=S.lensQuads or setmetatable({},{__mode='k'})
       local q=S.lensQuads[img]
       if not q then q={g.newQuad(0,0,iw/2,ih,iw,ih),g.newQuad(iw/2,0,iw/2,ih,iw,ih)};S.lensQuads[img]=q end
       g.setScissor(0,0,w/2,h)
-      if R.lighting then R.lighting.background(g.draw,img,q[1],0,h-ih*k,0,k,k) else g.draw(img,q[1],0,h-ih*k,0,k,k) end
+      if R.lighting and R.lighting.frame then local f=R.lighting.frame;R.lighting.foliageBackground({iw*k/f.w,ih*k/f.h,-f.x/f.w,(h-ih*k)/f.h},g.draw,img,q[1],0,h-ih*k,0,k,k) elseif R.lighting then R.lighting.background(g.draw,img,q[1],0,h-ih*k,0,k,k) else g.draw(img,q[1],0,h-ih*k,0,k,k) end
       g.setScissor(w/2,0,w/2,h)
-      if R.lighting then R.lighting.background(g.draw,img,q[2],w-iw*k/2,h-ih*k,0,k,k) else g.draw(img,q[2],w-iw*k/2,h-ih*k,0,k,k) end
+      if R.lighting and R.lighting.frame then local f=R.lighting.frame;R.lighting.foliageBackground({iw*k/f.w,ih*k/f.h,(w-iw*k-f.x)/f.w,(h-ih*k)/f.h},g.draw,img,q[2],w-iw*k/2,h-ih*k,0,k,k) elseif R.lighting then R.lighting.background(g.draw,img,q[2],w-iw*k/2,h-ih*k,0,k,k) else g.draw(img,q[2],w-iw*k/2,h-ih*k,0,k,k) end
     end)
     g.pop();if not ok then R.warn('foreground draw',err) end
   end
@@ -143,6 +146,7 @@ return function(R)
     local Bg=R.module('src.core.game3.battle.bg')
     if not Bg or S.seen[Bg] then return end;S.seen[Bg]=true
     R.wrap(Bg,'draw',function(next,id,enemyOx,playerOx,bgOx)
+      if R.lighting then R.lighting.setFrame(nil) end
       S.current=nil;S.wideActive=false;S.pads=nil;S.replaced=false;S.activeImage=nil;S.selected=nil
       if not (R.battle.scene or R.battle.sceneryScene) then return next(id,enemyOx,playerOx,bgOx) end
       local terrain=id or Bg.terrainId()

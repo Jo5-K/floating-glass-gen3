@@ -17,8 +17,10 @@ return function(R)
  end
  local environments=R.load('gen3/lighting_environments.lua')
  L.environments=environments
+ local spatial=R.load('gen3/lighting_scenes.lua');L.spatial=spatial
  function L.setScene(id) L.scene=id or 'unknown' end
- local source=R.load('gen3/lighting_shader.lua')
+ local sharedBeam=R.load('gen3/light_beams.lua');L.sharedBeam=sharedBeam
+ local source=R.load('gen3/lighting_shader.lua'):gsub('// SHARED_BEAM_FUNCTIONS',function()return sharedBeam end)
  local spriteSource=R.load('gen3/lighting_sprite_shader.lua')
  local function fail(err)
   L.failed=true;R.warn('dynamic lighting unavailable; native rendering retained',err)
@@ -30,10 +32,30 @@ return function(R)
   if not hour or hour<0 or hour>=24 then
    hour=12;R.warn('lighting local clock unavailable','Neutral midday fallback; game time unchanged')
   end
+  -- Seed once per battle; no global RNG mutation and no per-draw randomness.
+  local clock=type(t)=='table' and t or {}
+  L.seed=((tonumber(clock.yday) or 1)*97+hour*31+(tonumber(clock.min) or 0)*13+(tonumber(clock.sec) or 0)*7)%997
   L.hour=hour;L.profile=L.profileForHour(hour);L.active=true
-  L.battle=event and event.battle;L.scene='unknown'
+  L.battle=event and event.battle;L.scene='unknown';L.time=0;L.lastLocalScene=nil;L.frame=nil
  end
- function L.ended() L.active=false;L.battle=nil;L.hour=nil;L.profile=nil;L.scene=nil end
+ function L.setFrame(frame) L.frame=frame end
+ function L.direction()
+  local dirs={left={-1,-.3},right={1,-.3},top={0,-1}}
+  return dirs[R.option('lighting_direction','auto')] or profiles[L.effectiveProfile()].direction
+ end
+ function L.localStatus()
+  if L.failed then return 'Indisponível' end
+  if not L.enabled() or R.option('lighting_local',true)==false then return 'Desligada' end
+  if L.lastLocalScene==L.scene and L.spatial.scenes[L.scene] then return 'Ativa' end
+  return 'Aguardando desenho'
+ end
+ function L.update(dt)
+  if not L.active then return end
+  local step=tonumber(dt) or 0
+  if step~=step or step<0 then return end
+  L.time=math.min((L.time or 0)+math.min(step,.10),1000000)
+ end
+ function L.ended() L.active=false;L.battle=nil;L.hour=nil;L.profile=nil;L.scene=nil;L.time=0;L.frame=nil end
  function L.enabled() return L.active and not L.failed and R.option('dynamic_lighting',true)==true end
  function L.effectiveProfile()
   local manual=R.option('lighting_profile','auto')
@@ -79,7 +101,7 @@ return function(R)
   local sh=shader(kind);if not sh then return draw(...) end
   local p=profiles[L.effectiveProfile()]
   local dirs={left={-1,-.3},right={1,-.3},top={0,-1}}
-  local direction=dirs[R.option('lighting_direction','auto')] or p.direction
+  local direction=L.direction()
   local env=environments.resolve(L.scene,L.effectiveProfile())
   local ok,err=pcall(function()
    sh:send('ambientColor',p.ambient);sh:send('exposure',p.exposure)
@@ -89,7 +111,18 @@ return function(R)
    sh:send('rimStrength',setting('lighting_rim',.5));sh:send('reliefStrength',setting('lighting_relief',.5))
    sh:send('texelSize',rect and rect.texel or {0,0})
    if kind~='sprite' then
-    sh:send('forestAnchor',rect and rect.anchor or {0,0,0})
+    local layout=spatial.resolve(L.scene,L.effectiveProfile())
+    sh:send('sceneTransform',rect and rect.transform or {1,1,0,0})
+    sh:send('foliageMode',rect and rect.foliage and 1 or 0)
+    sh:send('artAspect',L.frame and L.frame.w/L.frame.h or 1916/821)
+    sh:send('sceneLayoutEnabled',rect and rect.forest and R.option('lighting_local',true)~=false and 1 or 0)
+    sh:send('localMode',layout.mode);sh:send('localLightColor',layout.color)
+    sh:send('lightTime',L.time or 0);sh:send('lightMotion',layout.amplitude)
+    sh:send('daylightAmount',layout.daylight)
+    for i=1,4 do
+     sh:send('localLight'..(i-1),layout.lights[i] or {0,0,1,0})
+     sh:send('protectedRegion'..(i-1),layout.protected[i] or {0,0,0,0})
+    end
     sh:send('forestMask',rect and rect.forest and L.scene=='forest' and 1 or 0)
     sh:send('sceneExposure',env.exposure);sh:send('sceneTint',env.tint)
     sh:send('sceneDirection',env.direction);sh:send('scenePool',env.pool)
@@ -106,12 +139,20 @@ return function(R)
   local result=pack(pcall(draw,...))
   g.pop()
   if not result[1] then fail(result[2]);return draw(...) end
+  if kind=='background' and rect and rect.forest then L.lastLocalScene=L.scene end
   return (table.unpack or unpack)(result,2,result.n)
  end
- function L.arenaBackground(anchor,draw,...)
-  L.arenaAnchor=anchor
+ function L.foliageBackground(transform,draw,...)
+  L.foliagePass=true
+  local function pack(...)return {n=select('#',...),...}end
+  local result=pack(pcall(L.arenaBackground,transform,draw,...));L.foliagePass=false
+  if not result[1]then error(result[2],0)end
+  return (table.unpack or unpack)(result,2,result.n)
+ end
+ function L.arenaBackground(transform,draw,...)
+  L.arenaTransform=transform
   local function pack(...) return {n=select('#',...),...} end
-  local result=pack(pcall(L.sceneryBackground,draw,...));L.arenaAnchor=nil
+  local result=pack(pcall(L.sceneryBackground,draw,...));L.arenaTransform=nil
   if not result[1] then error(result[2],0) end
   return (table.unpack or unpack)(result,2,result.n)
  end
@@ -124,7 +165,7 @@ return function(R)
  end
  function L.background(draw,...)
   if not L.enabled() then return draw(...) end
-  local args={...};local img=args[1];local rect={0,0,1,1};rect.forest=L.forestPass;rect.anchor=L.arenaAnchor
+  local args={...};local img=args[1];local rect={0,0,1,1};rect.forest=L.forestPass;rect.transform=L.arenaTransform;rect.foliage=L.foliagePass
   if img and (type(img)=='table' or type(img)=='userdata') and img.getDimensions then
    local iw,ih=img:getDimensions();rect.texel={1/iw,1/ih}
   else rect.texel={1/240,1/160} end
