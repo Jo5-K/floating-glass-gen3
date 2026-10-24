@@ -2,6 +2,26 @@
 return function(R)
  local P={}
  local Layout=R.load('modules/ui/floating_battle/ui/layout.lua')
+ -- Follow the native window after SDL applies the app's orientation policy.
+ -- A landscape render.viewport reservation must not hide portrait rotation.
+ function P.viewport(requested,ctx)
+  if type(ctx)=='table' and type(ctx.width)=='number' and type(ctx.height)=='number' and ctx.height>ctx.width
+   and R.battle and R.battle.owns and R.battle.owns() then
+   return {x=0,y=0,width=ctx.width,height=ctx.height}
+  end
+  return requested
+ end
+ function P.refresh(w,h)
+  local key=tostring(w)..':'..tostring(h)
+  if P.sizeKey==key then return false end
+  P.sizeKey=key
+  if R.battle then
+   R.battle.drawStamp=nil;R.battle.layout=nil;R.battle.settingsTargets=nil;R.battle.settingsViewport=nil
+  end
+  local T=R.battleTouch
+  if T then T.touches={};T.navigation=nil;T.footer=nil end
+  return true
+ end
  function P.dimensions()
   local V=R.module('src.render.GameViewport');if V and V.dimensions then return V.dimensions()end
   return love.graphics.getDimensions()

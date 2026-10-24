@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.10',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.11',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.
@@ -147,6 +147,14 @@ return function(mod)
   mod.events:on('battle.started',function(e) if R.active() then R.lighting.started(e) end end)
   mod.events:on('battle.ended',function() R.lighting.ended() end)
   mod.events:on('game.ready',function(event) install(event and event.game) end)
+  mod.hooks:wrap('render.viewport',function(next,ctx)
+    local requested=next(ctx)
+    if not R.active() or R.unloaded then return requested end
+    local result=R.portrait.viewport(requested,ctx)
+    if result and result.width and result.height then R.portrait.refresh(result.width,result.height)
+    elseif ctx then R.portrait.refresh(ctx.width,ctx.height) end
+    return result
+  end,250)
   mod.hooks:wrap('input.step',function(next,game,dt)
     install(game)
     if R.active() then R.lighting.update(dt);R.battleTouch.update(game,dt) end

@@ -1,8 +1,8 @@
-# Floating Glass Gen3 — beta - 12
+# Floating Glass Gen3 — beta - 13
 
 ## Português
 
-**Nesta versão:** dois layouts verticais, toque direto na batalha, controle do joystick virtual e feixes com início mais definido e menos luz difusa.
+**Nesta versão:** correção da troca automática entre os layouts vertical e horizontal ao girar a tela durante a batalha.
 
 Mod visual de batalha com fundos ultrawide, arenas, câmeras, sombras e layouts personalizáveis. Menus fora da batalha permanecem nativos.
 
@@ -20,7 +20,7 @@ SELECT → Layout vertical: Campo emoldurado ou Campo ampliado. Joystick virtual
 
 ## English
 
-**This update:** two portrait layouts, direct battle touch controls, virtual joystick settings, and sharper light shafts with less diffuse glow.
+**This update:** corrected automatic switching between portrait and landscape battle layouts when rotating the screen.
 
 Battle presentation mod with ultrawide scenery, arenas, cameras, shadows and customizable layouts. Menus outside battles stay native.
 

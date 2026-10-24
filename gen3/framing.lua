@@ -82,7 +82,7 @@ return function(R)
       F.wideReady=type(Renderer.blitCanvas)=='function'
       R.wrap(Renderer,'blitCanvas',function(next,self,canvas,sx,sy,zones,zsx,zsy,bx,by,x,y,w,h,dx,dy)
         if canvas==self.canvas and (R.battle.sceneryOwns or R.battle.owns)() then
-          if R.battle.owns() and (R.option('battle_aspect','window')~='native' or R.portrait and R.portrait.field(love.graphics.getDimensions())) and canvas.getDimensions then
+          if R.battle.owns() and (R.option('battle_aspect','window')~='native' or R.portrait and R.portrait.field(R.portrait.dimensions())) and canvas.getDimensions then
             local cw,ch=canvas:getDimensions()
             if cw==240 and ch==160 then
               local nsx,nx,ny,nw,nh,nsy=D.fit()
