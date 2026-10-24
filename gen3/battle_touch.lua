@@ -162,8 +162,17 @@ return function(R)
     for _,r in ipairs(T.footer)do if x>=r.x and x<=r.x+r.w and y>=r.y and y<=r.y+r.h then return T.tap(game,r.key)end end
    end
    if T.nativePointer(game,x,y)then return true end
+   local Choice=R.module('src.ui.game3.choice')
+   if Choice and Choice.active then return true end -- do not confirm outside choice targets
+   local E=R.module('src.ui.game3.evolution_scene')
+   if E and E.isOpen and E.isOpen() then
+    -- Final acknowledgement can remain pending AFTER Message closes. Let the
+    -- native scene consume A and run its completion/learn-move callbacks.
+    if E._state=='congrats' or E._state=='cancel' or E._state=='learn_moves' then return T.tap(game,'a')end
+    return true -- no advance/cancellation during the evolution animation
+   end
    local M=R.module('src.ui.game3.message')
-   if M and M.isWaiting and M.isWaiting()then return T.tap(game,'a')end
+   if M and ((M.isWaiting and M.isWaiting()) or (M.isOpen and M.isOpen() and not (M.isHeld and M.isHeld())))then return T.tap(game,'a')end
    return true
   end
   return true
