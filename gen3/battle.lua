@@ -483,11 +483,13 @@ return function(R)
             local hb=img and Anchors.alphaBounds(img) or {0,0,104,isPlayer and 37 or 29}
             local width,height=(hb[3]-hb[1])*hudScale,(hb[4]-hb[2])*hudScale
             local hx,hy
-            if R.camera.depth() then hx,hy=R.camera.hud(side,frame.w,frame.h,width,height,B.context().double)
+            -- Portrait HUD uses the field, not sprite bounds. During the intro
+            -- the healthbox can be drawn before any battler/trainer was captured.
+            if portraitField then hx,hy=R.portrait.hud(side,frame.w,frame.h,width,height)
+            elseif R.camera.depth() then hx,hy=R.camera.hud(side,frame.w,frame.h,width,height,B.context().double)
             -- Keep the prior top edge as reference, then raise it five window
             -- pixels. Shrinking the box must not accidentally move it downward.
             else hx,hy=Anchors.place(side,bounds,width,height/sizeFactor,frame.w,frame.h) end
-            if portraitField then hx,hy=R.portrait.hud(side,frame.w,frame.h,width,height) end
             hy=math.max(0,hy+(portraitField and 0 or raise))
             dx=hx/hudScale-(cx-32)-hb[1];dy=hy/hudScale-(cy-16)-hb[2]
           else dy=dy+raise/hudScale end

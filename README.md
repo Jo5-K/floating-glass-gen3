@@ -1,8 +1,8 @@
-# Floating Glass Gen3 — beta - 13
+# Floating Glass Gen3 — beta - 15
 
 ## Português
 
-**Nesta versão:** correção da troca automática entre os layouts vertical e horizontal ao girar a tela durante a batalha.
+**Nesta versão:** corrigida a falha na introdução da batalha vertical que desativava a interface personalizada no Android. Painel temporário de diagnóstico removido.
 
 Mod visual de batalha com fundos ultrawide, arenas, câmeras, sombras e layouts personalizáveis. Menus fora da batalha permanecem nativos.
 
@@ -20,7 +20,7 @@ SELECT → Layout vertical: Campo emoldurado ou Campo ampliado. Joystick virtual
 
 ## English
 
-**This update:** corrected automatic switching between portrait and landscape battle layouts when rotating the screen.
+**This update:** fixed a portrait battle-intro error that disabled the custom interface on Android. The temporary diagnostic panel is removed.
 
 Battle presentation mod with ultrawide scenery, arenas, cameras, shadows and customizable layouts. Menus outside battles stay native.
 
