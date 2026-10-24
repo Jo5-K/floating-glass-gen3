@@ -10,6 +10,23 @@ N.graph={
   [7]={left=4,right=7,up=6,down=7}, -- Run
 }
 function N.step(focus,direction,style,lastMove,moves)
+  if style=='portrait_list' or style=='portrait_carousel' then
+    local ids={};for i=1,4 do if moves==nil or moves[i] and moves[i]~=0 then ids[#ids+1]=i end end
+    local remembered=ids[1] or 1;for _,i in ipairs(ids)do if i==lastMove then remembered=i end end
+    if focus<=4 then
+      if #ids==0 then return 5 end
+      local n=1;for j,i in ipairs(ids)do if i==focus then n=j end end
+      if style=='portrait_list' and direction=='down' then return ids[n+1]or 5 end
+      if style=='portrait_list' and direction=='up' then return ids[n-1]or ids[1] end
+      if direction=='left' or direction=='right' then return ids[(n-1+(direction=='left'and -1 or 1))%#ids+1]end
+      if direction=='down'then return 5 end
+      return focus
+    end
+    if direction=='up'then return remembered end
+    if direction=='left'then return math.max(5,focus-1)end
+    if direction=='right'then return math.min(7,focus+1)end
+    return focus
+  end
   if style=='list' or style=='layers' then
     local ids={}
     for i=1,4 do if moves==nil or (moves[i] and moves[i]~=0) then ids[#ids+1]=i end end

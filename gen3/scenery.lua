@@ -65,15 +65,24 @@ return function(R)
   end
   function S.drawWide(w,h,frame)
     if not S.wideActive or not S.activeImage then return false end
+    local winW,winH=w,h
+    local area=R.portrait and R.portrait.field(w,h)
+    local ox,oy=area and area.x or 0,area and area.y or 0
+    if area then w,h=area.w,area.h end
     local img=S.activeImage;local iw,ih=img:getDimensions();local scale=h/ih
-    if R.lighting then R.lighting.setFrame({x=(w-iw*scale)/2,y=0,w=iw*scale,h=h,scene=S.selected}) end
-    local g=love.graphics;g.push('all');g.origin();g.setShader();g.setScissor(0,0,w,h)
+    if R.lighting then R.lighting.setFrame({x=ox+(w-iw*scale)/2,y=oy,w=iw*scale,h=h,scene=S.selected}) end
+    local g=love.graphics;g.push('all');g.origin();g.setShader();g.setScissor(0,0,winW,winH)
+    if area then
+      local surround=winH/ih;g.setColor(1,1,1,1);g.draw(img,(winW-iw*surround)/2,0,0,surround,surround)
+      g.setColor(.015,.035,.03,.72);g.rectangle('fill',0,0,winW,winH)
+    end
+    g.setScissor(ox,oy,w,h)
     local ok,err=pcall(function()
       -- Clear any previous native scene outside the fitted image as well.
-      g.setColor(16/255,20/255,29/255,1);g.rectangle('fill',0,0,w,h)
+      g.setColor(16/255,20/255,29/255,1);g.rectangle('fill',ox,oy,w,h)
       g.setColor(1,1,1,1)
-      if R.lighting then R.lighting.sceneryBackground(g.draw,img,(w-iw*scale)/2,0,0,scale,scale) else g.draw(img,(w-iw*scale)/2,0,0,scale,scale) end
-      if R.details then R.details.draw({scene=S.selected,x=(w-iw*scale)/2,y=0,scale=scale,artWidth=iw,artHeight=ih,width=w,height=h,time=R.lighting and R.lighting.time or 0}) end
+      if R.lighting then R.lighting.sceneryBackground(g.draw,img,ox+(w-iw*scale)/2,oy,0,scale,scale) else g.draw(img,ox+(w-iw*scale)/2,oy,0,scale,scale) end
+      if R.details then R.details.draw({scene=S.selected,x=ox+(w-iw*scale)/2,y=oy,scale=scale,artWidth=iw,artHeight=ih,width=winW,height=winH,time=R.lighting and R.lighting.time or 0}) end
       -- Source circles are isolated from their sheet and sized independently.
       S.arenaRects={}
       local entry=arenaCatalog[S.selected]
@@ -98,8 +107,8 @@ return function(R)
             if st and st.double then width=width*.72 end
             -- Shrink at narrow window edges; never detach ground from its mon.
             local shape=entry.shapes[kind];local sw=shape.r-shape.l
-            width=math.max(1,math.min(width,cx*sw/(shape.cx-shape.l),(w-cx)*sw/(shape.r-shape.cx),cy*sw/(shape.cy-shape.t),(h-cy)*sw/(shape.b-shape.cy)))
-            if R.lighting then local aw,ah=arenas:getDimensions();local transform=R.lighting.spatial.arenaTransform(aw,ah,shape,cx,cy,width,(w-iw*scale)/2,iw*scale,h);S.arenaRects[side]=R.lighting.arenaBackground(transform,renderer.draw,arenas,kind,cx,cy,width) else S.arenaRects[side]=renderer.draw(arenas,kind,cx,cy,width) end
+            width=math.max(1,math.min(width,(cx-ox)*sw/(shape.cx-shape.l),(ox+w-cx)*sw/(shape.r-shape.cx),(cy-oy)*sw/(shape.cy-shape.t),(oy+h-cy)*sw/(shape.b-shape.cy)))
+            if R.lighting then local aw,ah=arenas:getDimensions();local transform=R.lighting.spatial.arenaTransform(aw,ah,shape,cx,cy,width,ox+(w-iw*scale)/2,iw*scale,h,oy);S.arenaRects[side]=R.lighting.arenaBackground(transform,renderer.draw,arenas,kind,cx,cy,width) else S.arenaRects[side]=renderer.draw(arenas,kind,cx,cy,width) end
             end
           end
         end
@@ -120,13 +129,16 @@ return function(R)
       if g.getDimensions then w,h=g.getDimensions() else w,h=240,160 end
     end
     if w<=0 or h<=0 then return end
+    local area=R.portrait and R.portrait.field(w,h)
+    local ox,oy=area and area.x or 0,area and area.y or 0
+    if area then w,h=area.w,area.h end
     local iw,ih=img:getDimensions()
     local time=love.timer and love.timer.getTime and love.timer.getTime() or 0
     local breathing=R.option('lens_motion',true) and (1.012+.008*math.sin(time*math.pi/2)+.002*math.sin(time*math.pi)) or 1
     local size=math.max(.4,math.min(1,tonumber(R.option('lens_size',.65)) or .65))
     local k=math.max(w/iw,h/ih)*breathing
     k=k*size
-    g.push('all');g.origin();g.setShader();g.setScissor(0,0,w,h)
+    g.push('all');g.origin();g.setShader();g.setScissor(ox,oy,w,h)
     local ok,err=pcall(function()
       g.setColor(1,1,1,math.min(1,alpha))
       -- Every active foreground PNG uses the same lighting path, not only grass.
@@ -135,10 +147,10 @@ return function(R)
       S.lensQuads=S.lensQuads or setmetatable({},{__mode='k'})
       local q=S.lensQuads[img]
       if not q then q={g.newQuad(0,0,iw/2,ih,iw,ih),g.newQuad(iw/2,0,iw/2,ih,iw,ih)};S.lensQuads[img]=q end
-      g.setScissor(0,0,w/2,h)
-      if R.lighting and R.lighting.frame then local f=R.lighting.frame;R.lighting.foliageBackground({iw*k/f.w,ih*k/f.h,-f.x/f.w,(h-ih*k)/f.h},g.draw,img,q[1],0,h-ih*k,0,k,k) elseif R.lighting then R.lighting.background(g.draw,img,q[1],0,h-ih*k,0,k,k) else g.draw(img,q[1],0,h-ih*k,0,k,k) end
-      g.setScissor(w/2,0,w/2,h)
-      if R.lighting and R.lighting.frame then local f=R.lighting.frame;R.lighting.foliageBackground({iw*k/f.w,ih*k/f.h,(w-iw*k-f.x)/f.w,(h-ih*k)/f.h},g.draw,img,q[2],w-iw*k/2,h-ih*k,0,k,k) elseif R.lighting then R.lighting.background(g.draw,img,q[2],w-iw*k/2,h-ih*k,0,k,k) else g.draw(img,q[2],w-iw*k/2,h-ih*k,0,k,k) end
+      g.setScissor(ox,oy,w/2,h)
+      if R.lighting and R.lighting.frame then local f=R.lighting.frame;R.lighting.foliageBackground({iw*k/f.w,ih*k/f.h,(ox-f.x)/f.w,(oy+h-ih*k-(f.y or 0))/f.h},g.draw,img,q[1],ox,oy+h-ih*k,0,k,k) elseif R.lighting then R.lighting.background(g.draw,img,q[1],ox,oy+h-ih*k,0,k,k) else g.draw(img,q[1],ox,oy+h-ih*k,0,k,k) end
+      g.setScissor(ox+w/2,oy,w/2,h)
+      if R.lighting and R.lighting.frame then local f=R.lighting.frame;R.lighting.foliageBackground({iw*k/f.w,ih*k/f.h,(ox+w-iw*k-f.x)/f.w,(oy+h-ih*k-(f.y or 0))/f.h},g.draw,img,q[2],ox+w-iw*k/2,oy+h-ih*k,0,k,k) elseif R.lighting then R.lighting.background(g.draw,img,q[2],ox+w-iw*k/2,oy+h-ih*k,0,k,k) else g.draw(img,q[2],ox+w-iw*k/2,oy+h-ih*k,0,k,k) end
     end)
     g.pop();if not ok then R.warn('foreground draw',err) end
   end

@@ -22,9 +22,9 @@ function S.resolve(id,profile)
  return {mode=s.mode,color=s.color,amplitude=s.amplitude,daylight=sunlight[profile] or 1,lights=s.lights,protected=s.protected}
 end
 -- Pure affine mapping, shared by background, arenas and future detail images.
-function S.arenaTransform(iw,ih,shape,cx,cy,width,bgx,bgw,bgh)
+function S.arenaTransform(iw,ih,shape,cx,cy,width,bgx,bgw,bgh,bgy)
  local k=width/(shape.r-shape.l)
- return {iw*k/bgw,ih*k/bgh,(cx-shape.cx*k-bgx)/bgw,(cy-shape.cy*k)/bgh}
+ return {iw*k/bgw,ih*k/bgh,(cx-shape.cx*k-bgx)/bgw,(cy-shape.cy*k-(bgy or 0))/bgh}
 end
 function S.point(transform,u,v) return u*transform[1]+transform[3],v*transform[2]+transform[4] end
 return S

@@ -25,6 +25,9 @@ return function(R)
   local translate=R.load('gen3/settings_language.lua')(R)
   local settings={
     {key='battle_layout',label='Layout dos botões',values={'layers','list','commands'},labels={'Cartas em camadas','Lista flutuante','Menu de comandos (Fight)'}},
+    {key='portrait_layout',label='Layout vertical',default='framed',values={'framed','panorama'},labels={'Campo emoldurado','Campo ampliado'}},
+    {key='battle_virtual_pad',label='Joystick virtual na batalha',default='auto',values={'auto',true,false},labels={'Automática','Ligada','Desligada'}},
+    {key='battle_settings_button',label='Botão Ajustes na batalha',default=true,values={true,false},labels={'Ligada','Desligada'}},
     {key='command_scale',label='Tamanho do menu',default=1,values={.75,1,1.25,1.5,1.75},labels={'75%','100%','125%','150%','175%'}},
     {key='battle_opacity',label='Opacidade',values={.70,.55,.85},labels={'70%','55%','85%'}},
     {key='battle_scale',label='Tamanho',values={.68,.58,.78},labels={'Normal','Menor','Maior'}},
@@ -80,11 +83,12 @@ return function(R)
     return R.setOption(row.key,row.values[i])
   end
   local function presentation()
+    local w,h=0,0;if love and love.graphics and love.graphics.getDimensions then w,h=(R.portrait and R.portrait.dimensions or love.graphics.getDimensions)()end
     local _,_,U=B.context()
     return {classicColors=R.option('battle_skin','current')=='classic',
       emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,
       nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',
-      style=R.option('battle_layout','layers'),commandStage=U and U._mode or 'menu',
+      portrait=R.option('portrait_layout','framed'),portraitSafe=R.portrait and R.portrait.safe(w,h),settingsButton=R.option('battle_settings_button',true),style=h>w and (R.option('portrait_layout','framed')=='panorama' and 'portrait_carousel' or 'portrait_list') or R.option('battle_layout','layers'),commandStage=U and U._mode or 'menu',
       commandScale=tonumber(R.option('command_scale',1)) or 1,
       opacity=R.option('battle_opacity',.70),scale=R.option('battle_scale',.68),position=R.option('battle_position','left')}
   end
@@ -371,9 +375,11 @@ return function(R)
     if not st then return '' end
     return table.concat({tostring(st),tostring(st.turn),tostring(st.player.mon),
       tostring(native._phase),tostring(U._mode),tostring(M and M.open),tostring(M and M._page),
-      tostring(B.settingsOpen),tostring(B.lightingSettingsOpen),tostring(B.lightingSettingsIndex),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),tostring(R.option('dialogue_size','medium')),tostring(R.option('dynamic_lighting',true)),
+      tostring(B.settingsOpen),tostring(B.lightingSettingsOpen),tostring(B.lightingSettingsIndex),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('portrait_layout','framed')),tostring(R.option('battle_virtual_pad','auto')),tostring(R.option('battle_settings_button',true)),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),tostring(R.option('dialogue_size','medium')),tostring(R.option('dynamic_lighting',true)),
       tostring(R.option('battle_aspect','native')),tostring(R.option('battle_drop',8)),presentation().style,presentation().position,tostring(presentation().opacity),tostring(presentation().scale)},'|')
   end
+  function B.openSettings() if not B.settingsDecision() then return false end;B.settingsOpen=true;B.lightingSettingsOpen=false;B.settingsIndex=1;B.drawStamp=nil;return true end
+  function B.scrollSettings(delta) if B.settingsOpen then setIndex(math.max(1,math.min(#settingRows(),currentIndex()+delta)));B.drawStamp=nil end end
   function B.pointer(game,x,y,button)
     if B.settingsOpen and B.visualOwns() and not B.owns() then
       if button~=1 then return true end
@@ -388,7 +394,7 @@ return function(R)
     local frame=B.frame or {x=0,y=0}
     local g=love and love.graphics
     if frame.w and g and g.getDimensions then
-      local w,h=g.getDimensions()
+      local w,h=(R.portrait and R.portrait.dimensions or g.getDimensions)()
       if w~=frame.w or h~=frame.h then return false end
     end
     x,y=x-frame.x,y-frame.y
@@ -442,6 +448,8 @@ return function(R)
       local sx,sy=frame.w/240,frame.h/160
       local sizeFactor,raise=R.camera.hudAdjustment()
       local hudScale=math.min(sx,sy)*.65*sizeFactor
+      local portraitField=R.portrait and R.portrait.field(frame.w,frame.h)
+      if portraitField then hudScale=portraitField.w*.46/104 end
       g.push('all');g.scale(hudScale,hudScale)
       local unpackArgs=table.unpack or unpack
       local skinSnapshot=R.option('battle_skin','current')=='emerald_ivory' and B.snapshot()
@@ -469,7 +477,7 @@ return function(R)
             projection={x=px,y=py,w=pw or 240*ps,h=ph or 160*(psy or ps)}
           end
           local bounds=Anchors.project(side,projection)
-          if bounds or R.camera.depth() then
+          if bounds or R.camera.depth() or portraitField then
             local C=R.module('src.ui.game3.battle_chrome')
             local img=C and (type(side)=='number' and (isPlayer and C._doublesPlayerBox or C._doublesOpponentBox) or isPlayer and C._playerBox or C._enemyBox)
             local hb=img and Anchors.alphaBounds(img) or {0,0,104,isPlayer and 37 or 29}
@@ -479,7 +487,8 @@ return function(R)
             -- Keep the prior top edge as reference, then raise it five window
             -- pixels. Shrinking the box must not accidentally move it downward.
             else hx,hy=Anchors.place(side,bounds,width,height/sizeFactor,frame.w,frame.h) end
-            hy=math.max(0,hy+raise)
+            if portraitField then hx,hy=R.portrait.hud(side,frame.w,frame.h,width,height) end
+            hy=math.max(0,hy+(portraitField and 0 or raise))
             dx=hx/hudScale-(cx-32)-hb[1];dy=hy/hudScale-(cy-16)-hb[2]
           else dy=dy+raise/hudScale end
           local args=box.args
@@ -544,6 +553,9 @@ return function(R)
       local measured=F and F.measure and F.measure(page) or 224
       local _,lineBreaks=tostring(page):gsub('\n','')
       local messageRect,textScale,unit=Dialogue.compute(frame.w,frame.h,R.option('dialogue_size','medium'),measured,lineBreaks+1)
+      if R.portrait and R.portrait.layout(frame.w,frame.h) then
+        local pl=R.portrait.layout(frame.w,frame.h);messageRect=pl.message;local factor=({small=.9,medium=1.2,medium_large=1.4,large=1.6})[R.option('dialogue_size','medium')] or 1.2;textScale=math.min(frame.w/480*factor,(messageRect.w-24)/224);unit=frame.w/480
+      end
       options.messageRect=messageRect
       local layout=View.draw(snap,sync(rec),options,frame.w,frame.h,rec.error)
       B.layout=layout

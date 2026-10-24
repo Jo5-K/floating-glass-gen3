@@ -2,6 +2,11 @@
 return function(R)
  local languages={
   ["en"]={
+   ["Layout vertical"]="Portrait layout",
+   ["Campo emoldurado"]="Framed field",
+   ["Campo ampliado"]="Expanded field",
+   ["Joystick virtual na batalha"]="Battle virtual controls",
+   ["Botão Ajustes na batalha"]="Battle Settings button",
    ["Caverna de gelo — experimental"]="Ice cave — experimental",
    ["Detalhes ambientais"]="Environmental details",
    ["Feixes de luz"]="Light rays",
@@ -118,6 +123,11 @@ return function(R)
    ["Interior"]="Interior",
   },
   ["fr"]={
+   ["Layout vertical"]="Disposition verticale",
+   ["Campo emoldurado"]="Terrain encadré",
+   ["Campo ampliado"]="Terrain élargi",
+   ["Joystick virtual na batalha"]="Commandes virtuelles en combat",
+   ["Botão Ajustes na batalha"]="Bouton Réglages en combat",
    ["Caverna de gelo — experimental"]="Grotte de glace — expérimental",
    ["Detalhes ambientais"]="Détails du décor",
    ["Feixes de luz"]="Rayons lumineux",
@@ -234,6 +244,11 @@ return function(R)
    ["Interior"]="Intérieur",
   },
   ["es"]={
+   ["Layout vertical"]="Diseño vertical",
+   ["Campo emoldurado"]="Campo enmarcado",
+   ["Campo ampliado"]="Campo ampliado",
+   ["Joystick virtual na batalha"]="Controles virtuales en combate",
+   ["Botão Ajustes na batalha"]="Botón Ajustes en combate",
    ["Caverna de gelo — experimental"]="Cueva de hielo — experimental",
    ["Detalhes ambientais"]="Detalles ambientales",
    ["Feixes de luz"]="Haces de luz",

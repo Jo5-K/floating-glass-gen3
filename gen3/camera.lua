@@ -21,18 +21,24 @@ return function(R)
  -- The foreground ally is translated independently; never infer a zoom
  -- from its size or from the distance to the enemy.
  function C.spriteOffset(anchors,key,st)
-  if not st or st.double or not (C.depth() or C.compat()) then return 0,0 end
+  local w,h=0,0;if love and love.graphics and love.graphics.getDimensions then w,h=(R.portrait and R.portrait.dimensions or love.graphics.getDimensions)()end
+  local portrait=R.portrait and R.portrait.field(w,h)
+  if not st or st.double or not (portrait or C.depth() or C.compat()) then return 0,0 end
   if key~='player' and key~='enemy' then return 0,0 end
   local battler=st[key]
   if anchors.state~=st or anchors.owners[key]~=(battler and battler.mon) then return 0,0 end
   local b=anchors.fixed[key] or anchors.ready[key] and anchors.bounds[key]
   local plan=anchors.cameraPlan
   if not b or not plan then return 0,0 end
-  if C.compat() then
-   if not anchors.sources or anchors.sources[key]=='native' or not anchors.sources[key] then return 0,0 end
+  if C.compat() or portrait then
+   if not portrait and (not anchors.sources or anchors.sources[key]=='native' or not anchors.sources[key]) then return 0,0 end
    local foot=anchors.fixedRest and anchors.fixedRest[key] or anchors.rest and anchors.rest[key]
    local bx,by=foot and foot.x or (b.l+b.r)/2,foot and foot.y or b.b
-   local x,y=C.ground(key)
+   local x,y=C.ground(key);if portrait then
+    x=key=='player' and 60 or 176
+    y=160-(key=='player' and .10 or .325)*portrait.h/(portrait.w/240)
+    if key=='enemy' then y=math.max(y,by-b.t+4)end
+   end
    local elevation=R.battle and R.battle.elevation and R.battle.elevation(key) or 0
    return (plan.x+plan.k*x-bx)/plan.k,(plan.y+plan.k*(y+plan.drop-elevation)-by)/plan.k
   end
@@ -70,6 +76,8 @@ return function(R)
   end)
  end
  function C.plan(st,selected,drop)
+  local w,h=0,0;if love and love.graphics and love.graphics.getDimensions then w,h=(R.portrait and R.portrait.dimensions or love.graphics.getDimensions)()end
+  if R.portrait and R.portrait.field(w,h) then return {x=0,y=0,k=1,drop=0,signature='portrait-'..C.mode()}end
   if C.native() then return {x=0,y=0,k=1,drop=0,signature='native-'..(st and st.double and 'double' or 'single')} end
   if C.depth() then
    if st and st.double then return {x=8,y=28,k=1,drop=drop,signature='depth-double'} end

@@ -37,6 +37,13 @@ return function(R)
     end)
     R.wrap(D,'fit',function(next,w,h)
       local sx,x,y,pw,ph,sy=next(w,h)
+      local g=love and love.graphics
+      local vw,vh=w,h;if not vw and g and g.getDimensions then vw,vh=(R.portrait and R.portrait.dimensions or g.getDimensions)()end
+      local portrait=R.portrait and R.portrait.field(vw,vh)
+      if portrait then
+        local scale=portrait.w/240
+        return scale,portrait.x,portrait.y+portrait.h-160*scale,portrait.w,160*scale,scale
+      end
       if R.option('battle_aspect','window')=='native' or not R.battle.owns() then return sx,x,y,pw,ph,sy end
       local g=love and love.graphics
       local gw,gh=0,0
@@ -75,7 +82,7 @@ return function(R)
       F.wideReady=type(Renderer.blitCanvas)=='function'
       R.wrap(Renderer,'blitCanvas',function(next,self,canvas,sx,sy,zones,zsx,zsy,bx,by,x,y,w,h,dx,dy)
         if canvas==self.canvas and (R.battle.sceneryOwns or R.battle.owns)() then
-          if R.battle.owns() and R.option('battle_aspect','window')~='native' and canvas.getDimensions then
+          if R.battle.owns() and (R.option('battle_aspect','window')~='native' or R.portrait and R.portrait.field(love.graphics.getDimensions())) and canvas.getDimensions then
             local cw,ch=canvas:getDimensions()
             if cw==240 and ch==160 then
               local nsx,nx,ny,nw,nh,nsy=D.fit()
@@ -86,7 +93,7 @@ return function(R)
             end
           end
           if R.scenery.wideActive then
-            local ww,wh=love.graphics.getDimensions()
+            local ww,wh=(R.portrait and R.portrait.dimensions or love.graphics.getDimensions)()
             R.scenery.drawWide(ww,wh,{x=bx,y=by,w=240*sx,h=160*sy})
           end
         end

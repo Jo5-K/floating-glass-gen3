@@ -38,9 +38,9 @@ float definedRay(vec2 p,vec4 source,float phase) {
  float centre=beamCentre(p,source,lightDirection,artAspect,lightTime,phase);
  float variation=drift(lightTime/13.0,battleSeed+phase);
  float width=max(.004,source.z*(.075+max(y,0.0)*.27))*(.94+.12*variation);
- float feather=mix(.08,.95,smoothstep(.30,.85,travel));
+ float feather=mix(.025,.82,smoothstep(.30,.90,travel));
  float crossSection=1.0-smoothstep(width*(1.0-feather),width,abs(p.x-centre));
- float fade=(1.0-smoothstep(.30,.95,travel))*smoothstep(0.0,.012,y);
+ float fade=(1.0-smoothstep(.30,1.02,travel))*smoothstep(0.0,.012,y);
  return crossSection*fade*source.w*(.70+.30*variation);
 }
 float pool(vec2 p,vec4 source,float phase) {
@@ -73,9 +73,9 @@ vec4 effect(vec4 color, Image tex, vec2 uv, vec2 screen) {
  } else if(canopy || windowLight) {
   float soft=beamField(uv,beam0,lightDirection,artAspect,lightTime,0.0)+beamField(uv,beam1,lightDirection,artAspect,lightTime,1.7);
   float defined=definedRay(uv,beam0,0.0)+definedRay(uv,beam1,1.7);
-  // Existing soft veil retained; the additional defined component dissolves at 30%.
+  // Crisp source and reduced veil; gradual dissolution begins after 30%.
   float occlusion=max(max(blockedArea(uv,blocked0),blockedArea(uv,blocked1)),max(blockedArea(uv,blocked2),blockedArea(uv,blocked3)));
-  a=soft*.70+defined*1.25*(1.0-occlusion);
+  a=soft*.42+defined*1.25*(1.0-occlusion);
  } else if(closed) {
   // Lamps/crystals/screens reflect LOCALLY; never solar shafts through a roof.
   a=(pool(uv,beam0,1.0)+pool(uv,beam1,2.0)+pool(uv,beam2,3.0)+pool(uv,beam3,4.0))*.18;

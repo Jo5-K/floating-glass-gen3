@@ -5,8 +5,39 @@ local function slots(moves)
   for i=1,4 do if moves==nil or (moves[i] and moves[i]~=0) then ids[#ids+1]=i end end
   return ids
 end
+-- Portrait is a composition variant, independent of landscape button style.
+function L.portrait(w,h,variant,selected,moves,safe)
+ if safe and safe.w and safe.h and safe.w>0 and safe.h>0 and safe.x>=0 and safe.y>=0 and safe.x+safe.w<=w+.01 and safe.y+safe.h<=h+.01 then
+  local l=L.portrait(safe.w,safe.h,variant,selected,moves)
+  for _,r in ipairs(l.rects)do r.x=r.x+safe.x;r.y=r.y+safe.y end
+  for _,key in ipairs({'field','settings','message'})do local r=l[key];r.x=r.x+safe.x;r.y=r.y+safe.y end
+  l.width,l.height=w,h;l.safe=safe;return l
+ end
+ local framed=variant~='panorama';local margin=w*(framed and .115 or .015)
+ local fw=w-2*margin;local fh=math.min(fw*(framed and 1 or 1.45),h*(framed and .44 or .66))
+ local field={x=margin,y=framed and h*.095 or 0,w=fw,h=fh}
+ local unit=math.min(w/480,h/800)
+ local cards={};local ids=slots(moves);local rowY=field.y+field.h+h*.025
+ for n,i in ipairs(ids)do
+  local active=i==selected
+  if framed then
+   cards[#cards+1]={x=w*.155,y=rowY+(n-1)*h*.076,w=w*.69,h=h*.067,scale=h*.067/62,index=i,kind='move',depth=active and 0 or 1,alpha=active and 1 or .75}
+  else
+   cards[#cards+1]={x=w*.035+(n-1)*w*.235,y=rowY+(active and 0 or h*.009),w=w*.25,h=h*.122,scale=unit,index=i,kind='move',depth=active and 0 or 1,alpha=active and 1 or .75}
+  end
+ end
+ if #ids==0 then cards[#cards+1]={x=w*.155,y=rowY,w=w*.69,h=h*.067,index=1,kind='menu',depth=0,alpha=1}end
+ -- Selected card is last so its polygon and touch target remain in front.
+ table.sort(cards,function(a,b)if a.depth==b.depth then return a.index>b.index end;return a.depth>b.depth end)
+ local ah=h*(framed and .062 or .145);local ay=h*(framed and .90 or .825)
+ for n,index in ipairs({3,2,4})do cards[#cards+1]={x=w*.045+(n-1)*w*.315,y=ay,w=w*.28,h=ah,index=index,kind='menu',portraitAction=true}end
+ return {portrait=true,variant=variant,field=field,style='portrait',scale=unit,width=w,height=h,rects=cards,
+ settings={x=w*.62,y=h*.015,w=w*.34,h=h*.045,kind='settings'},
+ message={x=w*.06,y=math.min(h*.72,field.y+field.h+h*.02),w=w*.88,h=h*.12}}
+end
 function L.compute(w,h,style,factor,selected,options)
   options=options or {};style=style or 'layers'
+  if h>w and options.portrait then return L.portrait(w,h,options.portrait,selected,options.moves,options.portraitSafe)end
   local s=math.min(w/1280,h/720)*(factor or .68)/.68
   s=math.min(s,w/820,h/680)
   local pad=24*s

@@ -1,8 +1,8 @@
-# Floating Glass Gen3 — beta - 11
+# Floating Glass Gen3 — beta - 12
 
 ## Português
 
-**Nesta versão:** feixes mais definidos e alinhados à camada de luz suave, com dissipação gradual após os primeiros 30%.
+**Nesta versão:** dois layouts verticais, toque direto na batalha, controle do joystick virtual e feixes com início mais definido e menos luz difusa.
 
 Mod visual de batalha com fundos ultrawide, arenas, câmeras, sombras e layouts personalizáveis. Menus fora da batalha permanecem nativos.
 
@@ -16,9 +16,11 @@ Compatibilidade anteriormente observada com [G9 Battle Sprites](https://github.c
 
 Aparência ainda em avaliação no jogo. Algumas cenas especiais/duplas usam elementos nativos; ajuste vertical de sprites nativos no celular e ciclos adicionais de animação continuam pendentes. A caverna de gelo não é selecionada automaticamente pelos mapas.
 
+SELECT → Layout vertical: Campo emoldurado ou Campo ampliado. Joystick virtual visível bloqueia o toque direto; oculto permite toque, inclusive com controle físico. O botão Ajustes pode ser ocultado; SELECT físico continua disponível. Com o botão oculto, segure o canto superior direito por 0,7 segundo na tela principal de decisão para reabrir Ajustes.
+
 ## English
 
-**This update:** clearer light shafts aligned with the soft lighting layer, gradually dissolving after the first 30%.
+**This update:** two portrait layouts, direct battle touch controls, virtual joystick settings, and sharper light shafts with less diffuse glow.
 
 Battle presentation mod with ultrawide scenery, arenas, cameras, shadows and customizable layouts. Menus outside battles stay native.
 
@@ -31,3 +33,7 @@ SELECT → Dynamic lighting → A opens settings; left/right toggles lighting. C
 Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This revision still needs checking with these combinations.
 
 In-game appearance remains under review. Some special scenes/double battles retain native elements; native-sprite vertical adjustment on mobile and additional animation cycles remain pending. The ice cave is not automatically selected by maps.
+
+SELECT → Portrait layout: Framed field or Expanded field. A visible virtual joystick blocks direct touch; hiding it enables touch even with a physical controller. The Settings button can be hidden; physical SELECT remains available. Hold the upper-right corner for 0.7 seconds on the main decision screen to reopen hidden Settings.
+
+Portrait layouts and touch passed simulated checks; real Android/device validation is still pending. Special battles retain native layouts.

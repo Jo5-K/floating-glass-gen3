@@ -122,7 +122,63 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       g.rectangle('fill',x,y,w*math.min(1,ratio),h,h/2,h/2)
     end
   end
+  function V.portrait(snapshot,selection,options,w,h,errorText)
+    local g=love.graphics;local l=Layout.portrait(w,h,options.portrait,selection.move,snapshot.moves,options.portraitSafe)
+    local tr=options.translate or function(v)return v end;local unit=l.scale
+    l.neutral=options.pastel;l.emeraldIvory=options.emeraldIvory;l.classicColors=options.classicColors
+    if options.messageRect then l.message=options.messageRect end
+    local f=l.field
+    if l.variant~='panorama' then
+      g.setColor(.91,.88,.68,1);g.setLineWidth(math.max(1,2*unit));g.rectangle('line',f.x-3*unit,f.y-3*unit,f.w+6*unit,f.h+6*unit,5*unit,5*unit)
+    end
+    local names=snapshot.labels or {};local cards=Model.cards(snapshot)
+    local focus=selection.focus or selection.move or 1
+    local active=Model.active(snapshot)
+    if active then
+      for _,r in ipairs(l.rects)do
+        local selected=r.kind=='move' and focus==r.index or r.kind=='menu' and r.index==1 and focus<=4 or r.kind=='menu' and focus==({[3]=5,[2]=6,[4]=7})[r.index]
+        local function draw()
+          if r.kind=='move' then
+            local card=cards[r.index];if not card then return end
+            local t=Types.resolve(card.type);local k=r.h/68
+            if options.classicColors and Classic then Classic.panel(r,k,selected,t.color)elseif options.emeraldIvory and Skin then Skin.panel(r,k,'move',selected)elseif options.pastel then solid(r,k,neutral.moves,selected)else panel(r,k,t.color,selected,1)end
+            local carousel=l.variant=='panorama';local radius=math.min(r.h*(carousel and .14 or .24),r.w*.105)
+            local ix=r.x+r.w*(carousel and .13 or .085);local iy=r.y+r.h*(carousel and .24 or .32)
+            g.setColor(1,1,.88,1);g.circle('fill',ix,iy,radius);g.setColor(.04,.07,.07,1)
+            Icons.type(card.type,ix,iy,radius*.72)
+            local fs=math.min(w*.031,r.h*.27,r.w*.105)
+            local ink=options.classicColors and Classic and Classic.ink(t.color) or nil
+            text(card.name,r.x+r.w*(carousel and .26 or .17),r.y+r.h*.14,r.w*(carousel and .70 or .80),fs,ink)
+            local tx=r.x+r.w*(carousel and .12 or .17);local ty=r.y+r.h*(carousel and .50 or .61)
+            local tw=r.w*(carousel and .73 or .28);local th=r.h*.20
+            g.setColor(t.color[1],t.color[2],t.color[3],.85);g.rectangle('fill',tx,ty,tw,th,3*unit,3*unit)
+            text((snapshot.typeLabels or {})[card.type] or t.label,tx+4*unit,ty+unit,tw-8*unit,math.min(th*.72,w*.022),{.04,.07,.07,1})
+            text(tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),carousel and tx or tx+tw+10*unit,r.y+r.h*(carousel and .77 or .61),carousel and r.w*.82 or r.w*.47,math.min(r.h*.19,w*.026),ink)
+          else
+            local k=r.h/54
+            if options.classicColors and Classic then Classic.panel(r,unit,selected)elseif options.emeraldIvory and Skin then Skin.panel(r,math.min(k,unit),r.index==4 and 'run' or 'command',selected)elseif options.pastel then solid(r,unit,neutral[r.index],selected)else panel(r,unit,{.2,.4,.3},selected,1)end
+            local carousel=l.variant=='panorama';local d=carousel and math.min(r.h*.52,r.w*.58) or r.h*.90
+            local bx=carousel and r.x+(r.w-d)/2 or r.x;local by=r.y+(carousel and r.h*.08 or (r.h-d)/2)
+            if Skin then Skin.badge(r.index,bx,by,d,Icons)end
+            local tx=carousel and r.x+8*unit or bx+d+5*unit
+            local label=names[r.index] or ({[1]='FIGHT',[3]='BAG',[2]='POKÉMON',[4]='RUN'})[r.index];local fs=math.min(w*.031,r.h*.26)
+            if carousel then local f=font(fs);tx=r.x+math.max(4*unit,(r.w-f:getWidth(label))/2)end
+            text(label,tx,r.y+r.h*(carousel and .72 or .35),carousel and r.w-8*unit or r.w-d-8*unit,fs,options.pastel and not options.emeraldIvory and not options.classicColors and neutral.ink or nil)
+          end
+        end
+        if Skin and r.kind=='move' then Skin.group(r.index,r,r.alpha,draw)else draw()end
+      end
+    else l.rects={} end
+    if errorText then local r={x=w*.08,y=f.y+f.h-h*.09,w=w*.84,h=h*.065};panel(r,unit,{1,.65,.4},false,1);text(errorText,r.x+8*unit,r.y+8*unit,r.w-16*unit,w*.026)end
+    if options.settingsButton==false then l.settings=nil end
+    if l.settings then
+      local r=l.settings;if options.emeraldIvory and Skin then Skin.panel(r,unit,'settings',false)else panel(r,unit,{.2,.4,.3},false,1)end
+      text(tr('Ajustes · SELECT'),r.x+10*unit,r.y+r.h*.27,r.w-20*unit,math.min(w*.025,r.h*.43))
+    end
+    return l
+  end
   function V.draw(snapshot,selection,options,w,h,errorText)
+    if h>w and options.portrait then return V.portrait(snapshot,selection,options,w,h,errorText)end
     local g=love.graphics
     local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud,classicButtons=options.classicButtons,classicColors=options.classicColors,commandStage=options.commandStage,commandScale=options.commandScale})
     if options.messageRect then l.message=options.messageRect end
@@ -293,7 +349,9 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       end
     end
     if l.commandCenter and Classic then Classic.center(l.commandCenter,s) end
+    if options.settingsButton==false then l.settings=nil end
     local settings=l.settings
+    if settings then
     if l.emeraldIvory then Skin.panel(settings,s,'settings',false) elseif options.pastel then solid(settings,s,neutral.settings,false) else panel(settings,s,{.32,.9,1},false,.65) end
     if options.pastel then
       local cx,cy,rad=settings.x+21*s,settings.y+settings.h/2,14*s
@@ -303,6 +361,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       for i=0,7 do local a=i*math.pi/4;g.line(cx+math.cos(a)*6*s,cy+math.sin(a)*6*s,cx+math.cos(a)*9*s,cy+math.sin(a)*9*s) end
       text(tr('Ajustes · SELECT'),settings.x+42*s,settings.y+12*s,settings.w-48*s,12*s,neutral.ivory)
     else text(tr('Ajustes · SELECT'),settings.x+14*s,settings.y+12*s,settings.w-28*s,14*s) end
+    end
     if errorText then
       local r={x=l.x,y=l.y-28*s,w=l.w,h=24*s}
       panel(r,s,{1,.62,.49},false,.9)

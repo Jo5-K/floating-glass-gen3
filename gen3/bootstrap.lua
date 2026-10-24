@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.9',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.10',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.
@@ -110,6 +110,7 @@ return function(mod)
   })
   -- Temporary battle-only scope requested by the user. Outside menus stay native.
   R.outsideBattleUI=false
+  R.portrait=loadPart('gen3/portrait.lua')(R)
   R.camera=loadPart('gen3/camera.lua')(R)
   R.compat=loadPart('gen3/sprite_compat.lua')(R)
   R.shadows=loadPart('gen3/shadows.lua')(R)
@@ -121,11 +122,12 @@ return function(mod)
   R.scenery=loadPart('gen3/scenery.lua')(R)
   R.art=loadPart('gen3/art.lua')(R)
   R.battle=loadPart('gen3/battle.lua')(R)
+  R.battleTouch=loadPart('gen3/battle_touch.lua')(R)
   local drawWrapped=setmetatable({},{__mode='k'})
   local function install(game)
     if not R.active() then return end
     R.game=game or R.game
-    R.art.installLoaded();R.battle.installLoaded();R.scenery.installLoaded();R.framing.installLoaded()
+    R.battleTouch.install(R.game);R.art.installLoaded();R.battle.installLoaded();R.scenery.installLoaded();R.framing.installLoaded()
     local Game=R.module('src.core.Game3')
     if Game and not drawWrapped[Game] and type(Game.draw)=='function' then
       drawWrapped[Game]=true
@@ -147,21 +149,26 @@ return function(mod)
   mod.events:on('game.ready',function(event) install(event and event.game) end)
   mod.hooks:wrap('input.step',function(next,game,dt)
     install(game)
-    if R.active() then R.lighting.update(dt) end
+    if R.active() then R.lighting.update(dt);R.battleTouch.update(game,dt) end
     return next(game,dt)
+  end,250)
+  mod.hooks:wrap('input.pointer',function(next,game,event)
+    local ok,handled=pcall(R.battleTouch.pointer,game,event)
+    if not ok then R.battleTouch.failed=true;R.warn('battle touch fallback',handled)elseif handled then return true end
+    return next(game,event)
   end,250)
   mod.hooks:wrap('render.hud',function(next,game,viewport)
     local out=next(game,viewport)
     install(game)
     if R.unloaded then return out end
-    local ok,err=pcall(R.battle.draw,game,viewport)
+    local ok,err=pcall(function()R.battle.draw(game,viewport);R.battleTouch.draw(game,viewport.width,viewport.height)end)
     if not ok then R.battle.failed=true;R.warn('battle renderer disabled; native UI restored',err) end
     return out
   end,250)
   local unloaded=false
   local function unload()
     if unloaded then return end;unloaded=true;R.unloaded=true
-    R.postLight.shutdown();R.details.shutdown();R.lighting.shutdown();R.shadows.shutdown();R.scenery.shutdown();if R.battle.shutdown then R.battle.shutdown() end
+    R.battleTouch.shutdown();R.postLight.shutdown();R.details.shutdown();R.lighting.shutdown();R.shadows.shutdown();R.scenery.shutdown();if R.battle.shutdown then R.battle.shutdown() end
     for i=#R.patches,1,-1 do
       local p=R.patches[i]
       if p[1][p[2]]==p[4] then p[1][p[2]]=p[3] end

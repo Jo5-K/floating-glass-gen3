@@ -12,8 +12,8 @@ return function(R)
   return effect~=nil and (not effect.solar or s.daylight>.20 and L.direction()[2]<-.1)
  end
  function P.vertices(w,h,f)
-  return {{0,0,-f.x/f.w,0,1,1,1,1},{w,0,(w-f.x)/f.w,0,1,1,1,1},
-   {w,h,(w-f.x)/f.w,h/f.h,1,1,1,1},{0,h,-f.x/f.w,h/f.h,1,1,1,1}}
+  return {{0,0,-f.x/f.w,-(f.y or 0)/f.h,1,1,1,1},{w,0,(w-f.x)/f.w,-(f.y or 0)/f.h,1,1,1,1},
+   {w,h,(w-f.x)/f.w,(h-(f.y or 0))/f.h,1,1,1,1},{0,h,-f.x/f.w,(h-(f.y or 0))/f.h,1,1,1,1}}
  end
  function P.draw(w,h,detailStage)
   if not P.enabled() then return end
@@ -26,7 +26,7 @@ return function(R)
     local source=R.load('gen3/post_light_shader.lua'):gsub('// SHARED_BEAM_FUNCTIONS',function()return L.sharedBeam end)
     P.shader=g.newShader(source)
    end
-   local signature=table.concat({w,h,f.x,f.w,f.h},':')
+   local signature=table.concat({w,h,f.x,f.y or 0,f.w,f.h},':')
    if signature~=P.signature then
     if P.mesh and P.mesh.release then P.mesh:release() end
     P.mesh=g.newMesh(P.vertices(w,h,f),'fan','static');P.signature=signature
@@ -44,7 +44,7 @@ return function(R)
     P.shader:send('beam'..i,emitter or {0,0,1,0})
     P.shader:send('blocked'..i,layout.protected[i+1] or {0,0,0,0})
    end
-   g.origin();g.setColor(1,1,1,1);g.setBlendMode('alpha','alphamultiply');g.setShader(P.shader);g.draw(P.mesh)
+   g.origin();local area=R.portrait and R.portrait.field(w,h);if area then g.setScissor(area.x,area.y,area.w,area.h)end;g.setColor(1,1,1,1);g.setBlendMode('alpha','alphamultiply');g.setShader(P.shader);g.draw(P.mesh)
   end)
   g.pop()
   if not ok then P.failed=true;R.warn('post-sprite light disabled',err) end
