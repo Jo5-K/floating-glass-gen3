@@ -1,39 +1,25 @@
-# Floating Glass Gen3 — beta - 13
+# Floating Glass Gen3 — beta - 14 / Android diagnostics
 
 ## Português
+**Pacote temporário de diagnóstico — não é uma correção confirmada.**
 
-**Nesta versão:** correção da troca automática entre os layouts vertical e horizontal ao girar a tela durante a batalha.
+Adiciona um painel no topo da batalha com o estado da interface e os avisos de desenho, para investigar o caso em que o fundo personalizado aparece no Android, mas os comandos permanecem nativos.
 
-Mod visual de batalha com fundos ultrawide, arenas, câmeras, sombras e layouts personalizáveis. Menus fora da batalha permanecem nativos.
+1. Importe o ZIP pelo gerenciador do G1R, substituindo o Floating Glass atual. Não instale em paralelo: o ID é o mesmo.
+2. Reabra o jogo e entre em uma batalha.
+3. Envie uma captura incluindo o painel superior.
+4. Para retirar o painel, reinstale a [beta - 13](https://github.com/Jo5-K/floating-glass-gen3/releases/tag/v1.2.11).
 
-Luz e detalhes próprios para cada ambiente, feixes suaves animados, reflexos na água, Gastly decorativo em Lavender e caverna de gelo experimental (seleção manual). Fundo, arenas e primeiro plano acompanham a iluminação; a interface permanece legível.
-
-**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire e Emerald.** SELECT em PT-BR, inglês, francês e espanhol. Importe o ZIP no gerenciador do G1R; “Source code (zip)” também é importável. Atualizações pelo GitHub incluídas.
-
-SELECT → Iluminação dinâmica → A abre os ajustes; esquerda/direita liga ou desliga. Use o perfil automático para seguir o relógio do dispositivo. Feixes e Detalhes ambientais podem ser desativados.
-
-Compatibilidade anteriormente observada com [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. Esta revisão ainda precisa de avaliação nessas combinações.
-
-Aparência ainda em avaliação no jogo. Algumas cenas especiais/duplas usam elementos nativos; ajuste vertical de sprites nativos no celular e ciclos adicionais de animação continuam pendentes. A caverna de gelo não é selecionada automaticamente pelos mapas.
-
-SELECT → Layout vertical: Campo emoldurado ou Campo ampliado. Joystick virtual visível bloqueia o toque direto; oculto permite toque, inclusive com controle físico. O botão Ajustes pode ser ocultado; SELECT físico continua disponível. Com o botão oculto, segure o canto superior direito por 0,7 segundo na tela principal de decisão para reabrir Ajustes.
+Baseado na beta - 13; layouts, iluminação e controles preservados. G1R 0.3.93+ e os cinco jogos Gen3. Investigação direcionada ao APK oficial 0.3.96. Teste gráfico local com LÖVE/OpenGL ES aprovado; Android real ainda não validado. Esta release não substitui a beta - 13 como atualização recomendada.
 
 ## English
+**Temporary diagnostic build — not a confirmed fix.**
 
-**This update:** corrected automatic switching between portrait and landscape battle layouts when rotating the screen.
+Adds a panel at the top of battle showing UI status and rendering warnings, to investigate Android cases where the custom background appears but battle controls remain native.
 
-Battle presentation mod with ultrawide scenery, arenas, cameras, shadows and customizable layouts. Menus outside battles stay native.
+1. Import the ZIP through G1R’s manager, replacing the current Floating Glass installation. Do not install alongside it: both use the same mod ID.
+2. Restart the game and enter a battle.
+3. Send a screenshot including the top panel.
+4. Reinstall [beta - 13](https://github.com/Jo5-K/floating-glass-gen3/releases/tag/v1.2.11) to remove the panel.
 
-Environment-specific lighting and details, gently animated light shafts, water reflections, a decorative Gastly in Lavender, and an experimental ice cave (manual selection). Backgrounds, arenas and foregrounds share the lighting while the interface stays readable.
-
-**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire and Emerald.** SELECT in Brazilian Portuguese, English, French and Spanish. Import the ZIP through G1R’s mod manager; “Source code (zip)” is also importable. GitHub updates included.
-
-SELECT → Dynamic lighting → A opens settings; left/right toggles lighting. Choose the automatic profile to follow your device clock. Light rays and Environmental details can be disabled.
-
-Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This revision still needs checking with these combinations.
-
-In-game appearance remains under review. Some special scenes/double battles retain native elements; native-sprite vertical adjustment on mobile and additional animation cycles remain pending. The ice cave is not automatically selected by maps.
-
-SELECT → Portrait layout: Framed field or Expanded field. A visible virtual joystick blocks direct touch; hiding it enables touch even with a physical controller. The Settings button can be hidden; physical SELECT remains available. Hold the upper-right corner for 0.7 seconds on the main decision screen to reopen hidden Settings.
-
-Portrait layouts and touch passed simulated checks; real Android/device validation is still pending. Special battles retain native layouts.
+Based on beta - 13; layouts, lighting and controls preserved. G1R 0.3.93+ and all five Gen3 games. Investigation targets the official 0.3.96 APK. Local LÖVE/OpenGL ES rendering checks passed; real Android validation remains pending. This release does not replace beta - 13 as the recommended update.

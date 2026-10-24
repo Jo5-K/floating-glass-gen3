@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.11',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.12',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.
@@ -123,6 +123,7 @@ return function(mod)
   R.art=loadPart('gen3/art.lua')(R)
   R.battle=loadPart('gen3/battle.lua')(R)
   R.battleTouch=loadPart('gen3/battle_touch.lua')(R)
+  R.androidDiagnostics=loadPart('gen3/android_diagnostics.lua')(R)
   local drawWrapped=setmetatable({},{__mode='k'})
   local function install(game)
     if not R.active() then return end
@@ -171,6 +172,7 @@ return function(mod)
     if R.unloaded then return out end
     local ok,err=pcall(function()R.battle.draw(game,viewport);R.battleTouch.draw(game,viewport.width,viewport.height)end)
     if not ok then R.battle.failed=true;R.warn('battle renderer disabled; native UI restored',err) end
+    pcall(R.androidDiagnostics.draw,game,viewport)
     return out
   end,250)
   local unloaded=false
