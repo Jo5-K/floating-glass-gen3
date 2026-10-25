@@ -123,14 +123,12 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     end
   end
   function V.portrait(snapshot,selection,options,w,h,errorText)
+    if Skin and Skin.configure then Skin.configure(options.emeraldGba)end
     local g=love.graphics;local l=Layout.portrait(w,h,options.portrait,selection.move,snapshot.moves,options.portraitSafe)
     local tr=options.translate or function(v)return v end;local unit=l.scale
     l.neutral=options.pastel;l.emeraldIvory=options.emeraldIvory;l.classicColors=options.classicColors
     if options.messageRect then l.message=options.messageRect end
     local f=l.field
-    if l.variant~='panorama' then
-      g.setColor(.91,.88,.68,1);g.setLineWidth(math.max(1,2*unit));g.rectangle('line',f.x-3*unit,f.y-3*unit,f.w+6*unit,f.h+6*unit,5*unit,5*unit)
-    end
     local names=snapshot.labels or {};local cards=Model.cards(snapshot)
     local focus=selection.focus or selection.move or 1
     local active=Model.active(snapshot)
@@ -140,14 +138,14 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
         local function draw()
           if r.kind=='move' then
             local card=cards[r.index];if not card then return end
-            local t=Types.resolve(card.type);local k=r.h/68
-            if options.classicColors and Classic then Classic.panel(r,k,selected,t.color)elseif options.emeraldIvory and Skin then Skin.panel(r,k,'move',selected)elseif options.pastel then solid(r,k,neutral.moves,selected)else panel(r,k,t.color,selected,1)end
+            local t=Types.resolve(card.type);if options.emeraldGba then t={color=Skin.typeColor(card.type,t.color),label=t.label}end;local k=r.h/68
+            if options.classicColors and Classic then Classic.panel(r,k,selected,t.color)elseif options.emeraldIvory and Skin then Skin.panel(r,k,'move',selected,t.color)elseif options.pastel then solid(r,k,neutral.moves,selected)else panel(r,k,t.color,selected,1)end
             local carousel=l.variant=='panorama';local radius=math.min(r.h*(carousel and .14 or .24),r.w*.105)
             local ix=r.x+r.w*(carousel and .13 or .085);local iy=r.y+r.h*(carousel and .24 or .32)
             g.setColor(1,1,.88,1);g.circle('fill',ix,iy,radius);g.setColor(.04,.07,.07,1)
             Icons.type(card.type,ix,iy,radius*.72)
             local fs=math.min(w*.031,r.h*.27,r.w*.105)
-            local ink=options.classicColors and Classic and Classic.ink(t.color) or nil
+            local ink=options.emeraldGba and Classic.ink(t.color) or options.classicColors and Classic and Classic.ink(t.color) or nil
             text(card.name,r.x+r.w*(carousel and .26 or .17),r.y+r.h*.14,r.w*(carousel and .70 or .80),fs,ink)
             local tx=r.x+r.w*(carousel and .12 or .17);local ty=r.y+r.h*(carousel and .50 or .61)
             local tw=r.w*(carousel and .73 or .28);local th=r.h*.20
@@ -168,7 +166,14 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
         end
         if Skin and r.kind=='move' then Skin.group(r.index,r,r.alpha,draw)else draw()end
       end
-    else l.rects={} end
+    else
+      l.rects={}
+      if snapshot.dialogueActive or tostring(snapshot.message or ''):match('%S')then
+        local r=l.message
+        g.setColor(.035,.11,.13,1);g.rectangle('fill',r.x,r.y,r.w,r.h,12*unit,12*unit)
+        g.setColor(.87,.89,.73,1);g.setLineWidth(2*unit);g.rectangle('line',r.x,r.y,r.w,r.h,12*unit,12*unit)
+      end
+    end
     if errorText then local r={x=w*.08,y=f.y+f.h-h*.09,w=w*.84,h=h*.065};panel(r,unit,{1,.65,.4},false,1);text(errorText,r.x+8*unit,r.y+8*unit,r.w-16*unit,w*.026)end
     if options.settingsButton==false then l.settings=nil end
     if l.settings then
@@ -178,6 +183,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     return l
   end
   function V.draw(snapshot,selection,options,w,h,errorText)
+    if Skin and Skin.configure then Skin.configure(options.emeraldGba)end
     if h>w and options.portrait then return V.portrait(snapshot,selection,options,w,h,errorText)end
     local g=love.graphics
     local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud,classicButtons=options.classicButtons,classicColors=options.classicColors,commandStage=options.commandStage,commandScale=options.commandScale})
@@ -257,7 +263,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       if not move then
         if r.commandDeck and Classic then
           local palette
-          if not l.classicColors then palette=l.emeraldIvory and {.115,.23,.19} or neutral[r.index] and neutral[r.index][1] or neutral.moves[1] end
+          if options.emeraldGba then palette=Skin.commandColor(r.index)elseif not l.classicColors then palette=l.emeraldIvory and {.115,.23,.19} or neutral[r.index] and neutral[r.index][1] or neutral.moves[1] end
           Classic.button(r,s,selected,Icons,palette)
           r.commandInk=palette and Classic.ink(palette) or {1,1,.96,1}
         elseif r.classic and Classic then
@@ -275,7 +281,8 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
         end
       elseif r.commandDeck and Classic then
         local t=Types.resolve(card.type)
-        local fill=l.classicColors and t.color or l.emeraldIvory and {.115,.23,.19} or neutral.moves[1]
+        if options.emeraldGba then t={color=Skin.typeColor(card.type,t.color),label=t.label}end
+        local fill=options.emeraldGba and Skin.typeColor(card.type,t.color) or l.classicColors and t.color or l.emeraldIvory and {.115,.23,.19} or neutral.moves[1]
         Classic.panel(r,s,selected,fill)
         local ink=Classic.ink(fill)
         g.setColor(ink);Icons.type(card.type,r.x+13*s,r.y+15*s,11*s)
@@ -288,8 +295,9 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
         local groupAlpha=(l.emeraldIvory or l.classicColors) and (r.depth==0 and 1 or r.depth==1 and .75 or r.depth==2 and .55 or .4) or alpha
         if l.emeraldIvory or l.classicColors then alpha=1 end
         local t=Types.resolve(card.type)
+        if options.emeraldGba then t={color=Skin.typeColor(card.type,t.color),label=t.label}end
         local compact=options.style=='list' or options.style=='stack'
-        local ink=l.classicColors and Classic.ink(t.color) or card.disabled and {.72,.77,.82,.85} or {.94,.97,1,.98}
+        local ink=options.emeraldGba and Classic.ink(Skin.typeColor(card.type,t.color)) or l.classicColors and Classic.ink(t.color) or card.disabled and {.72,.77,.82,.85} or {.94,.97,1,.98}
         local function drawCard()
         g.push('all')
         if r.angle then
@@ -336,11 +344,11 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
           text(card.name,tx,r.y+(compact and 5 or 15)*k,r.w-68*k,17*k,ink)
           local tagX=tx;local tagY=r.y+(compact and 29 or 58)*k
           local tagW=math.min(100*k,r.w*.36)
-          if l.classicColors then g.setColor(.95,.95,.89,1)
+          if l.classicColors or options.emeraldGba then g.setColor(.95,.95,.89,1)
           elseif l.emeraldIvory and tostring(card.type):upper()=='NORMAL' then g.setColor(Skin.colors.normal)
           else g.setColor(t.color[1]*.6,t.color[2]*.6,t.color[3]*.6,math.max(.3,alpha)) end
           g.rectangle('fill',tagX,tagY,tagW,17*k,8*k,8*k)
-          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,l.classicColors and {.03,.05,.04,1} or l.emeraldIvory and tostring(card.type):upper()=='NORMAL' and Skin.colors.ink or ink)
+          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,(l.classicColors or options.emeraldGba) and {.03,.05,.04,1} or l.emeraldIvory and tostring(card.type):upper()=='NORMAL' and Skin.colors.ink or ink)
           text(tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),tagX+tagW+12*k,tagY,r.w-180*k,12*k,ink)
         end
         g.pop()

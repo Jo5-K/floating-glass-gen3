@@ -1,39 +1,21 @@
-# Floating Glass Gen3 — beta - 16
+# Floating Glass Gen3 — beta - 17
 
 ## Português
 
-**Nesta versão:** corrigido o toque para confirmar o fim da evolução e continuar a batalha, mesmo quando a caixa de mensagem já fechou.
+Novas camadas de detalhes e animações ambientais para montanha, rochoso, planície, lagoa, mar, praia, deserto e caverna. Detalhes concentrados no centro, sem esticar a arte, para diferentes proporções de tela. Pequenas aparições decorativas de Pokémon; vento também nos ambientes de floresta e grama alta.
 
-Mod visual de batalha com fundos ultrawide, arenas, câmeras, sombras e layouts personalizáveis. Menus fora da batalha permanecem nativos.
+Na vertical: campo quadrado com cantos arredondados, molduras ambientais e mensagens com fundo opaco. Novo tema **Emerald GBA**, em **SELECT → Estilo de cores**, com cores dos menus originais e golpes coloridos por tipo. Controles virtuais retornam automaticamente nas telas nativas, inclusive evolução, e respeitam a preferência ao voltar aos comandos.
 
-Luz e detalhes próprios para cada ambiente, feixes suaves animados, reflexos na água, Gastly decorativo em Lavender e caverna de gelo experimental (seleção manual). Fundo, arenas e primeiro plano acompanham a iluminação; a interface permanece legível.
+**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire e Emerald.** SELECT em PT-BR, inglês, francês e espanhol. Importe o ZIP no gerenciador do G1R. “Source code (zip)” também é importável; atualizações pelo GitHub incluídas. Em SELECT, **Detalhes ambientais** controla as novas camadas; **Primeiro plano** controla a transparência frontal.
 
-**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire e Emerald.** SELECT em PT-BR, inglês, francês e espanhol. Importe o ZIP no gerenciador do G1R; “Source code (zip)” também é importável. Atualizações pelo GitHub incluídas.
-
-SELECT → Iluminação dinâmica → A abre os ajustes; esquerda/direita liga ou desliga. Use o perfil automático para seguir o relógio do dispositivo. Feixes e Detalhes ambientais podem ser desativados.
-
-Compatibilidade anteriormente observada com [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. Esta revisão ainda precisa de avaliação nessas combinações.
-
-Aparência ainda em avaliação no jogo. Algumas cenas especiais/duplas usam elementos nativos; ajuste vertical de sprites nativos no celular e ciclos adicionais de animação continuam pendentes. A caverna de gelo não é selecionada automaticamente pelos mapas.
-
-SELECT → Layout vertical: Campo emoldurado ou Campo ampliado. Joystick virtual visível bloqueia o toque direto; oculto permite toque, inclusive com controle físico. O botão Ajustes pode ser ocultado; SELECT físico continua disponível. Com o botão oculto, segure o canto superior direito por 0,7 segundo na tela principal de decisão para reabrir Ajustes.
+Compatibilidade anteriormente observada com [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. Esta revisão passou por verificações simuladas dos cinco jogos, layouts, toque e renderização; ainda precisa de avaliação em Android físico e com essas combinações de mods. O ajuste vertical de sprites nativos no celular continua em avaliação.
 
 ## English
 
-**This update:** fixed touch confirmation after evolution so battles can continue even after the message box has closed.
+New detail layers and environmental animations for mountain, rocky terrain, plains, pond, sea, beach, desert and cave. Details stay in the central area without stretching the artwork across different aspect ratios. Small decorative Pokémon appearances; forest and tall grass also receive ambient wind.
 
-Battle presentation mod with ultrawide scenery, arenas, cameras, shadows and customizable layouts. Menus outside battles stay native.
+Portrait mode gains a square field with rounded corners, environmental frames and opaque message panels. The new **Emerald GBA** theme is available under **SELECT → Color style**, using original menu colors and type-colored move buttons. Virtual controls return automatically for native screens, including evolution, then respect your preference when battle commands return.
 
-Environment-specific lighting and details, gently animated light shafts, water reflections, a decorative Gastly in Lavender, and an experimental ice cave (manual selection). Backgrounds, arenas and foregrounds share the lighting while the interface stays readable.
+**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire and Emerald.** SELECT in Brazilian Portuguese, English, French and Spanish. Import the ZIP through G1R’s mod manager. “Source code (zip)” is also importable; GitHub updates included. **Environmental details** controls the new layers; **Foreground** controls front-layer opacity.
 
-**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire and Emerald.** SELECT in Brazilian Portuguese, English, French and Spanish. Import the ZIP through G1R’s mod manager; “Source code (zip)” is also importable. GitHub updates included.
-
-SELECT → Dynamic lighting → A opens settings; left/right toggles lighting. Choose the automatic profile to follow your device clock. Light rays and Environmental details can be disabled.
-
-Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This revision still needs checking with these combinations.
-
-In-game appearance remains under review. Some special scenes/double battles retain native elements; native-sprite vertical adjustment on mobile and additional animation cycles remain pending. The ice cave is not automatically selected by maps.
-
-SELECT → Portrait layout: Framed field or Expanded field. A visible virtual joystick blocks direct touch; hiding it enables touch even with a physical controller. The Settings button can be hidden; physical SELECT remains available. Hold the upper-right corner for 0.7 seconds on the main decision screen to reopen hidden Settings.
-
-Portrait layouts and touch passed simulated checks; real Android/device validation is still pending. Special battles retain native layouts.
+Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This revision passed simulated checks for all five games, layouts, touch and drawing; physical Android testing and rechecking those mod combinations remain pending. Native-sprite vertical adjustment on mobile remains under review.

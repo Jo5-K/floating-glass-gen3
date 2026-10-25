@@ -14,7 +14,7 @@ function L.portrait(w,h,variant,selected,moves,safe)
   l.width,l.height=w,h;l.safe=safe;return l
  end
  local framed=variant~='panorama';local margin=w*(framed and .115 or .015)
- local fw=w-2*margin;local fh=math.min(fw*(framed and 1 or 1.45),h*(framed and .44 or .66))
+ local fw=math.min(w-2*margin,h*.44);margin=(w-fw)/2;local fh=fw
  local field={x=margin,y=framed and h*.095 or 0,w=fw,h=fh}
  local unit=math.min(w/480,h/800)
  local cards={};local ids=slots(moves);local rowY=field.y+field.h+h*.025

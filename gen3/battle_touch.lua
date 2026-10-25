@@ -4,12 +4,32 @@ return function(R)
  function T.active()
   if T.failed or R.unloaded or not R.active() or R.glass and not R.glass() or not R.option('battle',true)then return false end
   local b=R.module('src.core.game3.battle.init') or R.module('src.core.game3.battle')
-  return b and b.isActive and b.isActive() or false
+  if b and b.isActive and b.isActive()then T.continuation=true;return true end
+  -- Preserve controls until a battle-origin evolution modal has really closed.
+  if T.continuation then
+   local E=R.module('src.ui.game3.evolution_scene')
+   if E and E._isBattle and E.isOpen and E.isOpen()then return true end
+   T.continuation=nil
+  end
+  return false
+ end
+ function T.nativeFallback()
+  -- Our opaque battle-message panel remains directly tappable with a hidden pad.
+  -- Other native screens (including evolution and level-up choices) restore it.
+  local M=R.module('src.ui.game3.message')
+  if R.battle.owns and R.battle.owns()and M and M.isOpen and M.isOpen()and M._frame=='battle'then return false end
+  return T.active() and not R.battle.settingsOpen and type(R.battle.decision)=='function' and not R.battle.decision()
+ end
+ function T.mode(pad)
+  local saved=R.option('battle_virtual_pad','auto')
+  local os=love and love.system and love.system.getOS and love.system.getOS()
+  if T.nativeFallback() and (os=='Android' or os=='iOS' or pad and pad.active==true)then return true end
+  return saved
  end
  function T.pad(game)return game and game.touchControls or R.module('src.core.TouchControls')end
  function T.direct(game)
   if not T.active() then return false end
-  if R.option('battle_virtual_pad','auto')==false then return true end
+  if T.mode(T.pad(game))==false then return true end
   local pad=T.pad(game);return not (pad and pad.visible and pad:visible())
  end
  function T.tap(game,key)
@@ -88,7 +108,7 @@ return function(R)
   end
   R.wrap(pad,'visible',function(next,self,...)
    if T.active()then
-    local mode=R.option('battle_virtual_pad','auto')
+    local mode=T.mode(self)
     if mode==false then return false end
     if mode==true then return scoped(next,self,...)end
    end
@@ -98,7 +118,7 @@ return function(R)
    local name=method
    R.wrap(pad,name,function(next,self,...)
     if T.active()then
-     local mode=R.option('battle_virtual_pad','auto')
+     local mode=T.mode(self)
      if mode==false then return false end
      if mode==true then return scoped(next,self,...)end
      if name=='touchpressed' and self.visible and not self:visible()then return false end
@@ -108,8 +128,11 @@ return function(R)
   end
  end
  function T.update(game,dt)
-  if not T.active()then T.touches={};T.navigation=nil;T.footer=nil;T.policy=nil;return end
-  local pad=T.pad(game);local policy=R.option('battle_virtual_pad','auto')
+  if not T.active()then
+   if T.policy~=nil then local pad=T.pad(game);if pad and pad.reset then pad:reset()end end
+   T.touches={};T.navigation=nil;T.footer=nil;T.policy=nil;return
+  end
+  local pad=T.pad(game);local policy=T.mode(pad)
   if policy~=T.policy then
    if pad and pad.reset then pad:reset()end
    T.policy=policy;T.touches={};T.navigation=nil

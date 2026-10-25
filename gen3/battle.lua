@@ -42,7 +42,7 @@ return function(R)
     {key='battle_camera',label='Câmera',values={'native','current','g9_compat','native_depth'},labels={'Nativa','Original','Compatibilidade G9/HD','Primeiro plano'}},
     {key='shadows',label='Sombras',values={'auto','enemies','both'},labels={'Auto: pela câmera','Inimigos','Ambos'}},
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
-    {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic'},labels={'Atual','Emerald Green & Ivory','Clássico colorido'}},
+    {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic','emerald_gba'},labels={'Atual','Emerald Green & Ivory','Clássico colorido','Emerald GBA'}},
     {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
     {key='dynamic_lighting',label='Iluminação dinâmica',default=true,values={true,false},labels={'Ligada','Desligada'}},
     {key='dialogue_size',label='Tamanho das mensagens',default='medium',values={'small','medium','medium_large','large'},labels={'Pequeno','Médio','Médio maior','Grande'}},
@@ -86,7 +86,7 @@ return function(R)
     local w,h=0,0;if love and love.graphics and love.graphics.getDimensions then w,h=(R.portrait and R.portrait.dimensions or love.graphics.getDimensions)()end
     local _,_,U=B.context()
     return {classicColors=R.option('battle_skin','current')=='classic',
-      emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,
+      emeraldGba=R.option('battle_skin','current')=='emerald_gba',emeraldIvory=R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba',translate=translate,
       nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',
       portrait=R.option('portrait_layout','framed'),portraitSafe=R.portrait and R.portrait.safe(w,h),settingsButton=R.option('battle_settings_button',true),style=h>w and (R.option('portrait_layout','framed')=='panorama' and 'portrait_carousel' or 'portrait_list') or R.option('battle_layout','layers'),commandStage=U and U._mode or 'menu',
       commandScale=tonumber(R.option('command_scale',1)) or 1,
@@ -452,7 +452,8 @@ return function(R)
       if portraitField then hudScale=portraitField.w*.46/104 end
       g.push('all');g.scale(hudScale,hudScale)
       local unpackArgs=table.unpack or unpack
-      local skinSnapshot=R.option('battle_skin','current')=='emerald_ivory' and B.snapshot()
+      local skinSnapshot=(R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba') and B.snapshot()
+      if Skin.configure then Skin.configure(R.option('battle_skin','current')=='emerald_gba')end
       B.hudDrawing=true
       local hudOk,hudErr=pcall(function()
         for _,box in ipairs(B.healthboxes or {}) do
@@ -528,7 +529,7 @@ return function(R)
           if R.camera.depth() then R.scenery.foreground(viewport.width,viewport.height);if R.postLight then R.postLight.draw(viewport.width,viewport.height) end;B.drawHealthboxes({x=0,y=0,w=viewport.width,h=viewport.height}) end
           if B.settingsOpen then
             local rows={};for _,row in ipairs(settingRows()) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])..(row.key=='dynamic_lighting' and (' · '..translate('A: ajustes')) or '')} end
-            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldIvory=R.option('battle_skin','current')=='emerald_ivory',translate=translate,title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil,footer=B.lightingSettingsOpen and (translate('B · voltar / SELECT · fechar')..' | '..translate('Luz local')..': '..translate(R.lighting and R.lighting.localStatus() or 'Indisponível')) or nil,showAll=B.lightingSettingsOpen},rows,currentIndex())
+            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldGba=R.option('battle_skin','current')=='emerald_gba',emeraldIvory=R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba',translate=translate,title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil,footer=B.lightingSettingsOpen and (translate('B · voltar / SELECT · fechar')..' | '..translate('Luz local')..': '..translate(R.lighting and R.lighting.localStatus() or 'Indisponível')) or nil,showAll=B.lightingSettingsOpen},rows,currentIndex())
             B.settingsViewport=tostring(viewport.width)..':'..tostring(viewport.height)
           else B.settingsTargets=nil end
         end)
@@ -547,6 +548,7 @@ return function(R)
       if not B.decision() then B.settingsOpen=false end
       -- Replay the exact family healthbox renderer in the final overlay, at
       -- native coordinates scaled to the fitted viewport. No parallel HP model.
+      if R.portrait and R.portrait.decorate then R.portrait.decorate(frame.w,frame.h)end
       B.drawHealthboxes(frame)
       local options=presentation()
       local _,_,_,nativeMessage=B.context()

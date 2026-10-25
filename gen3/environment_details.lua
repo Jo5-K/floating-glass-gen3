@@ -7,6 +7,7 @@ return function(R)
  function E.draw(ctx)
   local L=R.lighting
   if E.failed or not L or not L.enabled() or R.option('lighting_local',true)==false or R.option('environment_details',true)==false then return end
+  if R.ambient and R.ambient.has(ctx.scene)then return end
   local id=assets[ctx.scene]
   if ctx.scene=='lavender' then
    local g=love.graphics

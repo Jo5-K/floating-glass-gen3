@@ -83,6 +83,11 @@ return function(R)
       g.setColor(1,1,1,1)
       if R.lighting then R.lighting.sceneryBackground(g.draw,img,ox+(w-iw*scale)/2,oy,0,scale,scale) else g.draw(img,ox+(w-iw*scale)/2,oy,0,scale,scale) end
       if R.details then R.details.draw({scene=S.selected,x=ox+(w-iw*scale)/2,y=oy,scale=scale,artWidth=iw,artHeight=ih,width=winW,height=winH,time=R.lighting and R.lighting.time or 0}) end
+      if R.ambient then
+        local time=love.timer and love.timer.getTime and love.timer.getTime()or 0
+        R.ambient.draw('rear',S.selected,winW,winH,area,time)
+        R.ambient.draw('animated',S.selected,winW,winH,area,time)
+      end
       -- Source circles are isolated from their sheet and sized independently.
       S.arenaRects={}
       local entry=arenaCatalog[S.selected]
@@ -120,6 +125,10 @@ return function(R)
   -- Old separate arenas stay disabled; the forest review layer is drawn above.
   function S.drawPads() end
   function S.foreground(w,h)
+    if R.ambient and R.ambient.has(S.selected)then
+      local area=R.portrait and R.portrait.field(w,h)
+      R.ambient.draw('front',S.selected,w,h,area);return
+    end
     if not S.current then return end
     local alpha=tonumber(R.option('foreground',.65)) or 0
     if alpha<=0 then return end

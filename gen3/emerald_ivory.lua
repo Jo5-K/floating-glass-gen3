@@ -3,7 +3,14 @@ return function()
  local S={fonts={},canvases={}}
  local function rgb(hex) return {tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255,1} end
  S.colors={green=rgb('366B5A'),lit=rgb('3B7663'),ivory=rgb('FFFFDE'),hp=rgb('FFF6DC'),gold=rgb('E5AF2C'),wine=rgb('642333'),red=rgb('D62630'),dark=rgb('111C1D'),shade=rgb('173C33'),shine=rgb('4A8675'),metal=rgb('D8CFA5'),white=rgb('F7F7F2'),ink=rgb('102027'),normal=rgb('B6B0A4'),healthy=rgb('48EC58'),mid=rgb('F5C344'),critical=rgb('EA4545'),exp=rgb('F0B72D'),cyan=rgb('15BFD1')}
+ local original=S.colors
+ local native={green=rgb('526B63'),lit=rgb('7B9484'),ivory=rgb('FFFFDE'),hp=rgb('FFFFDE'),gold=rgb('FFE68C'),wine=rgb('A542A5'),red=rgb('EF3100'),dark=rgb('293A42'),shade=rgb('3A5242'),shine=rgb('9CDEDE'),metal=rgb('DED6B5'),white=rgb('FFFFFF'),ink=rgb('293A42'),normal=rgb('ADAD7B'),healthy=rgb('7BCE52'),mid=rgb('FFB510'),critical=rgb('EF3100'),exp=rgb('6B94F7'),cyan=rgb('3A6B8C')}
  local c=S.colors
+ function S.configure(enabled)S.native=enabled==true;c=S.native and native or original;S.colors=c end
+ -- Closest original Emerald menu swatches; Fairy remains available with expansion mods.
+ local swatches={NORMAL='ADAD7B',FIRE='F78431',WATER='4A84FF',GRASS='7BCE52',ELECTRIC='FFB510',ICE='9CDEDE',FIGHTING='EF3100',POISON='A542A5',GROUND='BDA53A',FLYING='6B94F7',PSYCHIC='FF5A8C',BUG='DEE631',ROCK='BD9C5A',GHOST='636373',DRAGON='D66BFF',DARK='424242',STEEL='A5A5A5',FAIRY='FF5A8C'}
+ function S.commandColor(i)return i==1 and native.red or i==3 and native.gold or i==4 and native.wine or native.green end
+ function S.typeColor(id,fallback)if S.native then return rgb(swatches[tostring(id):upper()]or 'ADAD7B')end;return fallback end
  local function color(v,a) love.graphics.setColor(v[1],v[2],v[3],a or 1) end
  local function shape(r,inset,dy)
   inset=inset or 0;dy=dy or 0
@@ -15,12 +22,13 @@ return function()
   local g=love.graphics;r.unit=s
   local hp=role=='hp';local top=hp and c.hp or role=='run' and c.wine or c.lit
   local bottom=hp and c.hp or role=='run' and rgb('421622') or c.shade
+  if S.native and not hp then top=role=='run'and c.wine or c.green;bottom=top end
   if role=='move' and typeColor then
    top={typeColor[1],typeColor[2],typeColor[3]}
-   bottom={typeColor[1]*.42,typeColor[2]*.42,typeColor[3]*.42}
+   bottom=S.native and top or {typeColor[1]*.42,typeColor[2]*.42,typeColor[3]*.42}
   end
   -- Approved darker variant: dim only green panel bodies, preserve accents.
-  if not hp and role~='run' then
+  if not S.native and not hp and role~='run' then
    top={top[1]*.5,top[2]*.5,top[3]*.5}
    bottom={bottom[1]*.5,bottom[2]*.5,bottom[3]*.5}
   end
