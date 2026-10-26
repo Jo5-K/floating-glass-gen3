@@ -6,7 +6,9 @@ return function()
  local original=S.colors
  local native={green=rgb('526B63'),lit=rgb('7B9484'),ivory=rgb('FFFFDE'),hp=rgb('FFFFDE'),gold=rgb('FFE68C'),wine=rgb('A542A5'),red=rgb('EF3100'),dark=rgb('293A42'),shade=rgb('3A5242'),shine=rgb('9CDEDE'),metal=rgb('DED6B5'),white=rgb('FFFFFF'),ink=rgb('293A42'),normal=rgb('ADAD7B'),healthy=rgb('7BCE52'),mid=rgb('FFB510'),critical=rgb('EF3100'),exp=rgb('6B94F7'),cyan=rgb('3A6B8C')}
  local c=S.colors
- function S.configure(enabled)S.native=enabled==true;c=S.native and native or original;S.colors=c end
+ local crystal={};for k,v in pairs(original)do crystal[k]=v end
+ crystal.white=rgb('081424');crystal.ink=rgb('081424');crystal.hp=rgb('DBF0FF');crystal.ivory=rgb('FFFFFF');crystal.metal=rgb('6187AD');crystal.shade=rgb('2E5273');crystal.cyan=rgb('2E5273');crystal.healthy=rgb('36E67A');crystal.mid=rgb('FFC73D');crystal.critical=rgb('FF454A');crystal.exp=rgb('36ABFF')
+ function S.configure(enabled,glass)S.native=enabled==true;S.crystal=glass==true;c=S.crystal and crystal or S.native and native or original;S.colors=c end
  -- Closest original Emerald menu swatches; Fairy remains available with expansion mods.
  local swatches={NORMAL='ADAD7B',FIRE='F78431',WATER='4A84FF',GRASS='7BCE52',ELECTRIC='FFB510',ICE='9CDEDE',FIGHTING='EF3100',POISON='A542A5',GROUND='BDA53A',FLYING='6B94F7',PSYCHIC='FF5A8C',BUG='DEE631',ROCK='BD9C5A',GHOST='636373',DRAGON='D66BFF',DARK='424242',STEEL='A5A5A5',FAIRY='FF5A8C'}
  function S.commandColor(i)return i==1 and native.red or i==3 and native.gold or i==4 and native.wine or native.green end
@@ -20,6 +22,20 @@ return function()
  end
  function S.panel(r,s,role,selected,typeColor)
   local g=love.graphics;r.unit=s
+  if S.crystal then
+   local radius=math.min(12*s,r.h/2)
+   color(rgb('DBF0FF'),role=='settings' and .96 or .24);g.rectangle('fill',r.x,r.y,r.w,r.h,radius,radius)
+   -- A clipped-looking inset reflection stays inside the rounded panel.
+   color({1,1,1},.18);g.polygon('fill',r.x+r.w*.20,r.y+3*s,r.x+r.w*.36,r.y+3*s,r.x+r.w*.70,r.y+r.h-3*s,r.x+r.w*.54,r.y+r.h-3*s)
+   color(rgb('6187AD'),.80);g.setLineWidth(2*s);g.rectangle('line',r.x,r.y,r.w,r.h,radius,radius)
+   color({1,1,1},.95);g.setLineWidth(s);g.rectangle('line',r.x+2*s,r.y+2*s,r.w-4*s,r.h-4*s,radius,radius)
+   for _,a in ipairs({{.05,.28,'FFD18A',true},{.30,.90,'82CCFF',true},{.72,.95,'D9ADFF',false}})do
+    color(rgb(a[3]),.9);g.line(r.x+r.w*a[1],r.y+(a[4]and r.h-4*s or 4*s),r.x+r.w*a[2],r.y+(a[4]and r.h-4*s or 4*s))
+   end
+   if role=='move' and typeColor then color(typeColor);g.rectangle('fill',r.x+5*s,r.y+12*s,4*s,r.h-24*s,2*s,2*s)end
+   if selected then color(rgb('0D75C2'));g.setLineWidth(2.5*s);g.rectangle('line',r.x-2*s,r.y-2*s,r.w+4*s,r.h+4*s,radius,radius)end
+   return
+  end
   local hp=role=='hp';local top=hp and c.hp or role=='run' and c.wine or c.lit
   local bottom=hp and c.hp or role=='run' and rgb('421622') or c.shade
   if S.native and not hp then top=role=='run'and c.wine or c.green;bottom=top end
@@ -66,6 +82,13 @@ return function()
  end
  function S.badge(index,x,y,d,Icons)
   local g=love.graphics;local r=d/2;local cx,cy=x+r,y+r
+  if S.crystal then
+   local fill=rgb(index==3 and '4757FF' or index==4 and 'FF4C6B' or '38D9BA')
+   color(rgb('081424'));g.circle('fill',cx,cy,r)
+   color(fill);g.circle('fill',cx,cy,r*.86)
+   color({1,1,1},.95);g.setLineWidth(math.max(1,d*.025));g.circle('line',cx,cy,r-1)
+   color({1,1,1});Icons.action(index,cx,cy,d*.25);return
+  end
   color(c.dark,.45);g.circle('fill',cx,cy+3,r+2)
   color(c.dark);g.circle('fill',cx,cy,r)
   color(c.metal);g.setLineWidth(math.max(1,d*.025));g.circle('line',cx,cy,r-1)

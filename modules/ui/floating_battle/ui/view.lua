@@ -6,7 +6,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     love.graphics.setFont(V.fonts[size]);return V.fonts[size]
   end
   local function text(str,x,y,w,size,color)
-    local g=love.graphics;font(size);g.setColor(color or {.94,.97,1,1})
+    local g=love.graphics;font(size);g.setColor(color or (Skin and Skin.crystal and Skin.colors.ink or {.94,.97,1,1}))
     local sx,sy,sw,sh=g.getScissor()
     -- LOVE scissors use window coordinates, not the active draw transform.
     -- KRS translates/scales the field; transform all corners before clipping.
@@ -21,7 +21,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       g.intersectScissor(left,top,right-left,bottom-top)
     end
     -- Older hosts without transformPoint retain the existing parent clip.
-    local ink=color or {.94,.97,1,1}
+    local ink=color or (Skin and Skin.crystal and Skin.colors.ink or {.94,.97,1,1})
     g.setColor(.003,.01,.025,(ink[1]<.4 and 0 or .92)*(ink[4] or 1));g.print(tostring(str or ''),x+math.max(.7,size/18),y+math.max(.7,size/18))
     g.setColor(ink);g.print(tostring(str or ''),x,y);g.setScissor(sx,sy,sw,sh)
   end
@@ -123,7 +123,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     end
   end
   function V.portrait(snapshot,selection,options,w,h,errorText)
-    if Skin and Skin.configure then Skin.configure(options.emeraldGba)end
+    if Skin and Skin.configure then Skin.configure(options.emeraldGba,options.crystalGlass)end
     local g=love.graphics;local l=Layout.portrait(w,h,options.portrait,selection.move,snapshot.moves,options.portraitSafe)
     local tr=options.translate or function(v)return v end;local unit=l.scale
     l.neutral=options.pastel;l.emeraldIvory=options.emeraldIvory;l.classicColors=options.classicColors
@@ -145,7 +145,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
             g.setColor(1,1,.88,1);g.circle('fill',ix,iy,radius);g.setColor(.04,.07,.07,1)
             Icons.type(card.type,ix,iy,radius*.72)
             local fs=math.min(w*.031,r.h*.27,r.w*.105)
-            local ink=options.emeraldGba and Classic.ink(t.color) or options.classicColors and Classic and Classic.ink(t.color) or nil
+            local ink=options.crystalGlass and Skin.colors.ink or options.emeraldGba and Classic.ink(t.color) or options.classicColors and Classic and Classic.ink(t.color) or nil
             text(card.name,r.x+r.w*(carousel and .26 or .17),r.y+r.h*.14,r.w*(carousel and .70 or .80),fs,ink)
             local tx=r.x+r.w*(carousel and .12 or .17);local ty=r.y+r.h*(carousel and .50 or .61)
             local tw=r.w*(carousel and .73 or .28);local th=r.h*.20
@@ -161,7 +161,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
             local tx=carousel and r.x+8*unit or bx+d+5*unit
             local label=names[r.index] or ({[1]='FIGHT',[3]='BAG',[2]='POKÉMON',[4]='RUN'})[r.index];local fs=math.min(w*.031,r.h*.26)
             if carousel then local f=font(fs);tx=r.x+math.max(4*unit,(r.w-f:getWidth(label))/2)end
-            text(label,tx,r.y+r.h*(carousel and .72 or .35),carousel and r.w-8*unit or r.w-d-8*unit,fs,options.pastel and not options.emeraldIvory and not options.classicColors and neutral.ink or nil)
+            text(label,tx,r.y+r.h*(carousel and .72 or .35),carousel and r.w-8*unit or r.w-d-8*unit,fs,options.crystalGlass and Skin.colors.ink or options.pastel and not options.emeraldIvory and not options.classicColors and neutral.ink or nil)
           end
         end
         if Skin and r.kind=='move' then Skin.group(r.index,r,r.alpha,draw)else draw()end
@@ -171,6 +171,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       if snapshot.dialogueActive or tostring(snapshot.message or ''):match('%S')then
         local r=l.message
         g.setColor(.035,.11,.13,1);g.rectangle('fill',r.x,r.y,r.w,r.h,12*unit,12*unit)
+        if options.crystalGlass then g.setColor(.86,.94,1,1);g.rectangle('fill',r.x,r.y,r.w,r.h,12*unit,12*unit)end
         g.setColor(.87,.89,.73,1);g.setLineWidth(2*unit);g.rectangle('line',r.x,r.y,r.w,r.h,12*unit,12*unit)
       end
     end
@@ -178,12 +179,12 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     if options.settingsButton==false then l.settings=nil end
     if l.settings then
       local r=l.settings;if options.emeraldIvory and Skin then Skin.panel(r,unit,'settings',false)else panel(r,unit,{.2,.4,.3},false,1)end
-      text(tr('Ajustes · SELECT'),r.x+10*unit,r.y+r.h*.27,r.w-20*unit,math.min(w*.025,r.h*.43))
+      text(tr('Ajustes · SELECT'),r.x+10*unit,r.y+r.h*.27,r.w-20*unit,math.min(w*.025,r.h*.43),options.crystalGlass and Skin.colors.ink or nil)
     end
     return l
   end
   function V.draw(snapshot,selection,options,w,h,errorText)
-    if Skin and Skin.configure then Skin.configure(options.emeraldGba)end
+    if Skin and Skin.configure then Skin.configure(options.emeraldGba,options.crystalGlass)end
     if h>w and options.portrait then return V.portrait(snapshot,selection,options,w,h,errorText)end
     local g=love.graphics
     local l=Layout.compute(w,h,options.style,options.scale,selection.move,{moves=snapshot.moves,position=options.position,nativeHud=options.nativeHud,classicButtons=options.classicButtons,classicColors=options.classicColors,commandStage=options.commandStage,commandScale=options.commandScale})
@@ -195,7 +196,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     l.classicColors=options.classicColors and Classic~=nil
     -- Interpolate presentation only. Returned rectangles are the mouse targets.
     local now=options.time or (love.timer and love.timer.getTime and love.timer.getTime()) or 0
-    local signature=table.concat({w,h,options.style or '',options.scale or '',options.position or '',tostring(options.nativeHud),tostring(options.classicButtons),tostring(options.emeraldIvory),tostring(options.classicColors),tostring(options.commandStage),tostring(options.commandScale)},':')
+    local signature=table.concat({w,h,options.style or '',options.scale or '',options.position or '',tostring(options.nativeHud),tostring(options.classicButtons),tostring(options.emeraldIvory),tostring(options.classicColors),tostring(options.commandStage),tostring(options.commandScale),tostring(options.crystalGlass)},':')
     if V.signature~=signature then V.motion={};V.signature=signature end
     V.motion=V.motion or {}
     for _,r in ipairs(l.rects) do
@@ -243,7 +244,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
     if not Model.active(snapshot) then
       local message=type(snapshot.message)=='table' and table.concat(snapshot.message,'\n') or snapshot.message or ''
       if tostring(message):match('^%s*$') and not snapshot.dialogueActive then l.rects={};l.settings=nil;V.motion={};return l end
-      panel(l.message,s,{.28,.61,.78},false,.91)
+      if options.crystalGlass then Skin.panel(l.message,s,'message',false)else panel(l.message,s,{.28,.61,.78},false,.91)end
       local f=font(18*s);local _,lines=f:getWrap(tostring(message),l.message.w-32*s)
       for i,line in ipairs(lines) do if i>3 then break end;text(line,l.message.x+16*s,l.message.y+(15+(i-1)*23)*s,l.message.w-32*s,18*s) end
       l.rects={};l.settings=nil;V.motion={};return l
@@ -263,7 +264,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       if not move then
         if r.commandDeck and Classic then
           local palette
-          if options.emeraldGba then palette=Skin.commandColor(r.index)elseif not l.classicColors then palette=l.emeraldIvory and {.115,.23,.19} or neutral[r.index] and neutral[r.index][1] or neutral.moves[1] end
+          if options.crystalGlass then palette=Skin.colors.hp elseif options.emeraldGba then palette=Skin.commandColor(r.index)elseif not l.classicColors then palette=l.emeraldIvory and {.115,.23,.19} or neutral[r.index] and neutral[r.index][1] or neutral.moves[1] end
           Classic.button(r,s,selected,Icons,palette)
           r.commandInk=palette and Classic.ink(palette) or {1,1,.96,1}
         elseif r.classic and Classic then
@@ -297,7 +298,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
         local t=Types.resolve(card.type)
         if options.emeraldGba then t={color=Skin.typeColor(card.type,t.color),label=t.label}end
         local compact=options.style=='list' or options.style=='stack'
-        local ink=options.emeraldGba and Classic.ink(Skin.typeColor(card.type,t.color)) or l.classicColors and Classic.ink(t.color) or card.disabled and {.72,.77,.82,.85} or {.94,.97,1,.98}
+        local ink=options.crystalGlass and Skin.colors.ink or options.emeraldGba and Classic.ink(Skin.typeColor(card.type,t.color)) or l.classicColors and Classic.ink(t.color) or card.disabled and {.72,.77,.82,.85} or {.94,.97,1,.98}
         local function drawCard()
         g.push('all')
         if r.angle then
@@ -321,7 +322,9 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
           local ix=r.x+29*k;local iy=r.y+(compact and 25 or 29)*k
           local badge=not l.emeraldIvory and not options.nativePalette and tostring(card.type):upper()=='PSYCHIC' and not t.image and Art and Art.psychic(ix-size/2,iy-size/2,size,alpha)
           if not badge then
-            if options.pastel or l.emeraldIvory then
+            if options.crystalGlass then
+              g.setColor(t.color);g.circle('fill',ix,iy,size/2)
+            elseif options.pastel or l.emeraldIvory then
               g.setColor(l.emeraldIvory and Skin.colors.ivory or neutral.ivory);g.circle('fill',ix,iy,size/2)
               g.setColor(neutral.outline);g.setLineWidth(1.5*k);g.circle('line',ix,iy,size/2)
             else
@@ -332,7 +335,8 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
               g.circle('fill',ix,iy,size/2*(1-q*.16))
             end
             end
-            if options.pastel or l.emeraldIvory then g.setColor(l.emeraldIvory and Skin.colors.dark or neutral.ink)
+            if options.crystalGlass then g.setColor(1,1,1,1)
+            elseif options.pastel or l.emeraldIvory then g.setColor(l.emeraldIvory and Skin.colors.dark or neutral.ink)
             elseif options.nativePalette then g.setColor(8/31,8/31,8/31,math.max(.5,alpha)) else g.setColor(1,1,1,math.max(.5,alpha)) end
             if t.image then
               local iw,ih=t.image:getDimensions();local scale=math.min(size*.72/iw,size*.72/ih)
@@ -348,7 +352,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
           elseif l.emeraldIvory and tostring(card.type):upper()=='NORMAL' then g.setColor(Skin.colors.normal)
           else g.setColor(t.color[1]*.6,t.color[2]*.6,t.color[3]*.6,math.max(.3,alpha)) end
           g.rectangle('fill',tagX,tagY,tagW,17*k,8*k,8*k)
-          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,(l.classicColors or options.emeraldGba) and {.03,.05,.04,1} or l.emeraldIvory and tostring(card.type):upper()=='NORMAL' and Skin.colors.ink or ink)
+          text((snapshot.typeLabels or {})[card.type] or t.label,tagX+6*k,tagY+1*k,tagW-12*k,10*k,options.crystalGlass and {1,1,1,1} or (l.classicColors or options.emeraldGba) and {.03,.05,.04,1} or l.emeraldIvory and tostring(card.type):upper()=='NORMAL' and Skin.colors.ink or ink)
           text(tostring(card.pp or '?')..' / '..tostring(card.maxPp or '?')..' '..(snapshot.ppLabel or 'PP'),tagX+tagW+12*k,tagY,r.w-180*k,12*k,ink)
         end
         g.pop()
@@ -367,7 +371,7 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       g.setColor(neutral.outline);g.setLineWidth(1.5*s);g.circle('line',cx,cy,rad)
       g.circle('line',cx,cy,5*s)
       for i=0,7 do local a=i*math.pi/4;g.line(cx+math.cos(a)*6*s,cy+math.sin(a)*6*s,cx+math.cos(a)*9*s,cy+math.sin(a)*9*s) end
-      text(tr('Ajustes · SELECT'),settings.x+42*s,settings.y+12*s,settings.w-48*s,12*s,neutral.ivory)
+      text(tr('Ajustes · SELECT'),settings.x+42*s,settings.y+12*s,settings.w-48*s,12*s,options.crystalGlass and Skin.colors.ink or neutral.ivory)
     else text(tr('Ajustes · SELECT'),settings.x+14*s,settings.y+12*s,settings.w-28*s,14*s) end
     end
     if errorText then
@@ -375,12 +379,13 @@ return function(Types,Model,Layout,Icons,Art,Statuses,Theme,Skin,Classic)
       panel(r,s,{1,.62,.49},false,.9)
       text(errorText,r.x+8*s,r.y+4*s,r.w-16*s,12*s,{1,.72,.62,1})
     else
-      local hint=options.style=='commands' and '↑ ↓ ← →   A / B' or '← →   ↑ '..(names[3] or '')..'   ↓ '..(names[2] or '')
+      local hint=(options.style=='commands' or options.style=='journal') and '↑ ↓ ← →   A / B' or '← →   ↑ '..(names[3] or '')..'   ↓ '..(names[2] or '')
       text(hint,l.x,l.y-22*s,l.w,11*s,{.80,.91,1,.92})
     end
     return l
   end
   function V.settings(layout,rows,index)
+    if Skin and Skin.configure then Skin.configure(layout.emeraldGba,layout.crystalGlass)end
     local tr=layout.translate or function(v) return v end
     local s=math.max(.85,math.min(layout.width/960,layout.height/720,1.4))
     local visible=math.max(1,math.min((layout.showAll and #rows or math.ceil(#rows/2)),math.floor((layout.height-150*s)/(52*s))))

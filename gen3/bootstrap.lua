@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.16',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.18',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.
@@ -76,7 +76,7 @@ return function(mod)
     {key='gen3_camera_background',label='BACKGROUND 21:9',type='choice',default='auto',group='GEN 3 / SCENERY',choices=cameraChoices},
     {key='gen3_theme',label='BATTLE UI THEME',type='choice',default='floating_glass',group='GEN 3 / APPEARANCE',choices={{'FLOATING GLASS','floating_glass'},{'ORIGINAL','native'}}},
     {key='gen3_battle',label='GEN3 FLOATING BATTLE',type='toggle',default=true,group='GEN 3 / BATTLE',description='Floating overlay for single battles. Native screens handle double battles, tutorials and special choices.'},
-    {key='gen3_battle_layout',label='BUTTON LAYOUT',type='choice',default='layers',group='GEN 3 / BATTLE',choices={{'CARTAS EM CAMADAS','layers'},{'LISTA FLUTUANTE','list'},{'COMMAND MENU (FIGHT)','commands'}}},
+    {key='gen3_battle_layout',label='BUTTON LAYOUT',type='choice',default='layers',group='GEN 3 / BATTLE',choices={{'CARTAS EM CAMADAS','layers'},{'LISTA FLUTUANTE','list'},{'COMMAND MENU (FIGHT)','commands'},{'JOURNAL GRID (2 × 2)','journal'}}},
     {key='gen3_lighting_profile',label='LIGHT PROFILE',type='choice',default='auto',group='GEN 3 / LIGHTING',choices={{'LOCAL TIME','auto'},{'PREDAWN','predawn'},{'DAWN','dawn'},{'MORNING','morning'},{'NOON','noon'},{'DUSK','dusk'},{'NIGHT','night'}}},
     {key='gen3_lighting_intensity',label='LIGHT INTENSITY',type='choice',default=.75,group='GEN 3 / LIGHTING',choices={{'25%',.25},{'50%',.5},{'75%',.75},{'100%',1}}},
     {key='gen3_lighting_ambient',label='AMBIENT BRIGHTNESS',type='choice',default=.75,group='GEN 3 / LIGHTING',choices={{'50%',.5},{'75%',.75},{'100%',1}}},
@@ -102,7 +102,7 @@ return function(mod)
     {key='gen3_lens_motion',label='GENTLE FOREGROUND MOTION',type='toggle',default=true,group='GEN 3 / SCENERY'},
     {key='gen3_foreground',label='FOREGROUND',type='choice',default=.65,group='GEN 3 / SCENERY',choices={{'65%',.65},{'OFF',0},{'100%',1}}},
     {key='gen3_battle_aspect',label='BATTLE ASPECT',type='choice',default='window',group='GEN 3 / BATTLE',choices={{'WINDOW','window'},{'NATIVE 3:2','native'},{'4:3','4:3'},{'16:9','16:9'}}},
-    {key='gen3_battle_skin',label='BATTLE COLOR STYLE',type='choice',default='current',group='GEN 3 / BATTLE',choices={{'CURRENT','current'},{'EMERALD GREEN & IVORY','emerald_ivory'},{'CLASSIC COLORS','classic'},{'EMERALD GBA','emerald_gba'}}},
+    {key='gen3_battle_skin',label='BATTLE COLOR STYLE',type='choice',default='current',group='GEN 3 / BATTLE',choices={{'CURRENT','current'},{'EMERALD GREEN & IVORY','emerald_ivory'},{'CLASSIC COLORS','classic'},{'EMERALD GBA','emerald_gba'},{'CRYSTAL GLASS','crystal_glass'}}},
     {key='gen3_settings_language',label='SETTINGS LANGUAGE / IDIOMA',type='choice',default='pt-BR',group='GEN 3 / BATTLE',choices={{'PT-BR','pt-BR'},{'English','en'},{'Français','fr'},{'Español','es'}}},
     {key='gen3_battle_drop',label='LOWER BATTLERS',type='choice',default=8,group='GEN 3 / BATTLE',choices={{'8 PX',8},{'12 PX',12},{'16 PX',16},{'20 PX',20},{'NATIVE',0}}},
     {key='gen3_battle_extend',label='EXTEND NATIVE BATTLE FIELD',type='toggle',default=true,group='GEN 3 / BATTLE',description='Continue native wallpaper under the former GBA command panel; disable if another scenery mod supplies that area.'},

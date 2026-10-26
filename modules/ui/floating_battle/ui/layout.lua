@@ -41,6 +41,25 @@ function L.compute(w,h,style,factor,selected,options)
   local s=math.min(w/1280,h/720)*(factor or .68)/.68
   s=math.min(s,w/820,h/680)
   local pad=24*s
+  if style=='journal' then
+    -- PDF dock: two move columns and an independent three-action column.
+    -- Fit uniformly inside the central area, keeping original native slots.
+    s=math.min(s,w/1500,h/720)
+    local gw,gh=754*s,216*s
+    local gx,gy=(w-gw)/2,h-24*s-gh
+    local rects={}
+    for _,i in ipairs(slots(options.moves))do
+      rects[#rects+1]={x=gx+((i-1)%2)*264*s,y=gy+28*s+math.floor((i-1)/2)*100*s,
+        w=252*s,h=88*s,scale=s,alpha=1,depth=0,kind='move',index=i}
+    end
+    for n,i in ipairs({3,2,4})do
+      rects[#rects+1]={x=gx+534*s,y=gy+(n-1)*78*s,w=220*s,h=60*s,scale=s,alpha=1,depth=0,kind='menu',index=i}
+    end
+    return {style=style,scale=s,x=gx,y=gy,w=gw,h=gh,rects=rects,width=w,height=h,
+      enemyHud={x=24*s,y=24*s,w=330*s,h=88*s},playerHud={x=w-354*s,y=h-136*s,w=330*s,h=112*s},
+      settings={x=w-214*s,y=24*s,w=190*s,h=42*s,kind='settings'},
+      message={x=gx,y=h-124*s,w=gw,h=100*s}}
+  end
   if style=='commands' then
     local base=math.min(w/1280,h/720)
     local factor=tonumber(options.commandScale) or 1

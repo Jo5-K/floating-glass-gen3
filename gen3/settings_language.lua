@@ -2,6 +2,8 @@
 return function(R)
  local languages={
   ["en"]={
+   ['Grade Journal (2 × 2)']='Journal grid (2 × 2)',
+   ['Escolha o alvo']='Choose a target',['Voltar']='Back',['Ajustes']='Settings',
    ["Animações ambientais"]="Environmental animations",
    ["Pokémon decorativos"]="Decorative Pokémon",
    ["Moldura vertical"]="Portrait frame",
@@ -128,6 +130,8 @@ return function(R)
    ["Interior"]="Interior",
   },
   ["fr"]={
+   ['Grade Journal (2 × 2)']='Grille Journal (2 × 2)',
+   ['Escolha o alvo']='Choisissez une cible',['Voltar']='Retour',['Ajustes']='Réglages',
    ["Animações ambientais"]="Animations du décor",
    ["Pokémon decorativos"]="Pokémon décoratifs",
    ["Moldura vertical"]="Cadre vertical",
@@ -254,6 +258,8 @@ return function(R)
    ["Interior"]="Intérieur",
   },
   ["es"]={
+   ['Grade Journal (2 × 2)']='Cuadrícula Journal (2 × 2)',
+   ['Escolha o alvo']='Elige un objetivo',['Voltar']='Volver',['Ajustes']='Ajustes',
    ["Animações ambientais"]="Animaciones ambientales",
    ["Pokémon decorativos"]="Pokémon decorativos",
    ["Moldura vertical"]="Marco vertical",

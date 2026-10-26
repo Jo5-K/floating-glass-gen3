@@ -51,7 +51,15 @@ function N.step(focus,direction,style,lastMove,moves)
     return focus
   end
   local edges=N.graph[focus] or N.graph[1]
-  return edges[direction] or focus
+  local next=edges[direction] or focus
+  if style=='journal' and moves then
+    local seen={}
+    while next<=4 and not moves[next] do
+      if seen[next]then return focus end;seen[next]=true
+      next=(N.graph[next]or N.graph[1])[direction]or focus
+    end
+  end
+  return next
 end
 local commandEdges={
  [1]={left=1,right=2,up=1,down=3},[2]={left=1,right=2,up=2,down=4},

@@ -40,6 +40,12 @@ return function(R)
   local f=P.field(w,h);if not f then return end
   local player=side=='player' or type(side)=='number' and side%2==0
   local slot=type(side)=='number' and math.floor(side/2) or 0
+  local st=R.battle and R.battle.context and R.battle.context()
+  if st and st.double and type(side)=='number'then
+   local x=f.x+f.w*(player and .55 or .045)
+   local y=f.y+f.h*(player and .65 or .11)+slot*(bh+f.h*.025)
+   return math.max(f.x,math.min(f.x+f.w-bw,x)),math.max(f.y,math.min(f.y+f.h-bh,y))
+  end
   local x=f.x+f.w*(player and .49 or .065)
   local y=f.y+f.h*(player and .78 or .29)+slot*(bh+4)
   return math.max(f.x,math.min(f.x+f.w-bw,x)),math.max(f.y,math.min(f.y+f.h-bh,y))

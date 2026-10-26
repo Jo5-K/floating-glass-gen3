@@ -1,7 +1,7 @@
 {
   "id": "floating_glass_frlg",
   "name": "Floating Glass Gen3",
-  "version": "1.2.16",
+  "version": "1.2.18",
   "api": 2,
   "entry": "main.lua",
   "profile": "overhaul",

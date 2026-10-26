@@ -23,8 +23,9 @@ return function(R)
   local backgroundValues={'auto'};local backgroundLabels={'Automático por jogo'}
   for _,e in ipairs(backgrounds.entries) do backgroundValues[#backgroundValues+1]=e.id;backgroundLabels[#backgroundLabels+1]=e.label end
   local translate=R.load('gen3/settings_language.lua')(R)
+  local Target=R.load('gen3/target_menu.lua')(R,Skin,translate)
   local settings={
-    {key='battle_layout',label='Layout dos botões',values={'layers','list','commands'},labels={'Cartas em camadas','Lista flutuante','Menu de comandos (Fight)'}},
+    {key='battle_layout',label='Layout dos botões',values={'layers','list','commands','journal'},labels={'Cartas em camadas','Lista flutuante','Menu de comandos (Fight)','Grade Journal (2 × 2)'}},
     {key='portrait_layout',label='Layout vertical',default='framed',values={'framed','panorama'},labels={'Campo emoldurado','Campo ampliado'}},
     {key='battle_virtual_pad',label='Joystick virtual na batalha',default='auto',values={'auto',true,false},labels={'Automática','Ligada','Desligada'}},
     {key='battle_settings_button',label='Botão Ajustes na batalha',default=true,values={true,false},labels={'Ligada','Desligada'}},
@@ -42,7 +43,7 @@ return function(R)
     {key='battle_camera',label='Câmera',values={'native','current','g9_compat','native_depth'},labels={'Nativa','Original','Compatibilidade G9/HD','Primeiro plano'}},
     {key='shadows',label='Sombras',values={'auto','enemies','both'},labels={'Auto: pela câmera','Inimigos','Ambos'}},
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
-    {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic','emerald_gba'},labels={'Atual','Emerald Green & Ivory','Clássico colorido','Emerald GBA'}},
+    {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic','emerald_gba','crystal_glass'},labels={'Atual','Emerald Green & Ivory','Clássico colorido','Emerald GBA','Crystal Glass'}},
     {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
     {key='dynamic_lighting',label='Iluminação dinâmica',default=true,values={true,false},labels={'Ligada','Desligada'}},
     {key='environment_sprites',label='Animações ambientais',default=true,values={true,false},labels={'Ligada','Desligada'}},
@@ -90,7 +91,7 @@ return function(R)
     local w,h=0,0;if love and love.graphics and love.graphics.getDimensions then w,h=(R.portrait and R.portrait.dimensions or love.graphics.getDimensions)()end
     local _,_,U=B.context()
     return {classicColors=R.option('battle_skin','current')=='classic',
-      emeraldGba=R.option('battle_skin','current')=='emerald_gba',emeraldIvory=R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba',translate=translate,
+      emeraldGba=R.option('battle_skin','current')=='emerald_gba',emeraldIvory=R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba' or R.option('battle_skin','current')=='crystal_glass',crystalGlass=R.option('battle_skin','current')=='crystal_glass',translate=translate,
       nativeHud=true,nativePalette=true,pastel=R.option('button_palette','pastel')=='pastel',
       portrait=R.option('portrait_layout','framed'),portraitSafe=R.portrait and R.portrait.safe(w,h),settingsButton=R.option('battle_settings_button',true),style=h>w and (R.option('portrait_layout','framed')=='panorama' and 'portrait_carousel' or 'portrait_list') or R.option('battle_layout','layers'),commandStage=U and U._mode or 'menu',
       commandScale=tonumber(R.option('command_scale',1)) or 1,
@@ -120,8 +121,8 @@ return function(R)
   function B.owns()
     if R.unloaded or B.failed or not R.glass() or not R.option('battle',true) then return false end
     local st,native,U=B.context()
-    if not st or st.double or st.safari or st.link or st.oldManTutorial or native._auto
-      or U._wally or U._caughtDexScene or not allowed[U._mode or 'none'] then return false end
+    if not st or st.safari or st.link or st.oldManTutorial or native._auto
+      or U._wally or U._caughtDexScene or not (allowed[U._mode or 'none'] or st.double and U._mode=='target' and U._target) then return false end
     local Stack=R.module('src.ui.game3.stack')
     if Stack and Stack.busy and Stack.busy() then return false end
     local Choice=R.module('src.ui.game3.choice')
@@ -154,10 +155,17 @@ return function(R)
     local Fade=R.module('src.ui.game3.fade');if Fade and Fade.lockInput then return false end
     return true
   end
+  function B.commandBattler()
+    local st,_,U=B.context();if not st then return end
+    local id=st.double and tonumber(U._active)or 0
+    if id~=2 then id=0 end
+    local b=id==0 and st.player or st.battlers and st.battlers[id]
+    return b,id
+  end
   function B.decision()
-    local st,native,U=B.context()
-    return B.owns() and native._phase=='command' and (U._mode=='menu' or U._mode=='moves')
-      and (not U.waitingForCommand or U.waitingForCommand()) and (st.player.mon.hp or 0)>0
+    local st,native,U=B.context();local b,id=B.commandBattler()
+    return B.owns() and native._phase=='command' and (U._mode=='menu' or U._mode=='moves' or st.double and U._mode=='target'and U._target~=nil)
+      and (not U.waitingForCommand or U.waitingForCommand()) and b and b.mon and (b.mon.hp or 0)>0 and not (st.absent and st.absent[id])
   end
   local function api(game)
     game=game or R.game
@@ -169,7 +177,7 @@ return function(R)
     local st,_,U=B.context();if not st then return end
     local rec=records[st]
     if not rec then rec={focus=1,lastMove=1,memory=setmetatable({},{__mode='k'})};records[st]=rec end
-    local mon=st.player.mon
+    local actor=B.commandBattler();local mon=actor and actor.mon or st.player.mon
     if B.decision() and (not rec.decision or rec.owner~=mon or rec.turn~=st.turn) then
       rec.focus=R.option('remember_move',true) and (rec.memory[mon] or 1) or 1
       if not mon.moves or not mon.moves[rec.focus] or mon.moves[rec.focus]==0 then rec.focus=1 end
@@ -190,7 +198,14 @@ return function(R)
     local st,native,U,M=B.context();if not st then return end
     local facade=api(game);local raw=facade and facade:snapshot();if not raw then return end
     local snap={};for k,v in pairs(raw) do snap[k]=v end
-    snap.prompt=B.decision() and 'moves' or 'locked'
+    snap.prompt=B.decision() and (U._mode=='target'and 'target'or 'moves')or 'locked'
+    snap.hudBattlers={}
+    if U._target then
+      local b=B.commandBattler();local slot=U._target.slot;local mv=b and b.mon.moves and b.mon.moves[slot]
+      local Moves=R.module('src.core.game3.battle.moves');local def=Moves and Moves.get and Moves.get(mv)
+      local tt=U.moveTargetType and U.moveTargetType(b,mv)or def and def.target or 0
+      snap.allowSelf=math.floor((tonumber(tt)or 0)/2)%2==1
+    end
     -- Dialogue is drawn separately with the native TextPrinter, limitChars and
     -- token scanner. Never use BattleAPI's complete line as revealed text.
     snap.message='';snap.dialogueActive=M and M.isOpen() and M._frame=='battle' or false
@@ -233,12 +248,15 @@ return function(R)
     local Anim=R.module('src.core.game3.battle.anim')
     local P=R.module('src.core.game3.pokemon')
     local Healthbox=R.module('src.core.game3.battle.healthbox')
-    for _,side in ipairs({'player','enemy'}) do
-      local battler=st[side]
+    for _,side in ipairs(st.double and {0,1,2,3}or {'player','enemy'}) do
+      local player=side=='player'or type(side)=='number'and side%2==0
+      local battler=type(side)=='number'and(side==0 and st.player or side==1 and st.enemy or st.battlers and st.battlers[side])or st[side]
       battler=Anim and Anim.shownBattler and Anim.shownBattler(side,battler) or battler
       local mon=battler and battler.mon
-      local out={};for k,v in pairs(raw[side] or {}) do out[k]=v end
-      snap[side]=out
+      local original=raw[side]
+      if st.double then for _,v in ipairs(raw.battlers or {})do if v.id==side then original=v;break end end end
+      local out={};for k,v in pairs(original or {}) do out[k]=v end
+      if st.double then snap.hudBattlers[side]=out else snap[side]=out end
       if mon then
         local sp=tonumber(mon.species or mon.speciesId)
         local gender=mon.gender
@@ -261,16 +279,22 @@ return function(R)
           out.statusToxic=out.status=='PSN' and ((type(rawStatus)=='string' and rawStatus:upper():find('TOX')~=nil)
             or (type(rawStatus)=='number' and math.floor(rawStatus/128)%2==1))
         end
-        if side=='player' and Anim and Anim.displayExpRatio then
+        if player and Anim and Anim.displayExpRatio then
           out.expFraction,out.level=Anim.displayExpRatio(side,battler);out.expAtMax=(out.level or 1)>=100
         end
         local stage=Anim and Anim.stage and Anim.stage()
         local hb=stage and stage.healthbox and stage.healthbox[side]
-        if hb and hb.visible==false then snap[side]=nil end
+        if st.double then
+          if (hb and hb.visible==false)or(st.absent and st.absent[side])then snap.hudBattlers[side]=nil end
+        elseif hb and hb.visible==false then snap[side]=nil end
       end
-      if side=='enemy' then
+      if not mon and st.double then snap.hudBattlers[side]=nil end
+      if not player then
         out.caught=R.option('caught',true) and st.wild and Healthbox and Healthbox.shouldShowCaughtMarker(st,battler)==true or false
       end
+    end
+    if st.double then
+      local _,id=B.commandBattler();snap.active=id;snap.player=snap.hudBattlers[id];snap.enemy=snap.hudBattlers[1]
     end
     return snap
   end
@@ -285,6 +309,13 @@ return function(R)
     B.submitting=false
     if not ok then error(result,0) end
     return result,err
+  end
+  function B.confirmTarget(id)
+    local _,_,U=B.context();if not B.decision()or U._mode~='target'then return false end
+    local valid=false;for _,card in ipairs(Target.cards(B.snapshot()))do if card.id==id then valid=true;break end end
+    if not valid then return false end
+    local ok,err=submit('target',{target=id});B.record().error=not ok and err or nil;B.drawStamp=nil
+    return ok,err
   end
   function B.confirm(focus)
     if not B.decision() then return false end
@@ -352,6 +383,13 @@ return function(R)
       local _,_,U=B.context();if U.tick then U.tick() end
       return true
     end
+    local _,_,U=B.context()
+    if U._mode=='target'then
+      if input:wasPressed('a')then return B.confirmTarget(U._target and U._target.cursor)end
+      if input:wasPressed('b')then local ok=submit('back');B.drawStamp=nil;return ok end
+      -- Native cycling retains move-specific ally/self/absent target rules.
+      local result=next(input);B.drawStamp=nil;return result
+    end
     local snap=B.snapshot();local opts=presentation()
     if opts.style=='commands' and opts.commandStage=='menu' then
       for _,dir in ipairs({'left','right','up','down'}) do
@@ -378,7 +416,7 @@ return function(R)
     local st,native,U,M=B.context()
     if not st then return '' end
     return table.concat({tostring(st),tostring(st.turn),tostring(st.player.mon),
-      tostring(native._phase),tostring(U._mode),tostring(M and M.open),tostring(M and M._page),
+      tostring(native._phase),tostring(U._mode),tostring(U._active),tostring(U._target and U._target.cursor),tostring(M and M.open),tostring(M and M._page),
       tostring(B.settingsOpen),tostring(B.lightingSettingsOpen),tostring(B.lightingSettingsIndex),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('portrait_layout','framed')),tostring(R.option('battle_virtual_pad','auto')),tostring(R.option('battle_settings_button',true)),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),tostring(R.option('dialogue_size','medium')),tostring(R.option('dynamic_lighting',true)),
       tostring(R.option('battle_aspect','native')),tostring(R.option('battle_drop',8)),presentation().style,presentation().position,tostring(presentation().opacity),tostring(presentation().scale)},'|')
   end
@@ -415,6 +453,14 @@ return function(R)
         end
         return true -- modal blocks underlying commands
       end
+      local _,_,U=B.context()
+      if U._mode=='target'then
+        local hit=Layout.hit(B.layout,x,y);if not hit then return false end
+        if hit.kind=='target'then return B.confirmTarget(hit.id)~=false end
+        if hit.kind=='back'then local ok=submit('back');B.drawStamp=nil;return ok~=false end
+        if hit.kind=='settings'then return B.openSettings()end
+        return true
+      end
       local hit=Layout.hit(B.layout,x,y)
       if not hit then return false end
       if hit.kind=='settings' then B.settingsOpen=true;B.lightingSettingsOpen=false;B.settingsIndex=1;B.drawStamp=nil;return true end
@@ -447,17 +493,26 @@ return function(R)
     end
     return false
   end
+  function B.doubleHud(side,w,h,bw,bh)
+    local player=side%2==0;local slot=math.floor(side/2);local options=presentation()
+    local right=options.style=='commands'or options.position=='right'
+    if options.style=='journal' then return player and w-bw-12 or 12,12+slot*(bh+8) end
+    local x=w*(player and (right and .05 or .64)or(right and .06 or .45))
+    local y=h*(player and .64 or .04)+slot*(bh+8)
+    return math.max(0,math.min(w-bw,x)),math.max(0,math.min(h-bh,y))
+  end
   function B.drawHealthboxes(frame)
     local g=love.graphics
       local sx,sy=frame.w/240,frame.h/160
       local sizeFactor,raise=R.camera.hudAdjustment()
       local hudScale=math.min(sx,sy)*.65*sizeFactor
       local portraitField=R.portrait and R.portrait.field(frame.w,frame.h)
-      if portraitField then hudScale=portraitField.w*.46/104 end
+      if not portraitField and presentation().style=='journal' then hudScale=math.min(hudScale,frame.w*.22/104)end
+      if portraitField then hudScale=portraitField.w*(B.context().double and .40 or .46)/104 end
       g.push('all');g.scale(hudScale,hudScale)
       local unpackArgs=table.unpack or unpack
-      local skinSnapshot=(R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba') and B.snapshot()
-      if Skin.configure then Skin.configure(R.option('battle_skin','current')=='emerald_gba')end
+      local skinSnapshot=(R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba' or R.option('battle_skin','current')=='crystal_glass') and B.snapshot()
+      if Skin.configure then Skin.configure(R.option('battle_skin','current')=='emerald_gba',R.option('battle_skin','current')=='crystal_glass')end
       B.hudDrawing=true
       local hudOk,hudErr=pcall(function()
         for _,box in ipairs(B.healthboxes or {}) do
@@ -482,15 +537,18 @@ return function(R)
             projection={x=px,y=py,w=pw or 240*ps,h=ph or 160*(psy or ps)}
           end
           local bounds=Anchors.project(side,projection)
-          if bounds or R.camera.depth() or portraitField then
+          if bounds or R.camera.depth() or portraitField or B.context().double then
             local C=R.module('src.ui.game3.battle_chrome')
             local img=C and (type(side)=='number' and (isPlayer and C._doublesPlayerBox or C._doublesOpponentBox) or isPlayer and C._playerBox or C._enemyBox)
-            local hb=img and Anchors.alphaBounds(img) or {0,0,104,isPlayer and 37 or 29}
+            local hb=skinSnapshot and type(side)=='number'and {0,0,104,isPlayer and 37 or 29}or img and Anchors.alphaBounds(img)or {0,0,104,isPlayer and 37 or 29}
             local width,height=(hb[3]-hb[1])*hudScale,(hb[4]-hb[2])*hudScale
             local hx,hy
             -- Portrait HUD uses the field, not sprite bounds. During the intro
             -- the healthbox can be drawn before any battler/trainer was captured.
             if portraitField then hx,hy=R.portrait.hud(side,frame.w,frame.h,width,height)
+            elseif B.context().double then
+              hx,hy=B.doubleHud(side,frame.w,frame.h,width,height)
+            elseif presentation().style=='journal' then hx=isPlayer and frame.w-width-12 or 12;hy=isPlayer and frame.h-height-12 or 12
             elseif R.camera.depth() then hx,hy=R.camera.hud(side,frame.w,frame.h,width,height,B.context().double)
             -- Keep the prior top edge as reference, then raise it five window
             -- pixels. Shrinking the box must not accidentally move it downward.
@@ -499,21 +557,32 @@ return function(R)
             dx=hx/hudScale-(cx-32)-hb[1];dy=hy/hudScale-(cy-16)-hb[2]
           else dy=dy+raise/hudScale end
           local args=box.args
-          if (Anchors.fixed[side] or R.camera.depth()) and args[3] then
+          if (Anchors.fixed[side] or R.camera.depth()or B.context().double) and args[3] then
             local opts={};for k,v in pairs(args[3]) do opts[k]=v end;opts.oy=0
             args={args[1],args[2],opts}
           end
           g.translate(dx,dy)
-          local mon=skinSnapshot and type(side)=='string' and skinSnapshot[side]
+          local mon=skinSnapshot and (type(side)=='number'and skinSnapshot.hudBattlers[side]or skinSnapshot[side])
           if mon then
             local C=R.module('src.ui.game3.battle_chrome')
             local img=C and (isPlayer and C._playerBox or C._enemyBox)
-            local hb=img and Anchors.alphaBounds(img) or {0,0,104,isPlayer and 37 or 29}
+            local hb=skinSnapshot and type(side)=='number'and {0,0,104,isPlayer and 37 or 29}or img and Anchors.alphaBounds(img)or {0,0,104,isPlayer and 37 or 29}
             Skin.hud(mon,isPlayer,cx-32+hb[1],cy-16+hb[2],hb[3]-hb[1],hb[4]-hb[2],part('ui/icons.lua'))
           else box.draw(unpackArgs(args)) end
+          if B.context().double and B.decision()then
+            local _,_,U=B.context();local _,actor=B.commandBattler()
+            local focused=U._mode=='target'and U._target and U._target.cursor or actor
+            if side==focused then
+              local C=R.module('src.ui.game3.battle_chrome')
+              local img=C and (isPlayer and C._doublesPlayerBox or C._doublesOpponentBox)
+              local hb=skinSnapshot and {0,0,104,isPlayer and 37 or 29}or img and Anchors.alphaBounds(img)or {0,0,104,isPlayer and 37 or 29}
+              g.setColor(1,1,1,1);g.setLineWidth(1)
+              g.rectangle('line',cx-33+hb[1],cy-17+hb[2],hb[3]-hb[1]+2,hb[4]-hb[2]+2,3,3)
+            end
+          end
           if R.postLight then
             local C=R.module('src.ui.game3.battle_chrome');local img=C and (isPlayer and C._playerBox or C._enemyBox)
-            local hb=img and Anchors.alphaBounds(img) or {0,0,104,isPlayer and 37 or 29}
+            local hb=skinSnapshot and type(side)=='number'and {0,0,104,isPlayer and 37 or 29}or img and Anchors.alphaBounds(img)or {0,0,104,isPlayer and 37 or 29}
             R.postLight.hud({x=cx-32+hb[1],y=cy-16+hb[2],w=hb[3]-hb[1],h=hb[4]-hb[2]},hudScale)
           end
           g.translate(-dx,-dy)
@@ -533,7 +602,7 @@ return function(R)
           if R.camera.depth() then R.scenery.foreground(viewport.width,viewport.height);if R.postLight then R.postLight.draw(viewport.width,viewport.height) end;B.drawHealthboxes({x=0,y=0,w=viewport.width,h=viewport.height}) end
           if B.settingsOpen then
             local rows={};for _,row in ipairs(settingRows()) do rows[#rows+1]={label=translate(row.label),value=translate(row.labels[settingIndex(row)])..(row.key=='dynamic_lighting' and (' · '..translate('A: ajustes')) or '')} end
-            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldGba=R.option('battle_skin','current')=='emerald_gba',emeraldIvory=R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba',translate=translate,title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil,footer=B.lightingSettingsOpen and (translate('B · voltar / SELECT · fechar')..' | '..translate('Luz local')..': '..translate(R.lighting and R.lighting.localStatus() or 'Indisponível')) or nil,showAll=B.lightingSettingsOpen},rows,currentIndex())
+            B.settingsTargets=View.settings({width=viewport.width,height=viewport.height,scale=1,neutral=true,emeraldGba=R.option('battle_skin','current')=='emerald_gba',emeraldIvory=R.option('battle_skin','current')=='emerald_ivory' or R.option('battle_skin','current')=='emerald_gba' or R.option('battle_skin','current')=='crystal_glass',crystalGlass=R.option('battle_skin','current')=='crystal_glass',translate=translate,title=B.lightingSettingsOpen and 'AJUSTES DA ILUMINAÇÃO' or nil,footer=B.lightingSettingsOpen and (translate('B · voltar / SELECT · fechar')..' | '..translate('Luz local')..': '..translate(R.lighting and R.lighting.localStatus() or 'Indisponível')) or nil,showAll=B.lightingSettingsOpen},rows,currentIndex())
             B.settingsViewport=tostring(viewport.width)..':'..tostring(viewport.height)
           else B.settingsTargets=nil end
         end)
@@ -565,7 +634,10 @@ return function(R)
         local pl=R.portrait.layout(frame.w,frame.h);messageRect=pl.message;local factor=({small=.9,medium=1.2,medium_large=1.4,large=1.6})[R.option('dialogue_size','medium')] or 1.2;textScale=math.min(frame.w/480*factor,(messageRect.w-24)/224);unit=frame.w/480
       end
       options.messageRect=messageRect
-      local layout=View.draw(snap,sync(rec),options,frame.w,frame.h,rec.error)
+      local layout
+      if snap.prompt=='target'then
+        layout=Target.draw(snap,frame.w,frame.h,R.portrait and R.portrait.field(frame.w,frame.h),rec.error)
+      else layout=View.draw(snap,sync(rec),options,frame.w,frame.h,rec.error)end
       B.layout=layout
       if R.postLight then for _,rect in ipairs(layout.rects or {}) do if (rect.alpha or 1)>.2 then R.postLight.hud(rect) end end;R.postLight.hud(layout.settings) end
       if B.settingsOpen then
@@ -584,7 +656,7 @@ return function(R)
         local r=layout.message;local k=textScale
         B.dialogueTextScale=k
         g.push('all');g.translate(r.x+16*unit,r.y+12*unit);g.scale(k,k)
-        local opts={maxWidth=(r.w-32*unit)/k,limitChars=M._revealed,colors=F.COLOR.WHITE,linePitch=16}
+        local opts={maxWidth=(r.w-32*unit)/k,limitChars=M._revealed,colors=options.crystalGlass and F.COLOR.NORMAL or F.COLOR.WHITE,linePitch=16}
         F.draw(M.currentPage() or '',0,0,opts)
         if M.isWaiting() then
           local C=R.module('src.ui.game3.chrome')
@@ -610,7 +682,7 @@ return function(R)
         return result
       end)
       R.wrap(U,'sidePic',function(next,back,...)
-        local key=B.visualScene and type(B.spriteKey)=='number' and B.spriteKey or (back and 'player' or 'enemy')
+        local key=(B.scene or B.visualScene)and type(B.spriteKey)=='number' and B.spriteKey or (back and 'player' or 'enemy')
         return Anchors.register(next(back,...),key)
       end)
       R.wrap(U,'handleInput',input)
@@ -685,12 +757,12 @@ return function(R)
     local P=R.module('src.core.game3.pokemon')
     if P and not seen[P] then
       seen[P]=true
-      R.wrap(P,'ghostPic',function(next,...) return Anchors.register(next(...),B.visualScene and type(B.spriteKey)=='number' and B.spriteKey or 'enemy') end)
+      R.wrap(P,'ghostPic',function(next,...) return Anchors.register(next(...),(B.scene or B.visualScene)and type(B.spriteKey)=='number' and B.spriteKey or 'enemy') end)
     end
     local MonAnim=R.module('src.core.game3.mon_anim')
     if MonAnim and not seen[MonAnim] then
       seen[MonAnim]=true
-      R.wrap(MonAnim,'framePic',function(next,...) return Anchors.register(next(...),B.visualScene and type(B.spriteKey)=='number' and B.spriteKey or 'enemy','frame') end)
+      R.wrap(MonAnim,'framePic',function(next,...) return Anchors.register(next(...),(B.scene or B.visualScene)and type(B.spriteKey)=='number' and B.spriteKey or 'enemy','frame') end)
     end
     local H=R.module('src.core.game3.battle.healthbox')
     if H and not seen[H] then
@@ -778,6 +850,6 @@ return function(R)
       end)
     end
   end
-  function B.shutdown() Skin.shutdown() end
+  function B.shutdown() Target.shutdown();Skin.shutdown() end
   return B
 end
