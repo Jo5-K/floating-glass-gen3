@@ -71,6 +71,13 @@ return function(R)
     if area then w,h=area.w,area.h end
     local img=S.activeImage;local iw,ih=img:getDimensions();local scale=h/ih
     if R.lighting then R.lighting.setFrame({x=ox+(w-iw*scale)/2,y=oy,w=iw*scale,h=h,scene=S.selected}) end
+    if R.lighting then
+      R.lighting.ambientEmitter=nil
+      if S.selected=='lavender'and R.option('environment_sprites',true)~=false and R.option('environment_pokemon',true)~=false then
+        local u=math.min(w,h);local bgx=ox+(w-iw*scale)/2
+        R.lighting.ambientEmitter={(ox+w/2-u*.26-bgx)/(iw*scale),.57-u*.135*.4/h,u*.18/(iw*scale),.24}
+      end
+    end
     local g=love.graphics;g.push('all');g.origin();g.setShader();g.setScissor(0,0,winW,winH)
     if area then
       local surround=winH/ih;g.setColor(1,1,1,1);g.draw(img,(winW-iw*surround)/2,0,0,surround,surround)

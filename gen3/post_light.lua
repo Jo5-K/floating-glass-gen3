@@ -41,6 +41,7 @@ return function(R)
    for i=0,3 do
     -- Traditional cave has no crystal emitter in its existing art. Ambient only.
     local emitter=L.scene~='cave' and (effect.lights or layout.lights)[i+1] or nil
+    if L.scene=='lavender'and L.ambientEmitter then emitter=i==0 and L.ambientEmitter or nil end
     P.shader:send('beam'..i,emitter or {0,0,1,0})
     P.shader:send('blocked'..i,layout.protected[i+1] or {0,0,0,0})
    end

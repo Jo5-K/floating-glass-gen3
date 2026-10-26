@@ -9,6 +9,8 @@ return function(R)
   dusk={ambient={1.04,.79,.69},exposure=.83,direction={.85,-.35},strength=.32,light={1.16,.64,.37}},
   night={ambient={.36,.56,1.10},exposure=.75,direction={.65,-.75},strength=.28,light={.54,.77,1.15}},
  }
+ profiles.cave_internal={ambient={.65,.67,.73},exposure=.84,direction={-.3,-.9},strength=.16,light={.95,.81,.60}}
+ profiles.ice_internal={ambient={.57,.74,.88},exposure=.82,direction={-.3,-.9},strength=.17,light={.58,.86,1.05}}
  L.profiles=profiles
  function L.profileForHour(hour)
   if hour<5 then return 'predawn' elseif hour<7 then return 'dawn'
@@ -56,8 +58,9 @@ return function(R)
   L.time=math.min((L.time or 0)+math.min(step,.10),1000000)
  end
  function L.ended() L.active=false;L.battle=nil;L.hour=nil;L.profile=nil;L.scene=nil;L.time=0;L.frame=nil end
- function L.enabled() return L.active and not L.failed and R.option('dynamic_lighting',true)==true end
+ function L.enabled() if (L.scene=='cave'or L.scene=='cave_ice')and R.option('cave_lighting',true)==false then return false end;return L.active and not L.failed and R.option('dynamic_lighting',true)==true end
  function L.effectiveProfile()
+  if L.scene=='cave'then return 'cave_internal'elseif L.scene=='cave_ice'then return 'ice_internal'end
   local manual=R.option('lighting_profile','auto')
   return profiles[manual] and manual or L.profile or 'noon'
  end
@@ -112,6 +115,7 @@ return function(R)
    sh:send('texelSize',rect and rect.texel or {0,0})
    if kind~='sprite' then
     local layout=spatial.resolve(L.scene,L.effectiveProfile())
+    if L.scene=='lavender'and L.ambientEmitter then layout.lights={L.ambientEmitter};layout.color={.68,.40,1}end
     sh:send('sceneTransform',rect and rect.transform or {1,1,0,0})
     sh:send('foliageMode',rect and rect.foliage and 1 or 0)
     sh:send('artAspect',L.frame and L.frame.w/L.frame.h or 1916/821)

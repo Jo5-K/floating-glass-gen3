@@ -45,6 +45,10 @@ return function(R)
     {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic','emerald_gba'},labels={'Atual','Emerald Green & Ivory','Clássico colorido','Emerald GBA'}},
     {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
     {key='dynamic_lighting',label='Iluminação dinâmica',default=true,values={true,false},labels={'Ligada','Desligada'}},
+    {key='environment_sprites',label='Animações ambientais',default=true,values={true,false},labels={'Ligada','Desligada'}},
+    {key='environment_pokemon',label='Pokémon decorativos',default=true,values={true,false},labels={'Ligada','Desligada'}},
+    {key='portrait_frame',label='Moldura vertical',default=true,values={true,false},labels={'Ligada','Desligada'}},
+    {key='cave_lighting',label='Luz interna das cavernas',default=true,values={true,false},labels={'Ligada','Desligada'}},
     {key='dialogue_size',label='Tamanho das mensagens',default='medium',values={'small','medium','medium_large','large'},labels={'Pequeno','Médio','Médio maior','Grande'}},
     {key='foreground',label='Primeiro plano',values={.65,0,1},labels={'65%','Desligado','100%'}},
   }
@@ -548,7 +552,7 @@ return function(R)
       if not B.decision() then B.settingsOpen=false end
       -- Replay the exact family healthbox renderer in the final overlay, at
       -- native coordinates scaled to the fitted viewport. No parallel HP model.
-      if R.portrait and R.portrait.decorate then R.portrait.decorate(frame.w,frame.h)end
+      if R.portrait and R.portrait.decorate then R.portrait.decorate(frame.w,frame.h,snap.dialogueActive)end
       B.drawHealthboxes(frame)
       local options=presentation()
       local _,_,_,nativeMessage=B.context()

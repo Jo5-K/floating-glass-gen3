@@ -58,17 +58,17 @@ return function(R)
   end
   return out
  end
- P.decorationRegions=function(w,h,l)
-  local regions={{x=0,y=0,w=w,h=h}};local protected={l.field,l.message,l.settings}
+ P.decorationRegions=function(w,h,l,dialogueActive)
+  local regions={{x=0,y=0,w=w,h=h}};local protected={l.field,l.settings};if dialogueActive~=false then protected[#protected+1]=l.message end
   for _,r in ipairs(l.rects or {})do protected[#protected+1]=r end
   for _,r in ipairs(protected)do
-   local pad=10*l.scale
+   local pad=2*l.scale
    regions=subtract(regions,{x=r.x-pad,y=r.y-pad,w=r.w+2*pad,h=r.h+2*pad})
   end
   return regions
  end
- function P.decorate(w,h)
-  local l=P.layout(w,h);if not l or P.decorationFailed then return end
+ function P.decorate(w,h,dialogueActive)
+  local l=P.layout(w,h);if not l or P.decorationFailed or R.option('portrait_frame',true)==false then return end
   local g=love.graphics;local f=l.field;local rad=math.min(f.w*.025,12*l.scale)
   g.push('all')
   local ok,err=pcall(function()
@@ -80,22 +80,29 @@ return function(R)
    for i=0,12 do local a=-math.pi/2-i/12*math.pi/2;pts[#pts+1]=x+sx*(rad+math.cos(a)*rad);pts[#pts+1]=y+sy*(rad+math.sin(a)*rad)end
    g.polygon('fill',pts)
   end
-  g.setColor(.87,.89,.73,1);g.setLineWidth(math.max(1,2*l.scale));g.rectangle('line',f.x,f.y,f.w,f.h,rad,rad)
+  g.setColor(.015,.03,.035,1);g.setLineWidth(math.max(3,8*l.scale));g.rectangle('line',f.x,f.y,f.w,f.h,rad,rad)
+  local selected=R.scenery and R.scenery.selected
+  if selected=='cave_ice'then g.setColor(.65,.9,1,1)elseif selected=='lavender'then g.setColor(.83,.7,1,1)else g.setColor(1,.95,.72,1)end
+  g.setLineWidth(math.max(2,3*l.scale));g.rectangle('line',f.x,f.y,f.w,f.h,rad,rad)
   local scene=R.scenery and R.scenery.selected
-  scene=({forest='plain',tall_grass='plain',wallace='pond'})[scene]or scene
-  if scene and ({mountain=true,rocky=true,plain=true,pond=true,water=true,beach=true,desert=true,cave=true})[scene]and R.option('environment_details',true)~=false then
-   P.frames=P.frames or {};local img=P.frames[scene]
-   if img==nil then local ok,v=pcall(R.mod.assets.image,R.mod.assets,'assets/scenery/ambient/portrait/'..scene..'.png');img=ok and v or false;P.frames[scene]=img end
+  scene=({forest='plain',tall_grass='plain'})[scene]or scene
+  if scene and ({mountain=true,rocky=true,plain=true,pond=true,water=true,beach=true,desert=true,cave=true})[scene]then
+   -- Supplement existing ornaments with denser, scene-specific artwork.
+   for _,variant in ipairs({'','rich/'})do
+   local key=variant..scene
+   P.frames=P.frames or {};local img=P.frames[key]
+   if img==nil then local ok,v=pcall(R.mod.assets.image,R.mod.assets,'assets/scenery/ambient/portrait/'..key..'.png');img=ok and v or false;P.frames[key]=img;if img and img.setFilter then img:setFilter('nearest','nearest')end end
    if img then
     local iw,ih=img:getDimensions();local k=h/ih;P.frameQuads=P.frameQuads or {}
-    local q=P.frameQuads[scene];if not q then q={g.newQuad(0,0,iw/2,ih,iw,ih),g.newQuad(iw/2,0,iw/2,ih,iw,ih)};P.frameQuads[scene]=q end
+    local q=P.frameQuads[key];if not q then q={g.newQuad(0,0,iw/2,ih,iw,ih),g.newQuad(iw/2,0,iw/2,ih,iw,ih)};P.frameQuads[key]=q end
     g.setColor(1,1,1,1)
-    local regionKey=w..':'..h..':'..l.variant
-    if not P.regions or P.regionKey~=regionKey then P.regions=P.decorationRegions(w,h,l);P.regionKey=regionKey end
+    local regionKey=w..':'..h..':'..l.variant..':'..tostring(dialogueActive~=false)
+    if not P.regions or P.regionKey~=regionKey then P.regions=P.decorationRegions(w,h,l,dialogueActive);P.regionKey=regionKey end
     for _,r in ipairs(P.regions)do for side=1,2 do
      local left,right=math.max(r.x,side==1 and 0 or w/2),math.min(r.x+r.w,side==1 and w/2 or w)
      if right>left then g.setScissor(left,r.y,right-left,r.h);g.draw(img,q[side],side==1 and 0 or w-iw*k/2,0,0,k,k)end
     end end
+   end
    end
   end
   end)

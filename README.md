@@ -1,21 +1,27 @@
-# Floating Glass Gen3 — beta - 17
+# Floating Glass Gen3 — beta - 18
 
 ## Português
 
-Novas camadas de detalhes e animações ambientais para montanha, rochoso, planície, lagoa, mar, praia, deserto e caverna. Detalhes concentrados no centro, sem esticar a arte, para diferentes proporções de tela. Pequenas aparições decorativas de Pokémon; vento também nos ambientes de floresta e grama alta.
+Interface de batalha personalizada, fundos widescreen, câmeras, iluminação por ambiente e detalhes animados para **FireRed, LeafGreen, Ruby, Sapphire e Emerald**.
 
-Na vertical: campo quadrado com cantos arredondados, molduras ambientais e mensagens com fundo opaco. Novo tema **Emerald GBA**, em **SELECT → Estilo de cores**, com cores dos menus originais e golpes coloridos por tipo. Controles virtuais retornam automaticamente nas telas nativas, inclusive evolução, e respeitam a preferência ao voltar aos comandos.
+Nesta versão: efeitos ambientais aparecem mais cedo, detalhes do cenário maiores, oito molduras verticais mais completas e Gastly animado em Lavender com transparência suave. Wallace deixa de receber animais da lagoa; cavernas normais e de gelo usam iluminação interna constante de dia e de noite.
 
-**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire e Emerald.** SELECT em PT-BR, inglês, francês e espanhol. Importe o ZIP no gerenciador do G1R. “Source code (zip)” também é importável; atualizações pelo GitHub incluídas. Em SELECT, **Detalhes ambientais** controla as novas camadas; **Primeiro plano** controla a transparência frontal.
+Em **SELECT**: Animações ambientais, Pokémon decorativos, Moldura vertical e Luz interna das cavernas. Menu em **PT-BR, inglês, francês e espanhol**.
 
-Compatibilidade anteriormente observada com [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. Esta revisão passou por verificações simuladas dos cinco jogos, layouts, toque e renderização; ainda precisa de avaliação em Android físico e com essas combinações de mods. O ajuste vertical de sprites nativos no celular continua em avaliação.
+**G1R 0.3.93 ou superior.** Baixe o ZIP da [release](https://github.com/Jo5-K/floating-glass-gen3/releases/latest) e importe pelo gerenciador de mods. “Source code (zip)” também é importável. Atualização pelo GitHub incluída.
+
+Compatibilidade observada anteriormente com [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. Esta revisão passou por testes simulados; avaliação em Android físico e nova verificação dessas combinações ainda pendentes.
 
 ## English
 
-New detail layers and environmental animations for mountain, rocky terrain, plains, pond, sea, beach, desert and cave. Details stay in the central area without stretching the artwork across different aspect ratios. Small decorative Pokémon appearances; forest and tall grass also receive ambient wind.
+Custom battle interface, widescreen backgrounds, cameras, environment lighting and animated details for **FireRed, LeafGreen, Ruby, Sapphire and Emerald**.
 
-Portrait mode gains a square field with rounded corners, environmental frames and opaque message panels. The new **Emerald GBA** theme is available under **SELECT → Color style**, using original menu colors and type-colored move buttons. Virtual controls return automatically for native screens, including evolution, then respect your preference when battle commands return.
+This update brings earlier environmental cues, larger scenery details, eight richer portrait frames and an animated Gastly in Lavender with gently changing transparency. Wallace no longer inherits pond wildlife; regular and ice caves use internal lighting unchanged by the time of day.
 
-**G1R 0.3.93+ · FireRed, LeafGreen, Ruby, Sapphire and Emerald.** SELECT in Brazilian Portuguese, English, French and Spanish. Import the ZIP through G1R’s mod manager. “Source code (zip)” is also importable; GitHub updates included. **Environmental details** controls the new layers; **Foreground** controls front-layer opacity.
+Under **SELECT**: Environmental animations, Decorative Pokémon, Portrait frame and Cave internal lighting. Settings support **Brazilian Portuguese, English, French and Spanish**.
 
-Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This revision passed simulated checks for all five games, layouts, touch and drawing; physical Android testing and rechecking those mod combinations remain pending. Native-sprite vertical adjustment on mobile remains under review.
+**G1R 0.3.93 or newer.** Download the ZIP from the [release](https://github.com/Jo5-K/floating-glass-gen3/releases/latest) and import it through the mod manager. “Source code (zip)” is also importable. GitHub updates included.
+
+Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This revision passed simulated checks; physical Android testing and rechecking those combinations remain pending.
+
+Artwork credits: [third-party notices](THIRD_PARTY_NOTICES.md) and [environmental Gastly source](docs/GASTLY-SOURCE.md).

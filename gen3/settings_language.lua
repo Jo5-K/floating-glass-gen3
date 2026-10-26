@@ -2,6 +2,11 @@
 return function(R)
  local languages={
   ["en"]={
+   ["Animações ambientais"]="Environmental animations",
+   ["Pokémon decorativos"]="Decorative Pokémon",
+   ["Moldura vertical"]="Portrait frame",
+   ["Luz interna das cavernas"]="Cave internal lighting",
+
    ["Layout vertical"]="Portrait layout",
    ["Campo emoldurado"]="Framed field",
    ["Campo ampliado"]="Expanded field",
@@ -123,6 +128,11 @@ return function(R)
    ["Interior"]="Interior",
   },
   ["fr"]={
+   ["Animações ambientais"]="Animations du décor",
+   ["Pokémon decorativos"]="Pokémon décoratifs",
+   ["Moldura vertical"]="Cadre vertical",
+   ["Luz interna das cavernas"]="Éclairage interne des grottes",
+
    ["Layout vertical"]="Disposition verticale",
    ["Campo emoldurado"]="Terrain encadré",
    ["Campo ampliado"]="Terrain élargi",
@@ -244,6 +254,11 @@ return function(R)
    ["Interior"]="Intérieur",
   },
   ["es"]={
+   ["Animações ambientais"]="Animaciones ambientales",
+   ["Pokémon decorativos"]="Pokémon decorativos",
+   ["Moldura vertical"]="Marco vertical",
+   ["Luz interna das cavernas"]="Luz interior de las cuevas",
+
    ["Layout vertical"]="Diseño vertical",
    ["Campo emoldurado"]="Campo enmarcado",
    ["Campo ampliado"]="Campo ampliado",

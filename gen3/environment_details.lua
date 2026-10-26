@@ -9,21 +9,7 @@ return function(R)
   if E.failed or not L or not L.enabled() or R.option('lighting_local',true)==false or R.option('environment_details',true)==false then return end
   if R.ambient and R.ambient.has(ctx.scene)then return end
   local id=assets[ctx.scene]
-  if ctx.scene=='lavender' then
-   local g=love.graphics
-   if g.getShader and g.getShader() then return end
-   if E.ghost==nil then
-    local ok,img=pcall(R.mod.assets.image,R.mod.assets,'gen3/assets/pokemon/front/3/normal/gastly.png');E.ghost=ok and img or false
-   end
-   if E.ghost then
-    local iw,ih=E.ghost:getDimensions();local k=ctx.artHeight*.07/ih
-    local t=ctx.time or 0
-    local x=ctx.artWidth*.10-iw*k/2+math.sin(t*.17)*ctx.artWidth*.002
-    local y=ctx.artHeight*.43-ih*k/2+math.sin(t*.23)*ctx.artHeight*.004
-    g.setColor(1,1,1,.82);g.draw(E.ghost,x,y,0,k,k)
-   end
-   return
-  end
+  if ctx.scene=='lavender'then return end -- Animated Gastly is owned by the independent sprite layer.
   if not id then return end
   local g=love.graphics;if not (g.newQuad and g.setColor) or g.getShader and g.getShader() then return end
   if g.getBlendMode then local blend,alpha=g.getBlendMode();if blend~='alpha' or alpha and alpha~='alphamultiply' then return end end

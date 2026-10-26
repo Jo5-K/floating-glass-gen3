@@ -18,3 +18,8 @@ Pokémon e os materiais relacionados pertencem a Nintendo, Creatures Inc., GAME 
 ## Integrações opcionais
 
 **G9 Battle Sprites (`g9-battle-sprites-gen3`)** e **Gen3 HD Sprites (`gen3-hd-sprites`)** são projetos separados. A integração consulta APIs públicas quando disponíveis. Seus pacotes, fontes e configurações pessoais não estão incluídos na release.
+
+
+## Bundled environmental Gastly
+
+Animated Gastly frames extracted from G9 Battle Sprites (Gen 3) 1.5.4. See docs/GASTLY-SOURCE.md and the original full credits/notices in docs/credits/. No G9 runtime code or dependency is included.

@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.15',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.16',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.
@@ -86,6 +86,10 @@ return function(mod)
     {key='gen3_lighting_beams',label='POST-SPRITE LIGHT RAYS',type='toggle',default=true,group='GEN 3 / LIGHTING'},
     {key='gen3_lighting_hud_glint',label='HUD COUNTER-DIRECTION GLINT',type='toggle',default=true,group='GEN 3 / LIGHTING'},
     {key='gen3_lighting_local',label='LOCAL LIGHTING',type='toggle',default=true,group='GEN 3 / LIGHTING'},
+    {key='gen3_environment_sprites',label='ENVIRONMENT ANIMATIONS',type='toggle',default=true,group='GEN 3 / BATTLE'},
+    {key='gen3_environment_pokemon',label='DECORATIVE POKEMON',type='toggle',default=true,group='GEN 3 / BATTLE'},
+    {key='gen3_portrait_frame',label='PORTRAIT FRAME',type='toggle',default=true,group='GEN 3 / BATTLE'},
+    {key='gen3_cave_lighting',label='CAVE INTERNAL LIGHTING',type='toggle',default=true,group='GEN 3 / BATTLE'},
     {key='gen3_dynamic_lighting',label='DYNAMIC LIGHTING',type='toggle',default=true,group='GEN 3 / BATTLE'},
     {key='gen3_dialogue_size',label='BATTLE MESSAGE SIZE',type='choice',default='medium',group='GEN 3 / BATTLE',choices={{'SMALL (PREVIOUS)','small'},{'MEDIUM','medium'},{'MEDIUM LARGE','medium_large'},{'LARGE','large'}}},
     {key='gen3_command_scale',label='COMMAND MENU SIZE',type='choice',default=1,group='GEN 3 / BATTLE',choices={{'75%',.75},{'100%',1},{'125%',1.25},{'150%',1.5},{'175%',1.75}}},
@@ -145,8 +149,9 @@ return function(mod)
     end
   end
   install()
-  mod.events:on('battle.started',function(e) if R.active() then R.lighting.started(e) end end)
-  mod.events:on('battle.ended',function() R.lighting.ended() end)
+  mod.events:on('battle.started',function(e) if R.active() then R.lighting.started(e);R.ambient.started() end end)
+  mod.events:on('battle.ended',function() R.lighting.ended();R.ambient.ended() end)
+  mod.events:on('battle.move_used',function()R.ambient.trigger()end)
   mod.events:on('game.ready',function(event) install(event and event.game) end)
   mod.hooks:wrap('render.viewport',function(next,ctx)
     local requested=next(ctx)
@@ -158,7 +163,7 @@ return function(mod)
   end,250)
   mod.hooks:wrap('input.step',function(next,game,dt)
     install(game)
-    if R.active() then R.lighting.update(dt);R.battleTouch.update(game,dt) end
+    if R.active() then R.lighting.update(dt);R.ambient.update(dt);R.battleTouch.update(game,dt) end
     return next(game,dt)
   end,250)
   mod.hooks:wrap('input.pointer',function(next,game,event)
