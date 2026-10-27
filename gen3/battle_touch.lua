@@ -201,15 +201,9 @@ return function(R)
   return true
  end
  function T.draw(game,w,h)
+  -- Native fallback controls are restored by T.mode. Do not paint giant A/B
+  -- buttons over party/bag/summary/message content or reserve their hit areas.
   T.footer=nil
-  if not T.direct(game) or R.battle.owns() or R.battle.settingsOpen then return end
-  -- Compact A/B affordances for native submenus, not a virtual joystick.
-  local m=menu();if not m then return end
-  local g=love.graphics;local safe=R.portrait.safe and R.portrait.safe(w,h);local ax,ay,cw,ch=safe and safe.x or 0,safe and safe.y or 0,safe and safe.w or w,safe and safe.h or h;local unit=math.min(cw/480,ch/800);local rh=math.min(ch*.075,64*unit)
-  local rows={{key='a',text='A',x=ax+cw*.12,y=ay+ch-rh-16*unit,w=cw*.34,h=rh},{key='b',text='B',x=ax+cw*.54,y=ay+ch-rh-16*unit,w=cw*.34,h=rh}}
-  g.push('all');g.origin();g.setShader();g.setScissor(0,0,w,h);local size=math.max(14,math.floor(20*unit));if T.fontSize~=size and g.newFont then if T.font and T.font.release then T.font:release()end;T.font=g.newFont(size);T.fontSize=size end;if T.font then g.setFont(T.font)end
-  for _,r in ipairs(rows)do g.setColor(.06,.16,.14,.95);g.rectangle('fill',r.x,r.y,r.w,r.h,8*unit,8*unit);g.setColor(1,1,.87,1);g.setLineWidth(unit);g.rectangle('line',r.x,r.y,r.w,r.h,8*unit,8*unit);g.print(r.text,r.x+r.w*.46,r.y+r.h*.25)end
-  g.pop();T.footer=rows
  end
  function T.shutdown()T.touches={};T.navigation=nil;T.footer=nil;if T.font and T.font.release then T.font:release()end;T.font=nil;T.fontSize=nil end
  return T

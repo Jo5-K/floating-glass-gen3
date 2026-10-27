@@ -6,7 +6,7 @@ return function(R)
  function A.has(scene)return catalog.scenes[scene]~=nil end
  function A.safe(w,h,field)
   local f=field or {x=0,y=0,w=w,h=h};local u=math.min(f.w,f.h)
-  return {x=f.x+(f.w-u)/2,y=f.y,w=u,h=f.h,unit=u}
+  return {x=f.x+(f.w-u)/2,y=f.y,w=u,h=f.h,unit=u,fieldX=f.x,fieldW=f.w}
  end
  local function image(path)
   if A.cache[path]==nil then
@@ -30,12 +30,13 @@ return function(R)
  end
  function A.partLayout(layer,b,safe,side)
   local front=layer=='front';local u=safe.unit
-  -- Occupancy is relative to the visible battle field, including portrait's inset.
-  -- Keep each original group's proportions and move it to the square's edge.
-  -- The wider foreground leaves a small opening instead of an empty middle third.
-  local k=math.min(u*(front and .48 or .44)/b[3],safe.h*(front and .26 or .30)/b[4])
+  -- Rear props stay in the central safe square. Foreground cut edges belong
+  -- to the actual viewport edges, never to the inner square on wide screens.
+  local span=front and (safe.fieldW or u) or u
+  local left=front and (safe.fieldX or safe.x) or safe.x
+  local k=math.min(span*(front and .52 or .36)/b[3],u*(front and .25 or .21)/b[4])
   local width,height=b[3]*k,b[4]*k
-  return {x=safe.x+(side==1 and 0 or u-width),y=safe.y+safe.h*(front and 1 or .55)-height,w=width,h=height,k=k}
+  return {x=left+(side==1 and 0 or span-width),y=safe.y+safe.h*(front and 1 or .51)-height,w=width,h=height,k=k}
  end
  function A.parts(layer,scene,safe)
   local e=catalog.scenes[scene];e=e and e[layer];if not e then return end
@@ -112,7 +113,7 @@ return function(R)
  function A.draw(layer,scene,w,h,field,time)
   if (layer=='animated'and R.option('environment_sprites',true)==false)or (layer~='animated'and(R.option('environment_details',true)==false or not A.has(scene)))then return false end
   local g=love.graphics;local safe=A.safe(w,h,field)
-  g.push('all');g.origin();g.setShader();g.setScissor(safe.x,safe.y,safe.w,safe.h)
+  g.push('all');g.origin();g.setShader();g.setScissor(layer=='front'and safe.fieldX or safe.x,safe.y,layer=='front'and safe.fieldW or safe.w,safe.h)
   local ok,err=pcall(function()if layer=='animated'then A.sprites(scene,safe,time or 0)else A.parts(layer,scene,safe)end end)
   g.pop();if not ok then R.warn('ambient '..layer,err)end
   return true

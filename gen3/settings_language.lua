@@ -2,6 +2,7 @@
 return function(R)
  local languages={
   ["en"]={
+   ["Tema dos menus da batalha"]="Battle menu theme",
    ['Grade Journal (2 × 2)']='Journal grid (2 × 2)',
    ['Escolha o alvo']='Choose a target',['Voltar']='Back',['Ajustes']='Settings',
    ["Animações ambientais"]="Environmental animations",
@@ -130,6 +131,7 @@ return function(R)
    ["Interior"]="Interior",
   },
   ["fr"]={
+   ["Tema dos menus da batalha"]="Thème des menus de combat",
    ['Grade Journal (2 × 2)']='Grille Journal (2 × 2)',
    ['Escolha o alvo']='Choisissez une cible',['Voltar']='Retour',['Ajustes']='Réglages',
    ["Animações ambientais"]="Animations du décor",
@@ -258,6 +260,7 @@ return function(R)
    ["Interior"]="Intérieur",
   },
   ["es"]={
+   ["Tema dos menus da batalha"]="Tema de los menús de combate",
    ['Grade Journal (2 × 2)']='Cuadrícula Journal (2 × 2)',
    ['Escolha o alvo']='Elige un objetivo',['Voltar']='Volver',['Ajustes']='Ajustes',
    ["Animações ambientais"]="Animaciones ambientales",

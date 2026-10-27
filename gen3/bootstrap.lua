@@ -8,7 +8,7 @@ return function(mod)
   local function loadPart(path)
     return assert(load(assert(mod:read(path)),'@floating_glass_frlg/'..path))()
   end
-  local R={mod=mod,version='1.2.18',engine=version,depth=0,patches={},warnings={}}
+  local R={mod=mod,version='1.2.26',engine=version,depth=0,patches={},warnings={}}
   R.load=loadPart
   -- The bare sandbox omits package; Loader's legacy compat supplies only an
   -- isolated, empty package.loaded, never the engine's live module cache.
@@ -103,6 +103,7 @@ return function(mod)
     {key='gen3_foreground',label='FOREGROUND',type='choice',default=.65,group='GEN 3 / SCENERY',choices={{'65%',.65},{'OFF',0},{'100%',1}}},
     {key='gen3_battle_aspect',label='BATTLE ASPECT',type='choice',default='window',group='GEN 3 / BATTLE',choices={{'WINDOW','window'},{'NATIVE 3:2','native'},{'4:3','4:3'},{'16:9','16:9'}}},
     {key='gen3_battle_skin',label='BATTLE COLOR STYLE',type='choice',default='current',group='GEN 3 / BATTLE',choices={{'CURRENT','current'},{'EMERALD GREEN & IVORY','emerald_ivory'},{'CLASSIC COLORS','classic'},{'EMERALD GBA','emerald_gba'},{'CRYSTAL GLASS','crystal_glass'}}},
+    {key='gen3_battle_menu_skin',label='BATTLE MENU THEME',type='choice',default='crystal_glass',group='GEN 3 / BATTLE',choices={{'CRYSTAL GLASS','crystal_glass'},{'EMERALD GREEN & IVORY','emerald_ivory'},{'EMERALD GBA','emerald_gba'}}},
     {key='gen3_settings_language',label='SETTINGS LANGUAGE / IDIOMA',type='choice',default='pt-BR',group='GEN 3 / BATTLE',choices={{'PT-BR','pt-BR'},{'English','en'},{'Français','fr'},{'Español','es'}}},
     {key='gen3_battle_drop',label='LOWER BATTLERS',type='choice',default=8,group='GEN 3 / BATTLE',choices={{'8 PX',8},{'12 PX',12},{'16 PX',16},{'20 PX',20},{'NATIVE',0}}},
     {key='gen3_battle_extend',label='EXTEND NATIVE BATTLE FIELD',type='toggle',default=true,group='GEN 3 / BATTLE',description='Continue native wallpaper under the former GBA command panel; disable if another scenery mod supplies that area.'},
@@ -132,7 +133,7 @@ return function(mod)
   local function install(game)
     if not R.active() then return end
     R.game=game or R.game
-    R.battleTouch.install(R.game);R.art.installLoaded();R.battle.installLoaded();R.scenery.installLoaded();R.framing.installLoaded()
+    R.battleScreens=R.battleScreens or R.load('gen3/battle_screens.lua')(R);R.battleScreens.installLoaded();R.battleTouch.install(R.game);R.art.installLoaded();R.battle.installLoaded();R.scenery.installLoaded();R.framing.installLoaded()
     local Game=R.module('src.core.Game3')
     if Game and not drawWrapped[Game] and type(Game.draw)=='function' then
       drawWrapped[Game]=true
@@ -182,7 +183,7 @@ return function(mod)
   local unloaded=false
   local function unload()
     if unloaded then return end;unloaded=true;R.unloaded=true
-    R.battleTouch.shutdown();R.postLight.shutdown();R.details.shutdown();R.ambient.shutdown();R.lighting.shutdown();R.shadows.shutdown();R.scenery.shutdown();R.portrait.shutdown();if R.battle.shutdown then R.battle.shutdown() end
+    if R.battleScreens then R.battleScreens.shutdown()end;R.battleTouch.shutdown();R.postLight.shutdown();R.details.shutdown();R.ambient.shutdown();R.lighting.shutdown();R.shadows.shutdown();R.scenery.shutdown();R.portrait.shutdown();if R.battle.shutdown then R.battle.shutdown() end
     for i=#R.patches,1,-1 do
       local p=R.patches[i]
       if p[1][p[2]]==p[4] then p[1][p[2]]=p[3] end

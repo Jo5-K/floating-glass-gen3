@@ -24,6 +24,7 @@ return function(R)
   for _,e in ipairs(backgrounds.entries) do backgroundValues[#backgroundValues+1]=e.id;backgroundLabels[#backgroundLabels+1]=e.label end
   local translate=R.load('gen3/settings_language.lua')(R)
   local Target=R.load('gen3/target_menu.lua')(R,Skin,translate)
+  local ChoiceView=R.load('gen3/battle_choice.lua')(R,Skin);B.choiceView=ChoiceView
   local settings={
     {key='battle_layout',label='Layout dos botões',values={'layers','list','commands','journal'},labels={'Cartas em camadas','Lista flutuante','Menu de comandos (Fight)','Grade Journal (2 × 2)'}},
     {key='portrait_layout',label='Layout vertical',default='framed',values={'framed','panorama'},labels={'Campo emoldurado','Campo ampliado'}},
@@ -44,6 +45,7 @@ return function(R)
     {key='shadows',label='Sombras',values={'auto','enemies','both'},labels={'Auto: pela câmera','Inimigos','Ambos'}},
     {key='shadow_anchor',label='Apoio da sombra',values={'feet','knees'},labels={'Pés','Joelhos'}},
     {key='battle_skin',label='Estilo de cores',values={'current','emerald_ivory','classic','emerald_gba','crystal_glass'},labels={'Atual','Emerald Green & Ivory','Clássico colorido','Emerald GBA','Crystal Glass'}},
+    {key='battle_menu_skin',label='Tema dos menus da batalha',values={'crystal_glass','emerald_ivory','emerald_gba'},labels={'Crystal Glass','Emerald Green & Ivory','Emerald GBA'}},
     {key='settings_language',label='Idioma / Language',values={'pt-BR','en','fr','es'},labels={'PT-BR','English','Français','Español'}},
     {key='dynamic_lighting',label='Iluminação dinâmica',default=true,values={true,false},labels={'Ligada','Desligada'}},
     {key='environment_sprites',label='Animações ambientais',default=true,values={true,false},labels={'Ligada','Desligada'}},
@@ -417,12 +419,13 @@ return function(R)
     if not st then return '' end
     return table.concat({tostring(st),tostring(st.turn),tostring(st.player.mon),
       tostring(native._phase),tostring(U._mode),tostring(U._active),tostring(U._target and U._target.cursor),tostring(M and M.open),tostring(M and M._page),
-      tostring(B.settingsOpen),tostring(B.lightingSettingsOpen),tostring(B.lightingSettingsIndex),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('portrait_layout','framed')),tostring(R.option('battle_virtual_pad','auto')),tostring(R.option('battle_settings_button',true)),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),tostring(R.option('dialogue_size','medium')),tostring(R.option('dynamic_lighting',true)),
+      tostring(B.settingsOpen),tostring(B.lightingSettingsOpen),tostring(B.lightingSettingsIndex),tostring(records[st] and records[st].focus),tostring(records[st] and records[st].commandFocus),tostring(R.option('portrait_layout','framed')),tostring(R.option('battle_virtual_pad','auto')),tostring(R.option('battle_settings_button',true)),tostring(R.option('command_scale',1)),tostring(R.option('battle_skin','current')),tostring(R.option('battle_menu_skin','crystal_glass')),tostring(R.option('dialogue_size','medium')),tostring(R.option('dynamic_lighting',true)),
       tostring(R.option('battle_aspect','native')),tostring(R.option('battle_drop',8)),presentation().style,presentation().position,tostring(presentation().opacity),tostring(presentation().scale)},'|')
   end
   function B.openSettings() if not B.settingsDecision() then return false end;B.settingsOpen=true;B.lightingSettingsOpen=false;B.settingsIndex=1;B.drawStamp=nil;return true end
   function B.scrollSettings(delta) if B.settingsOpen then setIndex(math.max(1,math.min(#settingRows(),currentIndex()+delta)));B.drawStamp=nil end end
   function B.pointer(game,x,y,button)
+    if ChoiceView.pointer(game,x,y,button)then return true end
     if B.settingsOpen and B.visualOwns() and not B.owns() then
       if button~=1 then return true end
       local targets=B.settingsTargets
@@ -593,6 +596,8 @@ return function(R)
   end
   function B.draw(game,viewport)
     B.viewport=viewport
+    ChoiceView.observe()
+    if ChoiceView.active()then ChoiceView.draw(viewport.width,viewport.height);B.drawStamp=nil;B.layout=nil;return end
     if not B.owns() then
       B.drawStamp=nil;B.layout=nil
       if not B.settingsDecision() then B.settingsOpen=false end
@@ -824,15 +829,23 @@ return function(R)
         return result
       end)
       for _,key in ipairs({'drawPanel','drawMenuFrames'}) do
-        R.wrap(C,key,function(next,...) if B.scene then B.endSceneTransform();return end;if B.visualScene then B.endSceneTransform() end;return next(...) end)
+        R.wrap(C,key,function(next,...) if B.scene or ChoiceView.active()then B.endSceneTransform();return end;if B.visualScene then B.endSceneTransform() end;return next(...) end)
       end
     end
     if M and not seen[M] then
       seen[M]=true
+      -- Retain a translated battle page before the native close clears it.
+      R.wrap(M,'close',function(next,...)ChoiceView.observe();return next(...)end)
       R.wrap(M,'draw',function(next,...)
-        if M._frame=='battle' and B.owns() then return end
+        ChoiceView.observe()
+        if M._frame=='battle' and (B.owns()or ChoiceView.active()) then return end
         return next(...)
       end)
+    end
+    local Choice=R.module('src.ui.game3.choice')
+    if Choice and not seen[Choice]then
+      seen[Choice]=true
+      R.wrap(Choice,'draw',function(next,...)if ChoiceView.active()then return end;return next(...)end)
     end
     local Game=R.module('src.core.Game3')
     if Game and not seen[Game] then

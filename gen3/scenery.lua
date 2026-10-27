@@ -28,7 +28,10 @@ return function(R)
     end
     return S.cache[p] or nil
   end
-  function S.resolve(game,key,ghost)
+  function S.resolve(game,key,ghost,mapId)
+    if mapId==nil and R.module then
+      local Map=R.module('src.core.game3.map');mapId=Map and Map.current
+    end
     local manual=R.option('camera_background','auto')
     local id=manual~='auto' and entries[manual] and manual
     if not id then
@@ -36,6 +39,15 @@ return function(R)
       id=(ghost and (game=='firered' or game=='leafgreen')) and 'lavender' or family[key] or catalog.common[key]
       -- Wallace is Emerald-only; no supplied Steven/Groudon/Kyogre/Rayquaza artwork.
       if (game=='ruby' or game=='sapphire') and key=='champion' then id=nil end
+      -- Trainer encounters can inherit the path tile (PLAIN) inside a forest.
+      -- Exact map suffixes exclude forest gates, houses and unrelated routes.
+      local map=tostring(mapId or ''):upper()
+      local forest=false
+      local names=(game=='firered' or game=='leafgreen') and {'VIRIDIAN_FOREST','BERRY_FOREST','PATTERN_BUSH'} or {'PETALBURG_WOODS'}
+      for _,name in ipairs(names)do
+        if map==name or map:sub(-#name-1)=='_'..name then forest=true;break end
+      end
+      if forest and key=='plain' and not ghost then id='forest' end
     end
     return id and entries[id]
   end

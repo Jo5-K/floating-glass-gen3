@@ -73,7 +73,7 @@ return function(R)
     for _,side in ipairs(keys) do
       local battler=type(side)=='number' and (side==0 and state.player or side==1 and state.enemy or state.battlers and state.battlers[side]) or state and state[side]
       local mon=battler and battler.mon
-      if A.owners[side]~=mon then A.fixed[side]=nil;A.fixedRest[side]=nil;A.sources[side]=nil;A.layouts[side]=nil;A.owners[side]=mon end
+      if A.owners[side]~=mon then A.fixed[side]=nil;A.fixedRest[side]=nil;A.bounds[side]=nil;A.rest[side]=nil;A.sources[side]=nil;A.layouts[side]=nil;A.owners[side]=mon end
     end
   end
   function A.reproject(plan)
@@ -112,7 +112,7 @@ return function(R)
       local p=spec.pivot
       layout=table.concat({foot[1],foot[2],p[1],p[2],spec.scale or 1},':')
     end
-    if R.camera and R.camera.compat() and (A.sources[side]~=source or A.layouts[side]~=layout) then
+    if A.sources[side]~=source or A.layouts[side]~=layout then
       A.fixed[side]=nil;A.fixedRest[side]=nil
     end
     A.sources[side]=source;A.layouts[side]=layout

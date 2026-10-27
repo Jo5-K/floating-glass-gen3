@@ -11,8 +11,7 @@ return function(R)
   return api
  end
  function X.tag(image)
-  if not(R.camera and R.camera.compat()) then return end
-  if R.battle and R.battle.owns and not R.battle.owns() then return end
+  if not(R.battle and R.battle.owns and R.battle.owns())then return end
   local api=X.hd();if not api then return end
   local ok,spec=pcall(api.tagOf,image)
   if ok and type(spec)=='table' and spec.texture and spec.pivot and spec.lowPivot then return spec end
@@ -49,10 +48,14 @@ return function(R)
   if spec.quad then table.insert(out,1,spec.quad) end
   return spec.texture,out
  end
+ -- Every owned HUD camera uses our final projection, including Native/Original.
+ -- Suspend the provider's automatic refit for this draw only, otherwise its
+ -- compositor can independently enlarge the sprite after our arena was placed.
+ -- Provider tags and species scaling remain unchanged.
  -- Scope camera ownership around Game3.draw, including HD's final compositor.
  -- The public switch is transient; no persistent option or tag is overwritten.
  function X.begin()
-  if not(R.camera and R.camera.compat() and R.battle and R.battle.owns()) then return end
+  if not(R.battle and R.battle.owns and R.battle.owns()) then return end
   local api=X.hd();if not(api and api.fitEnabled and api.setFit) then return end
   local ok,on=pcall(api.fitEnabled);if not ok or not on then return end
   local yes,err=pcall(api.setFit,false)

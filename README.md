@@ -1,31 +1,35 @@
-# Floating Glass Gen3 — beta - 19
+# Floating Glass Gen3 — beta - 20
 
 ## Português
 
-Interface de batalha personalizada para **FireRed, LeafGreen, Ruby, Sapphire e Emerald**.
+Interface de batalha para **FireRed, LeafGreen, Ruby, Sapphire e Emerald**.
 
-- Novo **Crystal Glass**, com vidro claro e detalhes azulados.
-- Novo layout **Grade Journal (2 × 2)**, com quatro golpes e ações ao lado.
-- Interface completa em batalhas duplas, com quatro indicadores de HP e escolha de alvo por controle ou toque.
+- Mochila e outros menus abertos durante a batalha agora seguem o visual do mod, com textos e ícones do jogo e dos mods de tradução.
+- Menus flutuantes sobre o cenário, com transparência, sombra e tema próprio no SELECT. **Crystal Glass** é o padrão.
+- Correções no enquadramento dos detalhes, no fundo de encontros com treinadores em florestas e na confirmação de troca de Pokémon.
+- Removidos os grandes botões A/B que cobriam a interface.
+- Corrigida a coordenação de escala com G9/HD e o posicionamento após trocar de Pokémon.
 
-Em **SELECT**, escolha o layout e o estilo de cores separadamente. O tema também funciona nos layouts verticais existentes. Menu em **PT-BR, inglês, francês e espanhol**.
+Menu em **PT-BR, inglês, francês e espanhol**. Mantém os layouts horizontais e verticais, batalhas duplas e opções de iluminação.
 
 **G1R 0.3.93 ou superior.** Baixe o ZIP da [release](https://github.com/Jo5-K/floating-glass-gen3/releases/latest) e importe pelo gerenciador de mods. “Source code (zip)” também é importável. Atualizações pelo GitHub incluídas.
 
-Compatibilidade observada anteriormente com [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. Verificações desta versão foram simuladas; validação em Android físico pendente.
+Compatibilidade observada com [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) e [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites), sem dependência. Esta versão passou por testes simulados; confirmação visual das correções em Android e no save relatado ainda pendente.
 
 ## English
 
-Custom battle interface for **FireRed, LeafGreen, Ruby, Sapphire and Emerald**.
+Battle interface for **FireRed, LeafGreen, Ruby, Sapphire and Emerald**.
 
-- New **Crystal Glass** color style with pale glass panels and blue accents.
-- New **Journal grid (2 × 2)** layout with four moves and an action column.
-- Full double-battle interface, with four HP panels and controller or touch target selection.
+- The bag and other menus opened during battle now use the mod’s appearance while retaining game text, icons and translation-mod support.
+- Floating menus over the battle scenery, with transparency, shadows and a separate SELECT theme setting. **Crystal Glass** is the default.
+- Fixed environmental detail placement, forest scenery in trainer encounters and the Pokémon switch confirmation.
+- Removed the large A/B buttons covering the interface.
+- Fixed scale coordination with G9/HD and positioning after switching Pokémon.
 
-Under **SELECT**, choose the layout and color style independently. The new theme also works with the existing portrait layouts. Settings support **Brazilian Portuguese, English, French and Spanish**.
+Settings support **Brazilian Portuguese, English, French and Spanish**. Existing landscape and portrait layouts, double battles and lighting options remain available.
 
 **G1R 0.3.93 or newer.** Download the ZIP from the [release](https://github.com/Jo5-K/floating-glass-gen3/releases/latest) and import it through the mod manager. “Source code (zip)” is also importable. GitHub updates included.
 
-Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This version passed simulated checks; physical Android validation remains pending.
+Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This version passed simulated tests; visual confirmation on Android and with the reported save is still pending.
 
 Artwork credits: [third-party notices](THIRD_PARTY_NOTICES.md) and [environmental Gastly source](docs/GASTLY-SOURCE.md).

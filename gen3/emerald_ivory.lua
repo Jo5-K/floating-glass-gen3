@@ -24,7 +24,7 @@ return function()
   local g=love.graphics;r.unit=s
   if S.crystal then
    local radius=math.min(12*s,r.h/2)
-   color(rgb('DBF0FF'),role=='settings' and .96 or .24);g.rectangle('fill',r.x,r.y,r.w,r.h,radius,radius)
+   color(rgb('DBF0FF'),role=='settings' and .96 or role=='auxiliary'and .64 or .24);g.rectangle('fill',r.x,r.y,r.w,r.h,radius,radius)
    -- A clipped-looking inset reflection stays inside the rounded panel.
    color({1,1,1},.18);g.polygon('fill',r.x+r.w*.20,r.y+3*s,r.x+r.w*.36,r.y+3*s,r.x+r.w*.70,r.y+r.h-3*s,r.x+r.w*.54,r.y+r.h-3*s)
    color(rgb('6187AD'),.80);g.setLineWidth(2*s);g.rectangle('line',r.x,r.y,r.w,r.h,radius,radius)
