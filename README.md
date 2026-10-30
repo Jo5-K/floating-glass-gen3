@@ -33,3 +33,10 @@ Settings support **Brazilian Portuguese, English, French and Spanish**. Existing
 Previously observed compatibility with [G9 Battle Sprites](https://github.com/poooooby/g9-battle-sprites-gen3) and [Gen 3 HD Sprites](https://github.com/poooooby/gen3-hd-sprites); neither is required. This version passed simulated tests; visual confirmation on Android and with the reported save is still pending.
 
 Artwork credits: [third-party notices](THIRD_PARTY_NOTICES.md) and [environmental Gastly source](docs/GASTLY-SOURCE.md).
+
+## Independent API 3 mods / Mods independentes API 3
+
+- [2D Battle Menu - Jo5-k](https://github.com/Jo5-K/2d-battle-menu-jo5-k): independent battle UI, API 3 pre-release. Do not enable alongside Floating Glass. / Interface de batalha independente; não ative junto com Floating Glass.
+- [Glass Menu - Jo5-k](https://github.com/Jo5-K/glass-menu-jo5-k): field menu themes only. / Temas apenas para menus fora da batalha.
+
+Release 1.2.26 remains unchanged; documentation refreshed alongside the separate projects. / A versão 1.2.26 mantém o mesmo código; documentação atualizada com os projetos separados.
